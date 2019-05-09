@@ -4,6 +4,7 @@ class Kmers:
         self.filepath = filepath
         self.headers = []
         self.sequences = []
+        self.load()
 
     def load(self):
         with open(self.filepath) as f:
