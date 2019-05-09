@@ -15,12 +15,13 @@ class Kmers:
 
     def _load(self):
         with open(self.filepath) as f:
-            lines = [line.rstrip() for line in f]
+            lines = f.readlines()
         for line in lines:
-            if line.startswith(">"):
-                self.headers.append(line)
+            li = line.rstrip()
+            if li.startswith(">"):
+                self.headers.append(li)
             else:
-                self.sequences.append(line)
+                self.sequences.append(li)
 
     def _end_of_kmers(self) -> bool:
         return (self.pi + self.k) > len(self.sequences[self.li])
