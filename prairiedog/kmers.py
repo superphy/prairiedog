@@ -15,13 +15,17 @@ class Kmers:
 
     def _load(self):
         with open(self.filepath) as f:
-            lines = f.readlines()
+            lines = [line.rstrip() for line in f]
+        # We have to merge multiline sequences
+        seq = ""
         for line in lines:
-            li = line.rstrip()
-            if li.startswith(">"):
-                self.headers.append(li)
+            if line.startswith(">"):
+                if len(seq) != 0:
+                    self.sequences += seq
+                    seq = ""
+                self.headers.append(line)
             else:
-                self.sequences.append(li)
+                self.sequences.append(seq + line)
 
     def _end_of_kmers(self) -> bool:
         return (self.pi + self.k) > len(self.sequences[self.li])

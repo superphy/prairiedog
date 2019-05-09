@@ -50,10 +50,8 @@ def test_kmers_index_end():
     """
     km = example_kmers("tests/ECI-2866_lcl.fasta")
     header, kmer = km.next()
-    for h, k in km.next():
-        if (h, k) == ("", ""):
-            break
-        header, kmer = h, k
+    while km.has_next():
+        header, kmer = km.next()
     assert header == ">lcl|ECI-2866|NODE_22_length_88582_cov_33.0406_ID_43"
     assert kmer == "TACGGATTCTT"
 
@@ -64,9 +62,7 @@ def test_kmers_index_diff():
     km = example_kmers("tests/GCA_900015695.1_ED647_contigs_genomic.fna")
     header, kmer = km.next()
     assert header == ">FAVS01000269.1 Escherichia coli strain ED647 genome assembly, contig: out_269, whole genome shotgun sequence"
-    for h, k in km.next():
-        if h != header:
-            break
-        header, kmer = h, k
+    while km.contig_has_next():
+        header, kmer = km.next()
     assert header == ">FAVS01000269.1 Escherichia coli strain ED647 genome assembly, contig: out_269, whole genome shotgun sequence"
     assert kmer == "TACTGCTACTG"
