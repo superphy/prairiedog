@@ -14,7 +14,7 @@ def example_kmers(f="tests/172.fa"):
     return km
 
 
-def test_kmers_load():
+def test_kmers():
     km = example_kmers()
     assert km.headers[0] == ">gi|1062504329|gb|CP014670.1| Escherichia coli strain CFSAN004177, complete genome"
 
@@ -29,7 +29,7 @@ def test_kmers_next():
     assert kmer == "CGCTTTCGTTC"
 
 
-def test_kmers_index():
+def test_kmers_load():
     km = example_kmers("tests/ECI-2866_lcl.fasta")
     assert len(km.headers) == 297
     assert len(km.sequences) == 297

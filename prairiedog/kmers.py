@@ -20,12 +20,17 @@ class Kmers:
         seq = ""
         for line in lines:
             if line.startswith(">"):
+                # If we're at a new contig append the sequence
                 if len(seq) != 0:
-                    self.sequences += seq
+                    self.sequences.append(seq)
                     seq = ""
+                # Always append the header
                 self.headers.append(line)
             else:
-                self.sequences.append(seq + line)
+                # We're in some part of the sequence, continue to concat it
+                seq += line
+        # Always append the last sequence
+        self.sequences.append(seq)
 
     def _end_of_kmers(self) -> bool:
         return (self.pi + self.k) > len(self.sequences[self.li])
