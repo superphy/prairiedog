@@ -28,8 +28,9 @@ def test_kmers_next():
     assert header == ">gi|1062504329|gb|CP014670.1| Escherichia coli strain CFSAN004177, complete genome"
     assert kmer == "CGCTTTCGTTC"
 
+
 def test_kmers_index():
-    km = example_kmers()
+    km = example_kmers("tests/ECI-2866_lcl.fasta")
     assert len(km.headers) == 297
     assert len(km.sequences) == 297
     assert km.headers[0] == ">lcl|ECI-2866|NODE_177_length_532_cov_12.8938_ID_353"
@@ -42,6 +43,7 @@ def test_kmers_index():
     assert km.sequences[0][n-1] == "C"
     assert km.sequences[0][n-2] == "A"
     assert km.sequences[0][n-3] == "C"
+
 
 def test_kmers_index_end():
     """Checks end case.
@@ -56,3 +58,15 @@ def test_kmers_index_end():
     assert kmer == "TACGGATTCTT"
 
 
+def test_kmers_index_diff():
+    """Checks last of a contig before switching.
+    """
+    km = example_kmers("tests/GCA_900015695.1_ED647_contigs_genomic.fna")
+    header, kmer = km.next()
+    assert header == ">FAVS01000269.1 Escherichia coli strain ED647 genome assembly, contig: out_269, whole genome shotgun sequence"
+    for h, k in km.next():
+        if h != header:
+            break
+        header, kmer = h, k
+    assert header == ">FAVS01000269.1 Escherichia coli strain ED647 genome assembly, contig: out_269, whole genome shotgun sequence"
+    assert kmer == "TACTGCTACTG"
