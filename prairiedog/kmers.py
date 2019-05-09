@@ -14,26 +14,23 @@ class Kmers:
         self._load()
 
     def _load(self):
-        with open(self.filepath) as f:
-            # Note: Don't change this due to performance issues with PyPy
-            lines = [line.rstrip() for line in f.readlines()]
         # We have to merge multiline sequences
         seq = ""
-        print("Starting load...")
-        for line in lines:
-            if line.startswith(">"):
-                # If we're at a new contig append the sequence
-                if len(seq) != 0:
-                    self.sequences.append(seq)
-                    seq = ""
-                # Always append the header
-                self.headers.append(line)
-            else:
-                # We're in some part of the sequence, continue to concat it
-                seq += line
+        with open(self.filepath) as f:
+            for line in f:
+                ln = line.rstrip()
+                if ln.startswith(">"):
+                    # If we're at a new contig append the sequence
+                    if len(seq) != 0:
+                        self.sequences.append(seq)
+                        seq = ""
+                    # Always append the header
+                    self.headers.append(line)
+                else:
+                    # We're in some part of the sequence, continue to concat it
+                    seq += ln
         # Always append the last sequence
         self.sequences.append(seq)
-        print("Done load")
 
     def _end_of_kmers(self) -> bool:
         return (self.pi + self.k) > len(self.sequences[self.li])
