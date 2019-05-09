@@ -17,19 +17,18 @@ class Kmers:
         # We have to merge multiline sequences
         seq = ""
         with open(self.filepath) as f:
-            lines = f.readlines()
-        for line in lines:
-            ln = line.rstrip()
-            if ln.startswith(">"):
-                # If we're at a new contig append the sequence
-                if len(seq) != 0:
-                    self.sequences.append(seq)
-                    seq = ""
-                # Always append the header
-                self.headers.append(ln)
-            else:
-                # We're in some part of the sequence, continue to concat it
-                seq += ln
+            for line in f:
+                ln = line.rstrip()
+                if ln.startswith(">"):
+                    # If we're at a new contig append the sequence
+                    if len(seq) != 0:
+                        self.sequences.append(seq)
+                        seq = ""
+                    # Always append the header
+                    self.headers.append(ln)
+                else:
+                    # We're in some part of the sequence, continue to concat it
+                    seq += ln
         # Always append the last sequence
         self.sequences.append(seq)
 
