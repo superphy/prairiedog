@@ -8,19 +8,13 @@ import pytest
 from prairiedog import kmers
 
 
-@pytest.fixture
-def example_kmers(f="tests/172.fa"):
-    km = kmers.Kmers(f)
-    return km
-
-
 def test_kmers():
-    km = example_kmers()
+    km = kmers.Kmers("tests/172.fa")
     assert km.headers[0] == ">gi|1062504329|gb|CP014670.1| Escherichia coli strain CFSAN004177, complete genome"
 
 
 def test_kmers_next():
-    km = example_kmers()
+    km = kmers.Kmers("tests/172.fa")
     header, kmer = km.next()
     assert header == ">gi|1062504329|gb|CP014670.1| Escherichia coli strain CFSAN004177, complete genome"
     assert kmer == "TCGCTTTCGTT"
@@ -30,7 +24,7 @@ def test_kmers_next():
 
 
 def test_kmers_load():
-    km = example_kmers("tests/ECI-2866_lcl.fasta")
+    km = kmers.Kmers("tests/ECI-2866_lcl.fasta")
     assert len(km.headers) == 297
     assert len(km.sequences) == 297
     assert km.headers[0] == ">lcl|ECI-2866|NODE_177_length_532_cov_12.8938_ID_353"
@@ -48,7 +42,7 @@ def test_kmers_load():
 def test_kmers_index_end():
     """Checks end case.
     """
-    km = example_kmers("tests/ECI-2866_lcl.fasta")
+    km = kmers.Kmers("tests/ECI-2866_lcl.fasta")
     header, kmer = km.next()
     while km.has_next():
         header, kmer = km.next()
@@ -59,7 +53,7 @@ def test_kmers_index_end():
 def test_kmers_index_diff():
     """Checks last of a contig before switching.
     """
-    km = example_kmers("tests/GCA_900015695.1_ED647_contigs_genomic.fna")
+    km = kmers.Kmers("tests/GCA_900015695.1_ED647_contigs_genomic.fna")
     header, kmer = km.next()
     assert header == ">FAVS01000269.1 Escherichia coli strain ED647 genome assembly, contig: out_269, whole genome shotgun sequence"
     while km.contig_has_next():
