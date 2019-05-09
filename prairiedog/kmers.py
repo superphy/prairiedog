@@ -8,7 +8,7 @@ class Kmers:
 
     def load(self):
         with open(self.filepath) as f:
-            lines = f.readlines()
+            lines = f.read().splitlines()
         for line in lines:
             if line.startswith(">"):
                 self.headers.append(line)
