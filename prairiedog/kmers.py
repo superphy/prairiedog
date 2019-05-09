@@ -57,7 +57,7 @@ class Kmers:
 
         # Header + kmer
         header = self.headers[self.li]
-        sl = self.sequences[self.li].substring[self.pi: self.pi + self.k]
+        sl = self.sequences[self.li][self.pi: self.pi + self.k]
 
         # Increment
         self.pi += 1
