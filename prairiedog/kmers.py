@@ -1,5 +1,6 @@
 class Kmers:
-    # TODO: This really should all be read from a buffer instead of directly into memory
+    # TODO: This really should all be read from a buffer instead of directly
+    #  into memory
     def __init__(self, filepath):
         self.filepath = filepath
         self.headers = []
