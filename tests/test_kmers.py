@@ -42,3 +42,17 @@ def test_kmers_index():
     assert km.sequences[0][n-1] == "C"
     assert km.sequences[0][n-2] == "A"
     assert km.sequences[0][n-3] == "C"
+
+def test_kmers_index_end():
+    """Checks end case.
+    """
+    km = example_kmers("tests/ECI-2866_lcl.fasta")
+    header, kmer = km.next()
+    for h, k in km.next():
+        if (h, k) == ("", ""):
+            break
+        header, kmer = h, k
+    assert header == ">lcl|ECI-2866|NODE_22_length_88582_cov_33.0406_ID_43"
+    assert kmer == "TACGGATTCTT"
+
+
