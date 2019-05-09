@@ -25,7 +25,7 @@ class Kmers:
                         self.sequences.append(seq)
                         seq = ""
                     # Always append the header
-                    self.headers.append(line)
+                    self.headers.append(ln)
                 else:
                     # We're in some part of the sequence, continue to concat it
                     seq += ln
