@@ -17,7 +17,7 @@ class Kmers:
         # We have to merge multiline sequences
         seq = ""
         with open(self.filepath) as f:
-            lines = f.read().splitlines()
+            lines = f.readlines()
         for line in lines:
             ln = line.rstrip()
             if ln.startswith(">"):
