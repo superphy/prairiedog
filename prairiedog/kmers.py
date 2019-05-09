@@ -18,6 +18,7 @@ class Kmers:
             lines = [line.rstrip() for line in f]
         # We have to merge multiline sequences
         seq = ""
+        print("Starting load...")
         for line in lines:
             if line.startswith(">"):
                 # If we're at a new contig append the sequence
@@ -31,6 +32,7 @@ class Kmers:
                 seq += line
         # Always append the last sequence
         self.sequences.append(seq)
+        print("Done load")
 
     def _end_of_kmers(self) -> bool:
         return (self.pi + self.k) > len(self.sequences[self.li])
