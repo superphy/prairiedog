@@ -15,9 +15,8 @@ class Kmers:
 
     def _load(self):
         with open(self.filepath) as f:
-            # Note: You might be tempted to the a list comprehension here, but
-            # that slows down PyPy a lot.
-            lines = f.read().splitlines()
+            # Note: Don't change this due to performance issues with PyPy
+            lines = [line.rstrip() for line in f.readlines()]
         # We have to merge multiline sequences
         seq = ""
         print("Starting load...")
