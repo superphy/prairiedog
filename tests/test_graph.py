@@ -6,13 +6,6 @@
 import pytest
 
 from prairiedog.graph import Graph
-from prairiedog.networkx_graph import NetworkXGraph
-
-# TODO: use params to test against multiple backing stores
-@pytest.fixture(scope="function", params=["networkx"])
-def g(request):
-    if request.param == "networkx":
-        return NetworkXGraph()
 
 
 def test_graph_basics(g: Graph):
