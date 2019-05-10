@@ -3,7 +3,7 @@ import networkx as nx
 import prairiedog.graph
 
 
-class NetworkXGraph(prairiedog.graph):
+class NetworkXGraph(prairiedog.graph.Graph):
     def __init__(self):
         self.g = nx.Graph()
 
