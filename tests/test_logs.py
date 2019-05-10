@@ -17,7 +17,7 @@ def test_logs():
     expected = "DEBUG - {}".format(msg)
     log.debug(msg)
     found = False
-    with open("prairiedog.log") as f:
+    with open("../prairiedog.log") as f:
         for line in [l.rstrip() for l in f.readlines()]:
             if expected in line:
                 found = True
