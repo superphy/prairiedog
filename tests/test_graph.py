@@ -27,14 +27,21 @@ def test_graph_basics(g: Graph):
     assert g.nodes == set(expected)
 
     g.add_edge(expected[0], expected[1])
-    assert g.edges == {expected[0], expected[1]}
+    g.add_edge(expected[1], expected[2])
+    assert g.edges == {
+        (expected[0], expected[1]),
+        (expected[1], expected[2])
+    }
+
 
 def test_graph_labels(g: Graph):
     expected = {
         "ABC": {"species": "dog"},
         "BCE": {"species": "cat"}
     }
-    for k, v in expected:
+    for k, v in expected.items():
         g.upsert_node(k, **v)
     assert g.nodes == {expected.keys()}
 
+    for k, v in expected.items():
+        assert g.get_labels(k) == v
