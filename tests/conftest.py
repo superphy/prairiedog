@@ -4,12 +4,19 @@ from prairiedog import kmers
 from prairiedog.networkx_graph import NetworkXGraph
 from prairiedog.kmer_graph import KmerGraph
 
-
-@pytest.fixture(scope="function", params=[
+GENOME_FILES = [
     "tests/172.fa",
     "tests/ECI-2866_lcl.fasta",
     "tests/GCA_900015695.1_ED647_contigs_genomic.fna"
-])
+]
+
+
+@pytest.fixture
+def genome_files():
+    return GENOME_FILES
+
+
+@pytest.fixture(scope="function", params=GENOME_FILES)
 def km(request):
     return kmers.Kmers(request.param)
 
@@ -19,7 +26,3 @@ def g(request):
     if request.param == "networkx":
         return NetworkXGraph()
 
-
-@pytest.fixture
-def kmg(km, g):
-    return KmerGraph(km, g)
