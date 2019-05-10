@@ -73,3 +73,4 @@ class Kmers:
         self.pi += 1
 
         return header, sl
+      
