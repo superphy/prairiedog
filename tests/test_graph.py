@@ -13,7 +13,7 @@ log = logging.getLogger('prairiedog')
 
 
 # TODO: use params to test against multiple backing stores
-@pytest.fixture(scope="module", params=["networkx"])
+@pytest.fixture(scope="function", params=["networkx"])
 def g(request):
     if request.param == "networkx":
         return NetworkXGraph()
