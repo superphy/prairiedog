@@ -6,8 +6,8 @@
 import pytest
 import logging
 
-import prairiedog.graph
-import prairiedog.networkx_graph
+from prairiedog.graph import Graph
+from prairiedog.networkx_graph import NetworkXGraph
 
 log = logging.getLogger('prairiedog')
 
@@ -15,12 +15,12 @@ log = logging.getLogger('prairiedog')
 @pytest.fixture(scope="module", params=["networkx"])
 def g(backing_store):
     if backing_store.param == "networkx":
-        return prairiedog.networkx_graph.NetworkXGraph()
+        return NetworkXGraph()
 
 
-def test_graph_basics(g: prairiedog.graph.Graph):
+def test_graph_basics(g: Graph):
     expected = ["ABC", "BCE", "CEF"]
     for node in expected:
-        g.upsert_node(expected)
+        g.upsert_node(node)
     assert g.nodes == expected
 
