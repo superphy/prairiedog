@@ -4,7 +4,6 @@
 """Tests for `prairiedog` package."""
 
 import pytest
-import os
 
 import logging
 
@@ -18,10 +17,10 @@ def test_logs():
     expected = "DEBUG - {}".format(msg)
     log.debug(msg)
     found = False
-    items = os.listdir(".")
-    print(items)
-    with open("../prairiedog.log") as f:
-        for line in [l.rstrip() for l in f.readlines()]:
+    with open("prairiedog.log") as f:
+        lines = [l.rstrip() for l in f.readlines()]
+        print(lines)
+        for line in lines:
             if expected in line:
                 found = True
                 break
