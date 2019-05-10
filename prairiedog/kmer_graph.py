@@ -18,10 +18,7 @@ class KmerGraph:
         self._load()
 
     def _load(self):
-        """
-        Was averaging 99 to 133s for 3 genome files without the pool.
-        :return:
-        """
+        c = 0
         st = time.time()
         with ProcessPoolExecutor() as pool:
             kmer_futures = [pool.submit(Kmers, f) for f in self.km_list]
@@ -35,7 +32,12 @@ class KmerGraph:
                         kmer,
                         {'src': header}
                     )
+                    c += 1
         en = time.time()
-        log.debug("KmerGraph took {}s to load {} genome files.".format(
-            en-st, len(self.km_list)
-        ))
+        log.info(
+            "KmerGraph took {}s to load {} files totaling {} kmers.".format(
+                en-st, len(self.km_list), c
+            ))
+        log.info("This amounts to {}s/file or {}kmers/s.".format(
+            (en-st)/len(self.km_list), c/(en-st)
+            ))
