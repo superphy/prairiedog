@@ -7,10 +7,10 @@ class NetworkXGraph(prairiedog.graph.Graph):
     def __init__(self):
         self.g = nx.DiGraph()
 
-    def upsert_node(self, node):
-        self.g.add_node(node)
+    def upsert_node(self, node: str, **kwargs):
+        self.g.add_node(node, **kwargs)
 
-    def add_edge(self, node_a, node_b):
+    def add_edge(self, node_a: str, node_b: str):
         self.g.add_edge(node_a, node_b)
 
     def clear(self):
@@ -22,4 +22,7 @@ class NetworkXGraph(prairiedog.graph.Graph):
 
     @property
     def edges(self) -> set:
-        return set(self.edges)
+        return set(self.g.edges)
+
+    def get_labels(self, node: str) -> dict:
+        return self.g[node]
