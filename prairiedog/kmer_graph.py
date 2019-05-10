@@ -35,9 +35,9 @@ class KmerGraph:
                     c += 1
         en = time.time()
         log.info(
-            "KmerGraph took {}s to load {} files totaling {} kmers.".format(
+            "KmerGraph took {} s to load {} files totaling {} kmers.".format(
                 en-st, len(self.km_list), c
             ))
-        log.info("This amounts to {}s/file or {}kmers/s.".format(
+        log.info("This amounts to {} s/file or {} kmers/s.".format(
             (en-st)/len(self.km_list), c/(en-st)
             ))
