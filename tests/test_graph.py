@@ -41,7 +41,7 @@ def test_graph_labels(g: Graph):
     }
     for k, v in expected.items():
         g.upsert_node(k, **v)
-    assert g.nodes == {expected.keys()}
+    assert g.nodes == set(expected.keys())
 
     for k, v in expected.items():
         assert g.get_labels(k) == v
