@@ -19,5 +19,5 @@ class Graph(metaclass=abc.ABCMeta):
 
     @property
     @abc.abstractmethod
-    def nodes(self):
+    def nodes(self) -> list:
         pass

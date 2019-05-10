@@ -17,5 +17,5 @@ class NetworkXGraph(prairiedog.graph.Graph):
         self.g.clear()
 
     @property
-    def nodes(self):
-        return self.nodes()
+    def nodes(self) -> list:
+        return list(self.g.nodes)
