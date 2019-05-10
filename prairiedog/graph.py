@@ -1,7 +1,4 @@
 import abc
-import logging
-
-log = logging.getLogger(__name__)
 
 
 class Graph(metaclass=abc.ABCMeta):

@@ -4,13 +4,9 @@
 """Tests for `prairiedog` package."""
 
 import pytest
-import logging
 
 from prairiedog.graph import Graph
 from prairiedog.networkx_graph import NetworkXGraph
-
-log = logging.getLogger('prairiedog')
-
 
 # TODO: use params to test against multiple backing stores
 @pytest.fixture(scope="function", params=["networkx"])
