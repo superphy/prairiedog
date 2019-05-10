@@ -8,11 +8,11 @@ class Graph(metaclass=abc.ABCMeta):
     """We expect this to be a directed graph.
     """
     @abc.abstractmethod
-    def upsert_node(self, node: str, **kwargs):
+    def upsert_node(self, node: str, labels: dict = None):
         """
         Upsert nodes with labels.
         :param node:
-        :param kwargs:
+        :param labels:
         :return:
         """
         pass
