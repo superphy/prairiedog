@@ -10,7 +10,7 @@ class Graph(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def link(self, node_a, node_b):
+    def add_edge(self, node_a, node_b):
         pass
 
     @abc.abstractmethod
@@ -19,5 +19,10 @@ class Graph(metaclass=abc.ABCMeta):
 
     @property
     @abc.abstractmethod
-    def nodes(self) -> list:
+    def nodes(self) -> set:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def edges(self) -> set:
         pass
