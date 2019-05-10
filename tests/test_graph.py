@@ -19,7 +19,7 @@ def g(request):
 
 
 def test_graph_basics(g: Graph):
-    expected = ("ABC", "BCE", "CEF")
+    expected = {"ABC", "BCE", "CEF"}
     for node in expected:
         g.upsert_node(node)
     # It's okay if the backing store changes the order.
