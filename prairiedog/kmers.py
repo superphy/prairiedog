@@ -1,3 +1,8 @@
+import logging
+
+log = logging.getLogger(__name__)
+
+
 class Kmers:
     # TODO: This really should all be read from a buffer instead of directly
     #  into memory
@@ -35,6 +40,7 @@ class Kmers:
     def _end_of_kmers(self) -> bool:
         return (self.pi + self.k) > len(self.sequences[self.li])
 
+    @property
     def has_next(self) -> bool:
         """Returns true if the source file still has kmers.
         """
@@ -42,6 +48,7 @@ class Kmers:
         is_end_kmers = self._end_of_kmers()
         return not (is_last_sequence & is_end_kmers)
 
+    @property
     def contig_has_next(self) -> bool:
         """Returns true if the current contig in a source file still has kmers.
         """
@@ -51,17 +58,19 @@ class Kmers:
         """Emits the next kmer.
         """
         # Done.
-        if not self.has_next():
+        if not self.has_next:
             return "", ""
 
         # Move to next sequence.
-        if not self.contig_has_next():
+        if not self.contig_has_next:
             self.li += 1
             self.pi = 0
 
         # K is greater than the size of the contig.
         if self.k > len(self.sequences[self.li]) - 1:
-            # TODO: warn
+            log.warning(
+                "Contig {} was shorter than K of {}, skipping...".format(
+                    self.headers[self.li], self.k))
             self.li += 1
             self.pi = 0
 
