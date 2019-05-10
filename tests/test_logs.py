@@ -14,7 +14,7 @@ def test_logs():
     """Checks that logs are being recorded correctly.
     """
     msg = "Test"
-    expected = {"DEBUG - {}".format(msg)}
+    expected = "DEBUG - {}".format(msg)
     log.debug(msg)
     found = False
     with open("prairiedog.log") as f:
