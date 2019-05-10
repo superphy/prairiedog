@@ -25,4 +25,4 @@ class NetworkXGraph(prairiedog.graph.Graph):
         return set(self.g.edges)
 
     def get_labels(self, node: str) -> dict:
-        return self.g[node]
+        return dict(self.g[node])

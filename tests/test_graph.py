@@ -40,6 +40,7 @@ def test_graph_labels(g: Graph):
         "BCE": {"species": "cat"}
     }
     for k, v in expected.items():
+        print(**v)
         g.upsert_node(k, **v)
     assert g.nodes == set(expected.keys())
 
