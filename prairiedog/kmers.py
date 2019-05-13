@@ -18,6 +18,11 @@ class Kmers:
         # Load
         self._load()
 
+    def __str__(self):
+        return "Kmers for file {} with {} contigs and K size {}".format(
+            self.filepath, len(self.headers), self.k
+        )
+
     def _load(self):
         # We have to merge multiline sequences
         seq = ""
