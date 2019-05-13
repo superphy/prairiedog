@@ -48,6 +48,7 @@ class KmerGraph:
                 # Set Kmer2 to Kmer1
                 header1, kmer1 = header2, kmer2
                 c += 1
+            log.debug("Done processing contig {}".format(header1))
             # At this point, we're out of kmers on that contig
             # The loop will check if there's still kmers, and reset kmer1
         en = time.time()
