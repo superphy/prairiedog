@@ -1,20 +1,24 @@
 import pytest
+import logging
 
 from prairiedog.kmer_graph import KmerGraph
 
+log = logging.getLogger("prairiedog")
 
-def test_kmer_graph_basic(genome_files, g):
+
+def test_kmer_graph_basic(g):
     """Simple check to see if we can load all the genomes.
     """
-    kmg = KmerGraph(genome_files, g)
+    kmg = KmerGraph(["tests/GCA_900015695.1_ED647_contigs_genomic_SHORTENED.fna"], g)
     assert isinstance(kmg, KmerGraph)
 
 
 def test_kmer_graph_benchmark(genome_files, g, memory_profiler):
-    @memory_profiler.profile
     def profile():
         kmg = KmerGraph(genome_files, g)
         assert isinstance(kmg, KmerGraph)
+    mem_usage = memory_profiler.memory_usage(profile)
+    log.info("Memory usage was: {}".format(max(mem_usage)))
 
 
 def test_kmer_graph_creation(g):
