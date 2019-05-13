@@ -23,7 +23,7 @@ class KmerGraph:
         self._load()
 
     def _create_graph(self, km: Kmers) -> int:
-        log.info("Starting to process {}".format(km))
+        log.info("Starting to graph {}".format(km))
         st = time.time()
         c = 0
         while km.has_next:
@@ -50,7 +50,7 @@ class KmerGraph:
             # At this point, we're out of kmers on that contig
             # The loop will check if there's still kmers, and reset kmer1
         en = time.time()
-        log.info("Done processing {}, covering {} kmers in {} s".format(
+        log.info("Done graphing {}, covering {} kmers in {} s".format(
             km, c, en-st))
         return c
 
