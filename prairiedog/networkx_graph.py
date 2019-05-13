@@ -33,4 +33,5 @@ class NetworkXGraph(prairiedog.graph.Graph):
         return dict(self.g.nodes[node])
 
     def __str__(self):
-        return "NetworkXGraph currently using {} MB".format(sys.getsizeof(self))
+        return "NetworkXGraph currently using {} MB".format(
+            sys.getsizeof(self)/1000000)
