@@ -23,6 +23,8 @@ class KmerGraph:
         self._load()
 
     def _create_graph(self, km: Kmers) -> int:
+        log.info("Starting to process {}".format(km))
+        st = time.time()
         c = 0
         while km.has_next:
             header1, kmer1 = km.next()
@@ -47,6 +49,9 @@ class KmerGraph:
                 c += 1
             # At this point, we're out of kmers on that contig
             # The loop will check if there's still kmers, and reset kmer1
+        en = time.time()
+        log.info("Done processing {}, covering {} kmers in {} s".format(
+            km, c, en-st))
         return c
 
     def _load(self):
@@ -65,7 +70,6 @@ class KmerGraph:
             for future in as_completed(kmer_futures):
                 # Get the Kmer instance from the result
                 km = future.result()
-                log.info("Starting to process {}".format(km))
                 # Graph it
                 c = self._create_graph(km)
         en = time.time()
