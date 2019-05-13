@@ -26,3 +26,13 @@ def g(request):
     if request.param == "networkx":
         return NetworkXGraph()
 
+
+@pytest.fixture
+def mem_profile():
+    """
+    Helper function to run a pytest if the memory_profiler PyPI package is
+    installed.
+    :return:
+    """
+    memory_profiler = pytest.importorskip("memory_profiler")
+    return memory_profiler

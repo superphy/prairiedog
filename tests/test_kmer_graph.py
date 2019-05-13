@@ -10,6 +10,13 @@ def test_kmer_graph_basic(genome_files, g):
     assert isinstance(kmg, KmerGraph)
 
 
+def test_kmer_graph_benchmark(genome_files, g, memory_profiler):
+    @memory_profiler.profile
+    def profile():
+        kmg = KmerGraph(genome_files, g)
+        assert isinstance(kmg, KmerGraph)
+
+
 def test_kmer_graph_creation(g):
     # Create the graph from a shortened file for testing
     kmg = KmerGraph(
