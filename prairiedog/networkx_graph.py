@@ -1,3 +1,5 @@
+import sys
+
 import networkx as nx
 
 import prairiedog.graph
@@ -29,3 +31,6 @@ class NetworkXGraph(prairiedog.graph.Graph):
 
     def get_labels(self, node: str) -> dict:
         return dict(self.g.nodes[node])
+
+    def __str__(self):
+        return "NetworkXGraph currently using {} MB".format(sys.getsizeof(self))

@@ -25,6 +25,7 @@ class KmerGraph:
 
     def _create_graph(self, km: Kmers) -> int:
         log.info("Starting to graph {} in pid {}".format(km, os.getpid()))
+        log.debug("Current status: {}".format(self.graph))
         st = time.time()
         c = 0
         while km.has_next:
@@ -48,12 +49,13 @@ class KmerGraph:
                 # Set Kmer2 to Kmer1
                 header1, kmer1 = header2, kmer2
                 c += 1
-            log.debug("Done processing contig {}".format(header1))
+            # log.debug("Done processing contig {}".format(header1))
             # At this point, we're out of kmers on that contig
             # The loop will check if there's still kmers, and reset kmer1
         en = time.time()
         log.info("Done graphing {}, covering {} kmers in {} s".format(
             km, c, en-st))
+        log.debug("Current status: {}".format(self.graph))
         return c
 
     def _load(self):
