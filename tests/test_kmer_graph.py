@@ -13,12 +13,12 @@ def test_kmer_graph_basic(g):
     assert isinstance(kmg, KmerGraph)
 
 
-def test_kmer_graph_benchmark(genome_files, g, memory_profiler):
+def test_kmer_graph_benchmark(all_genome_files, g, memory_profiler):
     def profile():
-        kmg = KmerGraph(genome_files, g)
+        kmg = KmerGraph(all_genome_files, g)
         assert isinstance(kmg, KmerGraph)
     mem_usage = memory_profiler.memory_usage(profile)
-    log.info("Memory usage was: {}".format(max(mem_usage)))
+    log.info("Memory usage was: {} MB".format(max(mem_usage)))
 
 
 def test_kmer_graph_creation(g):

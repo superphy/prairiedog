@@ -1,3 +1,5 @@
+import os
+
 import pytest
 
 from prairiedog import kmers
@@ -14,6 +16,14 @@ GENOME_FILES = [
 @pytest.fixture
 def genome_files():
     return GENOME_FILES
+
+
+@pytest.fixture(params=[.25, .5, .75, 1])
+def all_genome_files(request):
+    files = [f for f in os.listdir('tests/')
+             if f.endswith(('.fna', '.fasta', '.fa'))]
+    n = len(files) * request.param
+    return files[: n]
 
 
 @pytest.fixture(scope="function", params=GENOME_FILES)
