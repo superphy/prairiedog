@@ -25,7 +25,6 @@ class KmerGraph:
 
     def _create_graph(self, km: Kmers) -> int:
         log.info("Starting to graph {} in pid {}".format(km, os.getpid()))
-        log.debug("Current status: {}".format(self.graph))
         st = time.time()
         c = 0
         while km.has_next:
@@ -55,7 +54,6 @@ class KmerGraph:
         en = time.time()
         log.info("Done graphing {}, covering {} kmers in {} s".format(
             km, c, en-st))
-        log.debug("Current status: {}".format(self.graph))
         return c
 
     def _load(self):
