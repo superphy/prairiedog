@@ -1,5 +1,6 @@
 import time
 import logging
+import os
 
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
@@ -23,7 +24,7 @@ class KmerGraph:
         self._load()
 
     def _create_graph(self, km: Kmers) -> int:
-        log.info("Starting to graph {}".format(km))
+        log.info("Starting to graph {} in pid {}".format(km, os.getpid()))
         st = time.time()
         c = 0
         while km.has_next:
@@ -56,7 +57,7 @@ class KmerGraph:
 
     def _load(self):
         st = time.time()
-        log.info("Starting to create KmerGraph")
+        log.info("Starting to create KmerGraph in pid {}".format(os.getpid()))
         with ProcessPoolExecutor() as pool:
             # Use the supplied K if given, otherwise default for Kmers class
             if self.k:
