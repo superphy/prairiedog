@@ -28,7 +28,7 @@ def g(request):
 
 
 @pytest.fixture
-def mem_profile():
+def memory_profiler():
     """
     Helper function to run a pytest if the memory_profiler PyPI package is
     installed.
