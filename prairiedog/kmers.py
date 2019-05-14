@@ -28,7 +28,7 @@ class Kmers:
     def _load(self):
         # We have to merge multiline sequences
         seq = ""
-        log.info(
+        log.debug(
             "Parsing Kmers for file {} with K size {} in pid {}".format(
                 self.filepath, self.k, os.getpid()
             ))
@@ -49,7 +49,7 @@ class Kmers:
         # Always append the last sequence
         self.sequences.append(seq)
         en = time.time()
-        log.info("Done creating {} in {} s".format(self, en - st))
+        log.debug("Done creating {} in {} s".format(self, en - st))
 
     def _end_of_kmers(self) -> bool:
         return (self.pi + self.k) > len(self.sequences[self.li])
@@ -83,8 +83,9 @@ class Kmers:
         # K is greater than the size of the contig.
         if self.k > len(self.sequences[self.li]) - 1:
             log.warning(
-                "Contig {} was shorter than K of {}, skipping...".format(
-                    self.headers[self.li], self.k))
+                "Contig {} in file {} was shorter than K of {},"
+                " skipping...".format(
+                    self.headers[self.li], self.filepath, self.k))
             self.li += 1
             self.pi = 0
 
