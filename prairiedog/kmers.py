@@ -1,4 +1,6 @@
 import logging
+import time
+import os
 
 log = logging.getLogger("prairiedog")
 
@@ -18,9 +20,19 @@ class Kmers:
         # Load
         self._load()
 
+    def __str__(self):
+        return "Kmers for file {} with {} contigs and K size {}".format(
+            self.filepath, len(self.headers), self.k
+        )
+
     def _load(self):
         # We have to merge multiline sequences
         seq = ""
+        log.info(
+            "Parsing Kmers for file {} with K size {} in pid {}".format(
+                self.filepath, self.k, os.getpid()
+            ))
+        st = time.time()
         with open(self.filepath) as f:
             for line in f:
                 ln = line.rstrip()
@@ -36,6 +48,8 @@ class Kmers:
                     seq += ln
         # Always append the last sequence
         self.sequences.append(seq)
+        en = time.time()
+        log.info("Done creating {} in {} s".format(self, en - st))
 
     def _end_of_kmers(self) -> bool:
         return (self.pi + self.k) > len(self.sequences[self.li])
