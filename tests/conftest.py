@@ -1,4 +1,5 @@
 import os
+import math
 
 import pytest
 
@@ -22,8 +23,8 @@ def genome_files():
 def all_genome_files(request):
     files = ['samples/' + f for f in os.listdir('samples/')
              if f.endswith(('.fna', '.fasta', '.fa'))]
-    # Round down to nearest int
-    n = int(len(files) * request.param)
+    # Round up to nearest int
+    n = math.ceil(len(files) * request.param)
     return files[: n]
 
 

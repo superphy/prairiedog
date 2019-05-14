@@ -13,7 +13,7 @@ def test_kmer_graph_basic(g):
     assert isinstance(kmg, KmerGraph)
 
 
-def test_kmer_graph_benchmark(all_genome_files, g, memory_profiler):
+def test_kmer_graph_benchmark(memory_profiler, all_genome_files, g):
     log.info("Benchmarking with {} genome files".format(len(all_genome_files)))
 
     def profile():
