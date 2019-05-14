@@ -24,7 +24,7 @@ class KmerGraph:
         self._load()
 
     def _create_graph(self, km: Kmers) -> int:
-        log.info("Starting to graph {} in pid {}".format(km, os.getpid()))
+        log.debug("Starting to graph {} in pid {}".format(km, os.getpid()))
         st = time.time()
         c = 0
         while km.has_next:
@@ -52,12 +52,13 @@ class KmerGraph:
             # At this point, we're out of kmers on that contig
             # The loop will check if there's still kmers, and reset kmer1
         en = time.time()
-        log.info("Done graphing {}, covering {} kmers in {} s".format(
+        log.debug("Done graphing {}, covering {} kmers in {} s".format(
             km, c, en-st))
         return c
 
     def _load(self):
         st = time.time()
+        files_graphed = 0
         log.info("Starting to create KmerGraph in pid {}".format(os.getpid()))
         with ProcessPoolExecutor() as pool:
             # Use the supplied K if given, otherwise default for Kmers class
@@ -73,6 +74,9 @@ class KmerGraph:
                 # Get the Kmer instance from the result
                 km = future.result()
                 # Graph it
+                files_graphed += 1
+                log.info("{} / {}, graphing {}".format(
+                    files_graphed, len(self.km_list), km))
                 c = self._create_graph(km)
         en = time.time()
         log.info(

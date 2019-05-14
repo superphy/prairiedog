@@ -22,7 +22,8 @@ def genome_files():
 def all_genome_files(request):
     files = ['samples/' + f for f in os.listdir('samples/')
              if f.endswith(('.fna', '.fasta', '.fa'))]
-    n = len(files) * request.param
+    # Round down to nearest int
+    n = int(len(files) * request.param)
     return files[: n]
 
 
