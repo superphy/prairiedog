@@ -23,7 +23,7 @@ def genome_files():
     return GENOME_FILES
 
 
-@pytest.fixture(params=[0.01, .25, .5, .75, 1])
+@pytest.fixture(params=[0.001, .25, .5, .75, 1])
 def all_genome_files(request):
     def _files(directory: str = 'samples/'):
         fls = [directory + f for f in os.listdir(directory)
