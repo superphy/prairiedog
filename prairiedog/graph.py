@@ -35,3 +35,7 @@ class Graph(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def get_labels(self, node: str) -> dict:
         pass
+
+    @abc.abstractmethod
+    def save(self, f: str):
+        pass

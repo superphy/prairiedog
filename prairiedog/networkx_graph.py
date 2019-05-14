@@ -1,6 +1,10 @@
+import logging
+
 import networkx as nx
 
 import prairiedog.graph
+
+log = logging.getLogger("prairiedog")
 
 
 class NetworkXGraph(prairiedog.graph.Graph):
@@ -29,3 +33,8 @@ class NetworkXGraph(prairiedog.graph.Graph):
 
     def get_labels(self, node: str) -> dict:
         return dict(self.g.nodes[node])
+
+    def save(self, f):
+        log.info("Writing graphs out with prefix {}".format(f))
+        nx.write_multiline_adjlist(self.g, f + '_multiline_adjlist.txt')
+        nx.write_edgelist(self.g, f + '_edgelist.txt')
