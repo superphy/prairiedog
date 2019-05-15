@@ -59,6 +59,7 @@ class KmerGraph:
     def _load(self):
         st = time.time()
         files_graphed = 0
+        c = 0
         log.info("Starting to create KmerGraph in pid {}".format(os.getpid()))
         with ProcessPoolExecutor() as pool:
             # Use the supplied K if given, otherwise default for Kmers class
@@ -77,7 +78,7 @@ class KmerGraph:
                 files_graphed += 1
                 log.info("{} / {}, graphing {}".format(
                     files_graphed, len(self.km_list), km))
-                c = self._create_graph(km)
+                c += self._create_graph(km)
         en = time.time()
         log.info(
             "KmerGraph took {} s to load {} files totaling {} kmers".format(
