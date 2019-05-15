@@ -1,6 +1,8 @@
 import time
 import logging
 import os
+import pathlib
+import datetime
 
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
@@ -8,6 +10,89 @@ from prairiedog.kmers import Kmers
 from prairiedog.graph import Graph
 
 log = logging.getLogger("prairiedog")
+
+
+class GraphRef:
+    """
+    Helper class to track node ints, etc.
+    """
+    def __init__(self):
+        self.kmer_count = 0
+        # Reference for all files encountered
+        self.file_map = {}
+        self.mic_map = {}
+        self.kmer_map = {}
+        self._setup_folders()
+        pf = '{date:%Y-%m-%d_%H-%M-%S}'.format(date=datetime.datetime.now())
+        self.output_folder = '/output/{}'.format(pf)
+        # Output files
+        self.graph_indicator = os.path.join(
+            self.output_folder, 'KMERS_graph_indicator.txt')
+        self.graph_labels = os.path.join(
+            self.output_folder, 'KMERS_graph_labels.txt')
+        self.node_labels = os.path.join(
+            self.output_folder, 'KMERS_node_labels.txt')
+        self.node_attributes = os.path.join(
+            self.output_folder, 'KMERS_node_attributes.txt')
+        # For user reference, not used in models
+        self.file_mapping = os.path.join(
+            self.output_folder, 'KMERS_file_mapping.txt')
+        self.mic_mapping = os.path.join(
+            self.output_folder, 'KMERS_mic_mapping.txt')
+        self.kmer_mapping = os.path.join(
+            self.output_folder, 'KMERS_kmer_mapping.txt')
+
+    def __iadd__(self, other: int):
+        self.kmer_count += other
+        return self.kmer_count
+
+    def _setup_folders(self):
+        pathlib.Path(self.output_folder).mkdir(parents=True, exist_ok=True)
+
+    @staticmethod
+    def _upsert_map(d, value) -> int:
+        if value not in d:
+            # This starts the MIC label at  1
+            d[value] = len(d) + 1
+        return d[value]
+
+    def append(self, src_file: str, mic, function, kmer):
+        """
+        Appends to relevant files. We have to do some mapping to resolve
+        strings and other variables into incrementing ints for the models.
+        :param function:
+        :param src_file:
+        :param mic:
+        :param kmer:
+        :return:
+        """
+        # Append before so we start at 1
+        with open(self.graph_indicator, 'a') as f:
+            f.write('{}\n'.format(self._upsert_map(self.file_map, src_file)))
+
+        with open(self.graph_labels, 'a') as f:
+            f.write('{}\n'.format(self._upsert_map(self.mic_map, mic)))
+
+        with open(self.node_labels, 'a') as f:
+            f.write('{}\n'.format(function))
+
+        with open(self.node_attributes, 'a') as f:
+            # Note that we expect to hit ~4^k keys
+            f.write('{}\n'.format(self._upsert_map(self.kmer_map, kmer)))
+
+    def close(self):
+        """
+        Make sure to write out all mappings for reference
+        :return:
+        """
+        def _write(fl, di):
+            with open(fl, 'a') as fil:
+                for k, v in di:
+                    fil.write('{}, {}\n'.format(k, v))
+
+        _write(self.file_mapping, self.file_map)
+        _write(self.mic_mapping, self.mic_map)
+        _write(self.kmer_mapping, self.kmer_map)
 
 
 class KmerGraph:
