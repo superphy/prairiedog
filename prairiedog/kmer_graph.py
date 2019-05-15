@@ -42,10 +42,6 @@ class GraphRef:
         self.kmer_mapping = os.path.join(
             self.output_folder, 'KMERS_kmer_mapping.txt')
 
-    def __iadd__(self, other: int):
-        self.kmer_count += other
-        return self.kmer_count
-
     def _setup_folders(self):
         pathlib.Path(self.output_folder).mkdir(parents=True, exist_ok=True)
 
@@ -56,16 +52,19 @@ class GraphRef:
             d[value] = len(d) + 1
         return d[value]
 
-    def append(self, src_file: str, mic, function, kmer):
+    def append(self, src_file: str, mic, function, kmer) -> int:
         """
         Appends to relevant files. We have to do some mapping to resolve
         strings and other variables into incrementing ints for the models.
+        This function is called to get the node_id for NetworkX.
         :param function:
         :param src_file:
         :param mic:
         :param kmer:
         :return:
         """
+        self.kmer_count += 1
+
         # Append before so we start at 1
         with open(self.graph_indicator, 'a') as f:
             f.write('{}\n'.format(self._upsert_map(self.file_map, src_file)))
@@ -79,6 +78,8 @@ class GraphRef:
         with open(self.node_attributes, 'a') as f:
             # Note that we expect to hit ~4^k keys
             f.write('{}\n'.format(self._upsert_map(self.kmer_map, kmer)))
+
+        return self.kmer_count
 
     def close(self):
         """
@@ -105,6 +106,8 @@ class KmerGraph:
             self.km_list = [km_list]
         self.graph = graph
         self.k = k
+        # GraphRef
+        self.gr = GraphRef()
         # Load call
         self._load()
 
