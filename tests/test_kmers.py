@@ -66,4 +66,4 @@ def test_kmers_unique():
     """Check that we are getting the correct number of unique kmers
     """
     km = kmers.Kmers("tests/15.fa")
-    assert km.unique_kmers == 15
+    assert km.unique_kmers == 5
