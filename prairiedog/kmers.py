@@ -113,10 +113,13 @@ class Kmers:
         Counts the number of unique kmers in the file.
         :return:
         """
+        log.debug("Counting unique Kmers in file {}".format(self))
         li = []
         while self.has_next:
             _, kmer = self.next()
             if kmer not in li:
                 li.append(kmer)
         self.reset()
-        return len(li)
+        c = len(li)
+        log.debug("Done counting unique Kmers in file {}".format(self))
+        return c
