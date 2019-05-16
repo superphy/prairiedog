@@ -17,6 +17,7 @@ def test_subgraph_creation(g):
     # kmers directly next to each other on the same contig
     n1 = sgr.subgraph_kmer_map["GCTGGATACGT"]
     n2 = sgr.subgraph_kmer_map["CTGGATACGTA"]
+    log.debug("n1: {}, n2: {}".format(n1, n2))
     nodes = sgr.graph.nodes
     edges = sgr.graph.edges
     assert n1 in nodes
