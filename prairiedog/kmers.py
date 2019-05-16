@@ -114,12 +114,11 @@ class Kmers:
         :return:
         """
         log.debug("Counting unique Kmers in file {}".format(self))
-        li = []
+        st = set()
         while self.has_next:
             _, kmer = self.next()
-            if kmer not in li:
-                li.append(kmer)
+            st.update(kmer)
         self.reset()
-        c = len(li)
+        c = len(st)
         log.debug("Done counting unique Kmers in file {}".format(self))
         return c
