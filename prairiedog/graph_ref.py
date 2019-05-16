@@ -57,8 +57,8 @@ class SubgraphRef(GRef):
                 self.graph.upsert_node(node2_id)
                 # Create an edge
                 self.graph.add_edge(node1_id, node2_id)
-                # Set Kmer2 to Kmer1
-                header1, kmer1 = header2, kmer2
+                # Set node1_id to node2_id
+                node1_id = node2_id
                 c += 1
             # At this point, we're out of kmers on that contig
             # The loop will check if there's still kmers, and reset kmer1
