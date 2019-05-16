@@ -120,5 +120,5 @@ class Kmers:
             st.update(kmer)
         self.reset()
         c = len(st)
-        log.debug("Done counting unique Kmers in file {}".format(self))
+        log.debug("Counted {} unique Kmers in file {}".format(c, self))
         return c
