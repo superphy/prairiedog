@@ -117,7 +117,7 @@ class Kmers:
         st = set()
         while self.has_next:
             _, kmer = self.next()
-            st.update(kmer)
+            st.add(kmer)
         self.reset()
         c = len(st)
         log.debug("Counted {} unique Kmers in file {}".format(c, self))
