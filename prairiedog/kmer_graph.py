@@ -2,7 +2,7 @@ import time
 import logging
 import os
 import typing
-from concurrent.futures import ProcessPoolExecutor, as_completed, Future
+from concurrent.futures import ProcessPoolExecutor, as_completed, Future, wait
 
 import networkx as nx
 
@@ -29,17 +29,17 @@ class KmerGraph:
         self._load()
 
     def _parse_kmers(self) -> typing.List[Future]:
-        pool = ProcessPoolExecutor()
-        # Use the supplied K if given, otherwise default for Kmers class
-        if self.k:
-            kmer_futures = [
-                pool.submit(Kmers, f, self.k) for f in self.km_list]
-        else:
-            kmer_futures = [
-                pool.submit(Kmers, f) for f in self.km_list]
-        # Block until parsing of all Kmer files is done, should only take
-        # a few seconds
-        pool.shutdown(wait=True)
+        with ProcessPoolExecutor() as pool:
+            # Use the supplied K if given, otherwise default for Kmers class
+            if self.k:
+                kmer_futures = [
+                    pool.submit(Kmers, f, self.k) for f in self.km_list]
+            else:
+                kmer_futures = [
+                    pool.submit(Kmers, f) for f in self.km_list]
+            # Block until parsing of all Kmer files is done, should only take
+            # a few seconds
+            wait(kmer_futures)
         return kmer_futures
 
     def _load(self):
