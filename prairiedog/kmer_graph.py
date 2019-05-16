@@ -39,7 +39,7 @@ class KmerGraph:
                 pool.submit(Kmers, f) for f in self.km_list]
         # Block until parsing of all Kmer files is done, should only take
         # a few seconds
-        pool.close(wait=True)
+        pool.shutdown(wait=True)
         return kmer_futures
 
     def _load(self):

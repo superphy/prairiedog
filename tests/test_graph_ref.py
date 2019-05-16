@@ -27,6 +27,7 @@ def test_subgraph_creation(g):
     # kmers directly next to each other further on in a contig
     n3 = sgr.subgraph_kmer_map["AAACTCCAGAG"]
     n4 = sgr.subgraph_kmer_map["AACTCCAGAGT"]
+    log.debug("n3: {}, n4: {}".format(n3, n4))
     assert n3 in nodes
     assert n4 in nodes
     assert (n3, n4) in edges
@@ -34,6 +35,7 @@ def test_subgraph_creation(g):
     # kmers on separate contigs should not be connected
     n5 = sgr.subgraph_kmer_map["TACTGCTACTG"]
     n6 = sgr.subgraph_kmer_map["TAACGGTATTT"]
+    log.debug("n5: {}, n6: {}".format(n5, n6))
     assert n5 in nodes
     assert n6 in nodes
     assert (n5, n6) not in edges
@@ -41,6 +43,7 @@ def test_subgraph_creation(g):
     # kmers at the end of a contig
     n7 = sgr.subgraph_kmer_map["TTGAGTTTCGG"]
     n8 = sgr.subgraph_kmer_map["TGAGTTTCGGG"]
+    log.debug("n7: {}, n8: {}".format(n7, n8))
     assert n7 in nodes
     assert n8 in nodes
     assert (n7, n8) in edges
