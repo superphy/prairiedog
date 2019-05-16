@@ -53,7 +53,7 @@ class SubgraphRef(GRef):
                 header2, kmer2 = self.km.next()
                 # Create the second node
                 node2_id = self._upsert_map(
-                    self.subgraph_kmer_map, kmer1, self.prev_node_id)
+                    self.subgraph_kmer_map, kmer2, self.prev_node_id)
                 self.graph.upsert_node(node2_id)
                 # Create an edge
                 self.graph.add_edge(node1_id, node2_id)
