@@ -78,9 +78,9 @@ class GraphRef(GRef):
         self.file_map = {}
         self.mic_map = {}
         self.kmer_map = {}
-        self._setup_folders()
         pf = '{date:%Y-%m-%d_%H-%M-%S}'.format(date=datetime.datetime.now())
-        self.output_folder = '/output/{}'.format(pf)
+        self.output_folder = 'output/{}'.format(pf)
+        self._setup_folders()
         # Output files
         self.graph_indicator = os.path.join(
             self.output_folder, 'KMERS_graph_indicator.txt')
