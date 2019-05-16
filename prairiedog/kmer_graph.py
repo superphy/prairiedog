@@ -77,6 +77,7 @@ class KmerGraph:
             totaling {} unique kmers/file".format(
                 en-st, len(self.km_list), self.gr.node_id_count
             ))
-        log.info("This amounts to {} s/file or {} (unique kmers/file)/s".format(
-            (en-st)/len(self.km_list), self.gr.node_id_count/(en-st)
+        log.info(
+            "This amounts to {} s/file or {} (unique kmers/file)/s".format(
+                (en-st)/len(self.km_list), self.gr.node_id_count/(en-st)
             ))

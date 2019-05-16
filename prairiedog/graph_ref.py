@@ -38,7 +38,8 @@ class SubgraphRef(GRef):
         self._create_graph()
 
     def _create_graph(self) -> int:
-        log.debug("Starting to graph {} in pid {}".format(self.km, os.getpid()))
+        log.debug(
+            "Starting to graph {} in pid {}".format(self.km, os.getpid()))
         st = time.time()
         c = 0
         while self.km.has_next:

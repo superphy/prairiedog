@@ -1,6 +1,7 @@
 import abc
 import typing
 
+
 class Graph(metaclass=abc.ABCMeta):
     """We expect this to be a directed graph.
     """
