@@ -2,6 +2,7 @@ import os
 import math
 import shutil
 import logging
+import itertools
 
 import pytest
 
@@ -67,3 +68,14 @@ def memory_profiler():
     """
     memory_profiler = pytest.importorskip("memory_profiler")
     return memory_profiler
+
+
+@pytest.fixture
+def kmer_map():
+    """
+    Creates a fixed reference for all possible kmers to a node_id.
+    :return:
+    """
+    mp = map(''.join, itertools.product('ATCG', repeat=11))
+    d = {x: i + 1 for i, x in enumerate(mp)}
+    return d
