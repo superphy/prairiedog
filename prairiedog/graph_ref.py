@@ -106,29 +106,25 @@ class GraphRef(GRef):
         Appends to relevant files. We have to do some mapping to resolve
         strings and other variables into incrementing ints for the models.
         This function is called to get the node_id for NetworkX.
-        :param function:
-        :param src_file:
-        :param mic:
-        :param kmer:
-        :return:
         """
-        self.kmer_count += 1
-
-        # Append before so we start at 1
-        with open(self.graph_indicator, 'a') as f:
-            f.write('{}\n'.format(self._upsert_map(self.file_map, src_file)))
-
-        with open(self.graph_labels, 'a') as f:
-            f.write('{}\n'.format(self._upsert_map(self.mic_map, mic)))
-
-        with open(self.node_labels, 'a') as f:
-            f.write('{}\n'.format(function))
-
-        with open(self.node_attributes, 'a') as f:
-            # Note that we expect to hit ~4^k keys
-            f.write('{}\n'.format(self._upsert_map(self.kmer_map, kmer)))
-
-        return self.kmer_count
+        pass
+        # self.kmer_count += 1
+        #
+        # # Append before so we start at 1
+        # with open(self.graph_indicator, 'a') as f:
+        #     f.write('{}\n'.format(self._upsert_map(self.file_map, src_file)))
+        #
+        # with open(self.graph_labels, 'a') as f:
+        #     f.write('{}\n'.format(self._upsert_map(self.mic_map, mic)))
+        #
+        # with open(self.node_labels, 'a') as f:
+        #     f.write('{}\n'.format(function))
+        #
+        # with open(self.node_attributes, 'a') as f:
+        #     # Note that we expect to hit ~4^k keys
+        #     f.write('{}\n'.format(self._upsert_map(self.kmer_map, kmer)))
+        #
+        # return self.kmer_count
 
     def close(self):
         """
