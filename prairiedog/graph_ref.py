@@ -170,24 +170,25 @@ class GraphRef(GRef):
     def _find_kmer_label(self, kmer: str):
         pass
 
-    def record_node_labels(self, node_id: int, kmer: str):
+    def record_node_labels(self, pos_id: int, kmer: str):
         """
         Needs to cross-ref kmer against a label of some sort
-        :param node_id:
+        :param pos_id:
         :param kmer:
         :return:
         """
         pass
 
-    def record_node_attributes(self, node_id: int, kmer: str):
+    def record_node_attributes(self, pos_id: int, kmer: str):
         """
         Record the kmer as an attribute for node i.
-        :param node_id:
+        :param pos_id:
         :param kmer:
         :return:
         """
         kmer_id = self._upsert_map(self.kmer_map, kmer)
-        self.node_attributes_array[node_id] = kmer_id
+        # Node IDs start at 1
+        self.node_attributes_array[pos_id] = kmer_id
 
     def append(self, subgraph: SubgraphRef) -> int:
         """
@@ -201,8 +202,10 @@ class GraphRef(GRef):
             for key, value in subgraph.subgraph_kmer_map.items()}
         for node_id in subgraph.graph.nodes:
             kmer = inverted[node_id]
-            self.record_node_labels(node_id, kmer)
-            self.record_node_attributes(node_id, kmer)
+            # Node IDs start at 1
+            pos_id = node_id - 1
+            self.record_node_labels(pos_id, kmer)
+            self.record_node_attributes(pos_id, kmer)
 
     def close(self):
         """
