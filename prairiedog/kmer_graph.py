@@ -42,7 +42,7 @@ class KmerGraph:
 
     @staticmethod
     def _calculate_n(kmer_futures: typing.List[Future]) -> int:
-        log.debug("Calculating n (total number of unique kmers/file")
+        log.debug("Calculating n (total number of unique kmers/file)")
         c = 0
         for future in kmer_futures:
             km = future.result()

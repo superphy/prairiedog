@@ -22,9 +22,14 @@ def test_kmer_graph_load(monkeypatch, genome_files_shortened):
 
     # Monkeypatch KmerGraph's call to GraphRef.append so we collect the
     # subgraphs
-    def mockappend(self, subgraph):
+    def mock_append(self, subgraph):
         subgraphs.append(subgraph)
-    monkeypatch.setattr('prairiedog.graph_ref.GraphRef.append', mockappend)
+    monkeypatch.setattr('prairiedog.graph_ref.GraphRef.append', mock_append)
+
+    def mock_label(self, km: str):
+        pass
+    monkeypatch.setattr(
+        'prairiedog.graph_ref.GraphRef.write_graph_label', mock_label)
 
     KmerGraph(genome_files_shortened)
     for sg_1, sg_2 in itertools.combinations(subgraphs, 2):
