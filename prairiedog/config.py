@@ -1,7 +1,7 @@
 import os
 
 K = 11
-INPUT_DIRECTORY = ''
+INPUT_DIRECTORY = 'samples/'
 MIC_DF = 'samples/public_mic_class_dataframe.pkl'
 
 def _input_files():
