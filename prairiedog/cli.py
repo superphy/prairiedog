@@ -7,7 +7,7 @@ import os
 import click
 
 import prairiedog.config as config
-from prairiedog.prairiedog import Config, Prairiedog
+from prairiedog.prairiedog import Prairiedog
 
 
 @click.command()
