@@ -32,4 +32,4 @@ def test_kmer_graph_load(monkeypatch, genome_files_shortened):
         assert sg_1.graph.nodes.isdisjoint(sg_2.graph.nodes)
 
     for sg in subgraphs:
-        assert sg.km.unique_nodes == len(sg.graph.nodes)
+        assert sg.km.unique_kmers == len(sg.graph.nodes)
