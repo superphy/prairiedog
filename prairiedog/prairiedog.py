@@ -3,14 +3,9 @@
 """Main module."""
 
 
-class Config:
-    def __init__(self, k):
-        self.k = k
-
-
 class Prairiedog:
-    def __init__(self, config: Config):
-        self.config = Config
+    def __init__(self):
+        pass
 
     def run(self):
         pass
