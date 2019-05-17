@@ -12,15 +12,16 @@ from prairiedog.prairiedog import Prairiedog
 
 @click.command()
 @click.option('-k', default=11, help='K-mer size.')
-@click.option('--input', default='samples/', help='Folder of file to input')
-def main(k, input):
+@click.option('--input_folder', default='samples/',
+              help='Folder of file to input')
+def main(k, input_folder):
     """Console script for prairiedog."""
     # Setup config
     config.K = k
-    if os.path.isdir(input):
-        config.INPUT_DIRECTORY = input
+    if os.path.isdir(input_folder):
+        config.INPUT_DIRECTORY = input_folder
     else:
-        config.INPUT_FILES = [input]
+        config.INPUT_FILES = [input_folder]
     # Main call
     pdog = Prairiedog()
     pdog.run()
