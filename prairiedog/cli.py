@@ -4,13 +4,21 @@
 import sys
 import click
 
+import prairiedog.config as config
+from prairiedog.prairiedog import Config, Prairiedog
+
 
 @click.command()
-def main(args=None):
+@click.option('-k', default=11, help='K-mer size.')
+@click.option('--input')
+def main(k):
     """Console script for prairiedog."""
-    click.echo("Replace this message by putting your code into "
-               "prairiedog.cli.main")
-    click.echo("See click documentation at http://click.pocoo.org/")
+    # Setup config
+    config.K = k
+    config.INPUT_FILES =
+    # Main call
+    pdog = Prairiedog()
+    pdog.run()
     return 0
 
 
