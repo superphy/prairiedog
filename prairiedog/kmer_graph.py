@@ -4,10 +4,9 @@ import os
 import typing
 from concurrent.futures import ProcessPoolExecutor, as_completed, Future, wait
 
-import networkx as nx
 
 from prairiedog.kmers import Kmers
-from prairiedog.graph import Graph
+from prairiedog.networkx_graph import NetworkXGraph
 from prairiedog.graph_ref import GraphRef, SubgraphRef
 
 log = logging.getLogger("prairiedog")
@@ -57,7 +56,7 @@ class KmerGraph:
                     SubgraphRef,
                     self.gr.node_id_count,
                     km,
-                    nx.DiGraph
+                    NetworkXGraph()
                 )
                 # Increment the GraphRef node_id count
                 self.gr.node_id_count += km.unique_kmers
