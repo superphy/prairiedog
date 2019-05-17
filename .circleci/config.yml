@@ -50,3 +50,8 @@ jobs:
             . venv/bin/activate
             pip install tox
             tox -v
+          post:
+              - pip install coverage coveralls
+              - coverage run prairiedog/*.py
+              - coverage report
+              - coveralls
