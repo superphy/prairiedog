@@ -18,7 +18,7 @@ def test_kmer_graph_benchmark(memory_profiler, all_genome_files, g):
     log.info("Memory usage was: {} MB".format(max(mem_usage)))
 
 
-def test_kmer_graph_load(monkeypatch, genome_files):
+def test_kmer_graph_load(monkeypatch, genome_files_shortened):
     subgraphs = []
 
     # Monkeypatch KmerGraph's call to GraphRef.append so we collect the
@@ -27,7 +27,7 @@ def test_kmer_graph_load(monkeypatch, genome_files):
         subgraphs.append(subgraph)
     monkeypatch.setattr(prairiedog.graph_ref.GraphRef, 'append', mockappend)
 
-    KmerGraph(genome_files)
+    KmerGraph(genome_files_shortened)
     for sg_1, sg_2 in itertools.combinations(subgraphs, 2):
         # Node IDs in every subgraph should be unique
         assert sg_1.graph.nodes.isdisjoint(sg_2)

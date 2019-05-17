@@ -24,6 +24,15 @@ def genome_files():
     return GENOME_FILES
 
 
+@pytest.fixture
+def genome_files_shortened():
+    fls = ['tests/' + f for f in os.listdir('tests/')
+           if f.endswith(('.fna', '.fasta', '.fa'))
+           and 'SHORTENED' in f
+           ]
+    return fls
+
+
 @pytest.fixture(params=[0.001, .25, .5, .75, 1])
 def all_genome_files(request):
     def _files(directory: str = 'samples/'):
