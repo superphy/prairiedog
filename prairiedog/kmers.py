@@ -19,6 +19,8 @@ class Kmers:
         self.k = k
         # Load
         self._load()
+        # Count the number of unique kmers
+        self.unique_kmers = self._count_unique()
 
     def __str__(self):
         return "Kmers for file {} with {} contigs and K size {}".format(
@@ -97,3 +99,26 @@ class Kmers:
         self.pi += 1
 
         return header, sl
+
+    def reset(self):
+        """
+        Resets Kmer iterator.
+        :return:
+        """
+        self.li = 0
+        self.pi = 0
+
+    def _count_unique(self) -> int:
+        """
+        Counts the number of unique kmers in the file.
+        :return:
+        """
+        log.debug("Counting unique Kmers in file {}".format(self))
+        st = set()
+        while self.has_next:
+            _, kmer = self.next()
+            st.add(kmer)
+        self.reset()
+        c = len(st)
+        log.debug("Counted {} unique Kmers in file {}".format(c, self))
+        return c

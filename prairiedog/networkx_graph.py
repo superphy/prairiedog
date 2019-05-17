@@ -1,4 +1,5 @@
 import logging
+import typing
 
 import networkx as nx
 
@@ -38,3 +39,7 @@ class NetworkXGraph(prairiedog.graph.Graph):
         log.info("Writing graphs out with prefix {}".format(f))
         nx.write_multiline_adjlist(self.g, f + '_multiline_adjlist.txt')
         nx.write_edgelist(self.g, f + '_edgelist.txt')
+
+    @property
+    def edgelist(self) -> typing.Generator:
+        return nx.generate_edgelist(self.g, data=False)
