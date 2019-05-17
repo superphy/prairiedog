@@ -30,4 +30,4 @@ def test_kmer_graph_load(monkeypatch, genome_files_shortened):
     KmerGraph(genome_files_shortened)
     for sg_1, sg_2 in itertools.combinations(subgraphs, 2):
         # Node IDs in every subgraph should be unique
-        assert sg_1.graph.nodes.isdisjoint(sg_2)
+        assert sg_1.graph.nodes.isdisjoint(sg_2.graph.nodes)
