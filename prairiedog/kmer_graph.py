@@ -14,14 +14,13 @@ log = logging.getLogger("prairiedog")
 
 
 class KmerGraph:
-    def __init__(self, km_list: list, graph: Graph, k: int = None):
+    def __init__(self, km_list: list, k: int = None):
         # Regular class attributes
         # List of genome files to parse into kmers
         if isinstance(km_list, list):
             self.km_list = km_list
         elif isinstance(km_list, str):
             self.km_list = [km_list]
-        self.graph = graph
         self.k = k
         # GraphRef
         self.gr = GraphRef()
