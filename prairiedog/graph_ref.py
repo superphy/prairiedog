@@ -161,10 +161,14 @@ class GraphRef(GRef):
         :return:
         """
         # Write out dictionary maps
-        json.dump(self.file_map, open(self.file_mapping, 'w'))
-        json.dump(self.mic_map, open(self.mic_mapping, 'w'))
-        json.dump(self.kmer_map, open(self.kmer_mapping, 'w'))
-        json.dump(self.label_map, open(self.label_mapping, 'w'))
+        def _write_d(fl, di):
+            with open(fl, 'a') as f:
+                for k, v in di.items():
+                    f.write('{}, {}\n'.format(k, v))
+        _write_d(self.file_mapping, self.file_map)
+        _write_d(self.mic_mapping, self.mic_map)
+        _write_d(self.kmer_mapping, self.kmer_map)
+        _write_d(self.label_mapping, self.label_map)
 
         # Write out numpy array
         np.savetxt(self.node_labels, self.node_label_array, fmt='%d')

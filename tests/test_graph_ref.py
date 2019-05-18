@@ -59,3 +59,11 @@ def test_graphref_output():
     assert len(lines) == gr.n
     # The node attribute we use is the kmer, the max of which is 4^k
     assert max(lines) <= 4**config.K
+
+    ####
+    #   Check that we can read all dictionary mapping files
+    ####
+    pd.read_csv(gr.file_mapping)
+    pd.read_csv(gr.mic_mapping)
+    pd.read_csv(gr.kmer_mapping)
+    pd.read_csv(gr.label_mapping)
