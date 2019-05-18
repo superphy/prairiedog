@@ -53,6 +53,8 @@ class GraphRef(GRef):
             self.output_folder, 'KMERS_mic_mapping.txt')
         self.kmer_mapping = os.path.join(
             self.output_folder, 'KMERS_kmer_mapping.txt')
+        self.label_mapping = os.path.join(
+            self.output_folder, 'KMERS_label_mapping.txt')
 
     def _init_node_arrays(self, n: int):
         log.debug("Initializing NumPy arrays to length {}".format(n))
@@ -165,7 +167,7 @@ class GraphRef(GRef):
         _write_d(self.file_mapping, self.file_map)
         _write_d(self.mic_mapping, self.mic_map)
         _write_d(self.kmer_mapping, self.kmer_map)
-        _write_d(self.label_map, self.label_map)
+        _write_d(self.label_mapping, self.label_map)
 
         # Write out numpy array
         np.savetxt(self.node_labels, self.node_label_array, fmt='%d')
