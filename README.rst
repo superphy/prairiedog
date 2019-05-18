@@ -4,6 +4,12 @@ prairiedog
 
 .. image:: .daisy.png
 
+.. image:: https://circleci.com/gh/superphy/prairiedog.svg?style=svg
+    :target: https://circleci.com/gh/superphy/prairiedog
+
+.. image:: https://codecov.io/gh/superphy/prairiedog/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/superphy/prairiedog
+
 Supports Python3.5+
 
 Tests & Benchmarks

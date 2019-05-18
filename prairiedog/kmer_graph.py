@@ -7,7 +7,8 @@ from concurrent.futures import ProcessPoolExecutor, as_completed, Future, wait
 
 from prairiedog.kmers import Kmers
 from prairiedog.networkx_graph import NetworkXGraph
-from prairiedog.graph_ref import GraphRef, SubgraphRef
+from prairiedog.graph_ref import GraphRef
+from prairiedog.subgraph_ref import SubgraphRef
 
 log = logging.getLogger("prairiedog")
 
@@ -22,7 +23,7 @@ class KmerGraph:
             self.km_list = [km_list]
         self.k = k
         # GraphRef
-        self.gr = GraphRef()
+        self.gr = None
         # Load call
         self._load()
 
@@ -40,11 +41,24 @@ class KmerGraph:
             wait(kmer_futures)
         return kmer_futures
 
+    @staticmethod
+    def _calculate_n(kmer_futures: typing.List[Future]) -> int:
+        log.debug("Calculating n (total number of unique kmers/file)")
+        c = 0
+        for future in kmer_futures:
+            km = future.result()
+            c += km.unique_kmers
+        log.debug("Calculated n as {}".format(c))
+        return c
+
     def _load(self):
         st = time.time()
         files_graphed = 0
         log.info("Starting to create KmerGraph in pid {}".format(os.getpid()))
         kmer_futures = self._parse_kmers()
+        n = self._calculate_n(kmer_futures)
+        # We need to init NumPy arrays for node labels and attributes
+        self.gr = GraphRef(n)
         log.info("Parsed Kmers for all {} files".format(len(self.km_list)))
         with ProcessPoolExecutor() as pool:
             subgraph_futures = []
@@ -59,7 +73,7 @@ class KmerGraph:
                     NetworkXGraph()
                 )
                 # Increment the GraphRef node_id count
-                self.gr.node_id_count += km.unique_kmers
+                self.gr.incr_node_id(km)
                 subgraph_futures.append(subgraph_future)
 
             # Appends to output files as the subgraphs complete

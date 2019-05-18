@@ -1,49 +1,36 @@
-import pytest
-import logging
-import datetime
+import pandas as pd
+from prairiedog.kmer_graph import KmerGraph
+from prairiedog import config
 
-from prairiedog.graph_ref import SubgraphRef
-from prairiedog.kmers import Kmers
+def test_pandas_read_mic_csv():
+    pd.read_csv('tests/public_mic_class_dataframe_test.csv')
+    pd.read_csv('samples/public_mic_class_dataframe.csv')
+    assert True
 
-log = logging.getLogger("prairiedog")
 
-
-def test_subgraph_creation(g):
-    # Create the graph from a shortened file for testing
-    km = Kmers("tests/GCA_900015695.1_ED647_contigs_genomic_SHORTENED.fna")
-    sgr = SubgraphRef(
-        0, km, g
+def test_graphref_incr_node():
+    # Set the config MIC csv to use our test one
+    config.MIC_CSV = 'tests/public_mic_class_dataframe_test.csv'
+    # Use KmerGraph to drive graph creation for two files
+    kmg = KmerGraph(
+        [
+            'tests/SRR1060582_SHORTENED.fasta',
+            'tests/SRR1106609_SHORTENED.fasta'
+        ]
     )
-    # kmers directly next to each other on the same contig
-    n1 = sgr.subgraph_kmer_map["GCTGGATACGT"]
-    n2 = sgr.subgraph_kmer_map["CTGGATACGTA"]
-    log.debug("n1: {}, n2: {}".format(n1, n2))
-    nodes = sgr.graph.nodes
-    edges = sgr.graph.edges
-    assert n1 in nodes
-    assert n2 in nodes
-    assert (n1, n2) in edges
+    # Alias a variable to the inner GraphRef
+    gr = kmg.gr
 
-    # kmers directly next to each other further on in a contig
-    n3 = sgr.subgraph_kmer_map["AAACTCCAGAG"]
-    n4 = sgr.subgraph_kmer_map["AACTCCAGAGT"]
-    log.debug("n3: {}, n4: {}".format(n3, n4))
-    assert n3 in nodes
-    assert n4 in nodes
-    assert (n3, n4) in edges
+    with open(gr.graph_indicator) as f:
+        lines = [int(li.rstrip()) for li in f.readlines()]
+    # The number of lines written should equal the number of unique nodes per
+    # file
+    assert len(lines) == gr.n
+    # The max graph indicator id should be the number of files
+    assert max(lines) == len(kmg.km_list)
 
-    # kmers on separate contigs should not be connected
-    n5 = sgr.subgraph_kmer_map["TACTGCTACTG"]
-    n6 = sgr.subgraph_kmer_map["TAACGGTATTT"]
-    log.debug("n5: {}, n6: {}".format(n5, n6))
-    assert n5 in nodes
-    assert n6 in nodes
-    assert (n5, n6) not in edges
-
-    # kmers at the end of a contig
-    n7 = sgr.subgraph_kmer_map["TTGAGTTTCGG"]
-    n8 = sgr.subgraph_kmer_map["TGAGTTTCGGG"]
-    log.debug("n7: {}, n8: {}".format(n7, n8))
-    assert n7 in nodes
-    assert n8 in nodes
-    assert (n7, n8) in edges
+    with open(gr._get_graph_label_file('AMP')) as f:
+        lines = f.readlines()
+    # The KMERS_graph_labels_AMP.txt file should only have as many lines as
+    # there are genome files processed
+    assert len(lines) == len(kmg.km_list)
