@@ -50,7 +50,8 @@ jobs:
                       . venv/bin/activate
                       pip install tox
                       tox -v
-            - codecov:
+            - run:
+                  name: codecov
                   command: |
                       . venv/bin/activate
                       pip install codecov
