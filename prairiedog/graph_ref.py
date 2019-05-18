@@ -2,10 +2,10 @@ import os
 import pathlib
 import datetime
 import logging
-import json
 
 import pandas as pd
 import numpy as np
+import networkx as nx
 
 import prairiedog.config as config
 from prairiedog.kmers import Kmers
@@ -41,6 +41,8 @@ class GraphRef(GRef):
         self.max_n = (4**config.K)*config.INPUT_FILES
         self.N = len(config.INPUT_FILES)
         # Output files
+        self.adj_matrix = os.path.join(
+            self.output_folder, 'KMERS_A.txt')
         self.graph_indicator = os.path.join(
             self.output_folder, 'KMERS_graph_indicator.txt')
         self.node_labels = os.path.join(
@@ -141,6 +143,17 @@ class GraphRef(GRef):
         strings and other variables into incrementing ints for the models.
         This function is called to get the node_id for NetworkX.
         """
+        ####
+        #   KMERS_A.txt
+        ####
+        with open(self.adj_matrix, 'a') as f:
+            for l in nx.generate_edgelist(subgraph.graph, data=False):
+                f.write('{}\n'.format(l))
+
+        ####
+        #   KMERS_graph_indicator.txt
+        #   KMERS_graph_labels.txt
+        ####
         # So we can map node_id : kmer
         inverted = {
             value: key
