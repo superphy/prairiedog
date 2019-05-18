@@ -60,3 +60,10 @@ def test_kmers_index_diff():
         header, kmer = km.next()
     assert header == ">FAVS01000269.1 Escherichia coli strain ED647 genome assembly, contig: out_269, whole genome shotgun sequence"
     assert kmer == "TACTGCTACTG"
+
+
+def test_kmers_unique():
+    """Check that we are getting the correct number of unique kmers
+    """
+    km = kmers.Kmers("tests/15.fa")
+    assert km.unique_kmers == 5

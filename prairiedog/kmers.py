@@ -19,6 +19,8 @@ class Kmers:
         self.k = k
         # Load
         self._load()
+        # Count the number of unique kmers
+        self.unique_kmers = self._count_unique()
 
     def __str__(self):
         return "Kmers for file {} with {} contigs and K size {}".format(
@@ -28,7 +30,7 @@ class Kmers:
     def _load(self):
         # We have to merge multiline sequences
         seq = ""
-        log.info(
+        log.debug(
             "Parsing Kmers for file {} with K size {} in pid {}".format(
                 self.filepath, self.k, os.getpid()
             ))
@@ -49,7 +51,7 @@ class Kmers:
         # Always append the last sequence
         self.sequences.append(seq)
         en = time.time()
-        log.info("Done creating {} in {} s".format(self, en - st))
+        log.debug("Done creating {} in {} s".format(self, en - st))
 
     def _end_of_kmers(self) -> bool:
         return (self.pi + self.k) > len(self.sequences[self.li])
@@ -83,8 +85,9 @@ class Kmers:
         # K is greater than the size of the contig.
         if self.k > len(self.sequences[self.li]) - 1:
             log.warning(
-                "Contig {} was shorter than K of {}, skipping...".format(
-                    self.headers[self.li], self.k))
+                "Contig {} in file {} was shorter than K of {},"
+                " skipping...".format(
+                    self.headers[self.li], self.filepath, self.k))
             self.li += 1
             self.pi = 0
 
@@ -96,3 +99,26 @@ class Kmers:
         self.pi += 1
 
         return header, sl
+
+    def reset(self):
+        """
+        Resets Kmer iterator.
+        :return:
+        """
+        self.li = 0
+        self.pi = 0
+
+    def _count_unique(self) -> int:
+        """
+        Counts the number of unique kmers in the file.
+        :return:
+        """
+        log.debug("Counting unique Kmers in file {}".format(self))
+        st = set()
+        while self.has_next:
+            _, kmer = self.next()
+            st.add(kmer)
+        self.reset()
+        c = len(st)
+        log.debug("Counted {} unique Kmers in file {}".format(c, self))
+        return c

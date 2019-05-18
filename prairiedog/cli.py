@@ -2,15 +2,29 @@
 
 """Console script for prairiedog."""
 import sys
+import os
+
 import click
+
+import prairiedog.config as config
+from prairiedog.prairiedog import Prairiedog
 
 
 @click.command()
-def main(args=None):
+@click.option('-k', default=11, help='K-mer size.')
+@click.option('--input_folder', default='samples/',
+              help='Folder of file to input')
+def main(k, input_folder):
     """Console script for prairiedog."""
-    click.echo("Replace this message by putting your code into "
-               "prairiedog.cli.main")
-    click.echo("See click documentation at http://click.pocoo.org/")
+    # Setup config
+    config.K = k
+    if os.path.isdir(input_folder):
+        config.INPUT_DIRECTORY = input_folder
+    else:
+        config.INPUT_FILES = [input_folder]
+    # Main call
+    pdog = Prairiedog()
+    pdog.run()
     return 0
 
 
