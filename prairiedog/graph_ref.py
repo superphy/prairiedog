@@ -102,7 +102,7 @@ class GraphRef(GRef):
 
         # Call to write out a KMERS_graph_indicator.txt file
         with open(self.graph_indicator, 'a') as f:
-            for i in km.unique_kmers:
+            for i in range(km.unique_kmers):
                 f.write('{}\n'.format(graph_id))
 
         # Call to write out KMERS_graph_labels_{}.txt files
