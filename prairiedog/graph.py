@@ -1,11 +1,12 @@
 import abc
+import typing
 
 
 class Graph(metaclass=abc.ABCMeta):
     """We expect this to be a directed graph.
     """
     @abc.abstractmethod
-    def upsert_node(self, node: str, labels: dict = None):
+    def upsert_node(self, node: int, labels: dict = None):
         """
         Upsert nodes with labels.
         :param node:
@@ -15,7 +16,7 @@ class Graph(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def add_edge(self, node_a: str, node_b: str):
+    def add_edge(self, node_a: int, node_b: int):
         pass
 
     @abc.abstractmethod
@@ -34,4 +35,13 @@ class Graph(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def get_labels(self, node: str) -> dict:
+        pass
+
+    @abc.abstractmethod
+    def save(self, f: str):
+        pass
+
+    @property
+    @abc.abstractmethod
+    def edgelist(self) -> typing.Generator:
         pass
