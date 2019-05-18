@@ -2,8 +2,8 @@ import os
 import pathlib
 import datetime
 import logging
-import pickle
 
+import pandas as pd
 import numpy as np
 
 import prairiedog.config as config
@@ -21,9 +21,7 @@ class GraphRef(GRef):
     def __init__(self, n):
         self.n = n
         self.node_id_count = 0
-        self.MIC_DF = pickle.load(
-            open(config.MIC_DF, 'rb')
-        )
+        self.MIC_DF = pd.read_csv(config.MIC_CSV, index_col=0)
         self.MIC_COLUMNS = self.MIC_DF.columns
         # Reference for all files encountered
         self.file_map = {}

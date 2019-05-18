@@ -2,7 +2,7 @@ import os
 
 K = 11
 INPUT_DIRECTORY = 'samples/'
-MIC_DF = 'samples/public_mic_class_dataframe.pkl'
+MIC_CSV = 'samples/public_mic_class_dataframe.csv'
 
 
 def _input_files():
