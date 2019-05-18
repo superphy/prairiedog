@@ -57,3 +57,5 @@ def test_graphref_output():
     with open(gr.node_attributes) as f:
         lines = [int(li.rstrip()) for li in f.readlines()]
     assert len(lines) == gr.n
+    # The node attribute we use is the kmer, the max of which is 4^k
+    assert max(lines) <= 4**config.K
