@@ -5,7 +5,6 @@ import logging
 
 import pandas as pd
 import numpy as np
-import networkx as nx
 
 import prairiedog.config as config
 from prairiedog.kmers import Kmers
@@ -147,7 +146,7 @@ class GraphRef(GRef):
         #   KMERS_A.txt
         ####
         with open(self.adj_matrix, 'a') as f:
-            for l in nx.generate_edgelist(subgraph.graph, data=False):
+            for l in subgraph.graph.edgelist:
                 f.write('{}\n'.format(l))
 
         ####
