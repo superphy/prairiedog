@@ -7,7 +7,6 @@ import time
 import pickle
 
 import numpy as np
-import pandas as pd
 
 import prairiedog.config as config
 from prairiedog.kmers import Kmers
