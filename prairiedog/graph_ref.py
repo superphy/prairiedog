@@ -159,9 +159,9 @@ class GraphRef(GRef):
         """
         # Write out dictionary maps
         def _write_d(fl, di):
-            with open(fl, 'a') as fil:
-                for k, v in di:
-                    fil.write('{}, {}\n'.format(k, v))
+            with open(fl, 'a') as f:
+                for k, v in di.items():
+                    f.write('{}, {}\n'.format(k, v))
         _write_d(self.file_mapping, self.file_map)
         _write_d(self.mic_mapping, self.mic_map)
         _write_d(self.kmer_mapping, self.kmer_map)
