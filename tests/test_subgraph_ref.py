@@ -1,6 +1,5 @@
 import pytest
 import logging
-import datetime
 
 from prairiedog.subgraph_ref import SubgraphRef
 from prairiedog.kmers import Kmers
