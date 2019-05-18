@@ -1,5 +1,12 @@
+import pandas as pd
 from prairiedog.kmer_graph import KmerGraph
 
+
+def test_pandas_read_mic_csv():
+    pd.read_csv('tests/public_mic_class_dataframe_test.csv')
+    pd.read_csv('samples/public_mic_class_dataframe.csv')
+    assert True
+    
 
 def test_graphref_incr_node(monkeypatch):
     # Patch the config MIC csv to use our test one
