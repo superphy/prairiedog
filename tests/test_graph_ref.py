@@ -1,18 +1,16 @@
 import pandas as pd
 from prairiedog.kmer_graph import KmerGraph
-
+from prairiedog import config
 
 def test_pandas_read_mic_csv():
     pd.read_csv('tests/public_mic_class_dataframe_test.csv')
     pd.read_csv('samples/public_mic_class_dataframe.csv')
     assert True
-    
 
-def test_graphref_incr_node(monkeypatch):
-    # Patch the config MIC csv to use our test one
-    def mock_config_csv():
-        return 'tests/public_mic_class_dataframe_test.csv'
-    monkeypatch.setattr('prairiedog.config.MIC_CSV', mock_config_csv)
+
+def test_graphref_incr_node():
+    # Set the config MIC csv to use our test one
+    config.MIC_CSV = 'tests/public_mic_class_dataframe_test.csv'
     # Use KmerGraph to drive graph creation for two files
     kmg = KmerGraph(
         [
