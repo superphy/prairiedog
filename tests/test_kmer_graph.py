@@ -17,7 +17,7 @@ def test_kmer_graph_benchmark(memory_profiler, all_genome_files, g):
     log.info("Memory usage was: {} MB".format(max(mem_usage)))
 
 
-def test_kmer_graph_load(monkeypatch, genome_files_shortened):
+def test_kmer_graph_node_ids(monkeypatch, genome_files_shortened):
     subgraphs = []
 
     # Monkeypatch KmerGraph's call to GraphRef.append so we collect the

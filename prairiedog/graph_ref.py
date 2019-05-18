@@ -2,82 +2,24 @@ import os
 import pathlib
 import datetime
 import logging
-import abc
-import time
 import pickle
 
 import numpy as np
 
 import prairiedog.config as config
 from prairiedog.kmers import Kmers
-from prairiedog.graph import Graph
+from prairiedog.gref import GRef
+from prairiedog.subgraph_ref import SubgraphRef
 
 log = logging.getLogger("prairiedog")
-
-
-class GRef(metaclass=abc.ABCMeta):
-    """
-    Base class for graph reference classes.
-    """
-    @staticmethod
-    def _upsert_map(d: dict, value: str, prev_value: int = 0) -> int:
-        if value not in d:
-            # This starts the MIC label at 1 or prev_value + 1
-            d[value] = len(d) + prev_value + 1
-        return d[value]
-
-
-class SubgraphRef(GRef):
-    """
-    Helper for creating a NetworkX graph, created for each genome file.
-    """
-    def __init__(self, prev_node_id: int, km: Kmers, graph: Graph):
-        """
-        """
-        # This should already be assigned by the previous Kmer
-        self.prev_node_id = prev_node_id
-        self.km = km
-        self.graph = graph
-        self.subgraph_kmer_map = {}
-        self._create_graph()
-
-    def _create_graph(self) -> int:
-        log.debug(
-            "Starting to graph {} in pid {}".format(self.km, os.getpid()))
-        st = time.time()
-        c = 0
-        while self.km.has_next:
-            header1, kmer1 = self.km.next()
-            # Create the first node
-            node1_id = self._upsert_map(
-                self.subgraph_kmer_map, kmer1, self.prev_node_id)
-            self.graph.upsert_node(node1_id)
-            c += 1
-            # The same contig still has a kmer
-            while self.km.contig_has_next:
-                header2, kmer2 = self.km.next()
-                # Create the second node
-                node2_id = self._upsert_map(
-                    self.subgraph_kmer_map, kmer2, self.prev_node_id)
-                self.graph.upsert_node(node2_id)
-                # Create an edge
-                self.graph.add_edge(node1_id, node2_id)
-                # Set node1_id to node2_id
-                node1_id = node2_id
-                c += 1
-            # At this point, we're out of kmers on that contig
-            # The loop will check if there's still kmers, and reset kmer1
-        en = time.time()
-        log.debug("Done graphing {}, covering {} kmers in {} s".format(
-            self.km, c, en-st))
-        return c
 
 
 class GraphRef(GRef):
     """
     Helper class to track node ints, etc.
     """
-    def __init__(self):
+    def __init__(self, n):
+        self.n = n
         self.node_id_count = 0
         self.MIC_DF = pickle.load(
             open(config.MIC_DF, 'rb')
@@ -92,6 +34,7 @@ class GraphRef(GRef):
         # NumPy arrays
         self.node_label_array = None
         self.node_attributes_array = None
+        self._init_node_arrays(n)
         # Output folders
         pf = '{date:%Y-%m-%d_%H-%M-%S}'.format(date=datetime.datetime.now())
         self.output_folder = 'output/{}'.format(pf)
@@ -114,7 +57,7 @@ class GraphRef(GRef):
         self.kmer_mapping = os.path.join(
             self.output_folder, 'KMERS_kmer_mapping.txt')
 
-    def init_node_arrays(self, n: int):
+    def _init_node_arrays(self, n: int):
         log.debug("Initializing NumPy arrays to length {}".format(n))
         self.node_label_array = np.empty(n, dtype=int)
         self.node_attributes_array = np.empty(n, dtype=int)

@@ -7,7 +7,8 @@ from concurrent.futures import ProcessPoolExecutor, as_completed, Future, wait
 
 from prairiedog.kmers import Kmers
 from prairiedog.networkx_graph import NetworkXGraph
-from prairiedog.graph_ref import GraphRef, SubgraphRef
+from prairiedog.graph_ref import GraphRef
+from prairiedog.subgraph_ref import SubgraphRef
 
 log = logging.getLogger("prairiedog")
 
@@ -22,7 +23,7 @@ class KmerGraph:
             self.km_list = [km_list]
         self.k = k
         # GraphRef
-        self.gr = GraphRef()
+        self.gr = None
         # Load call
         self._load()
 
@@ -57,7 +58,7 @@ class KmerGraph:
         kmer_futures = self._parse_kmers()
         n = self._calculate_n(kmer_futures)
         # We need to init NumPy arrays for node labels and attributes
-        self.gr.init_node_arrays(n)
+        self.gr = GraphRef(n)
         log.info("Parsed Kmers for all {} files".format(len(self.km_list)))
         with ProcessPoolExecutor() as pool:
             subgraph_futures = []
