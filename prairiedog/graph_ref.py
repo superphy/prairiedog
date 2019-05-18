@@ -2,6 +2,7 @@ import os
 import pathlib
 import datetime
 import logging
+import json
 
 import pandas as pd
 import numpy as np
@@ -160,14 +161,10 @@ class GraphRef(GRef):
         :return:
         """
         # Write out dictionary maps
-        def _write_d(fl, di):
-            with open(fl, 'a') as f:
-                for k, v in di.items():
-                    f.write('{}, {}\n'.format(k, v))
-        _write_d(self.file_mapping, self.file_map)
-        _write_d(self.mic_mapping, self.mic_map)
-        _write_d(self.kmer_mapping, self.kmer_map)
-        _write_d(self.label_mapping, self.label_map)
+        json.dump(self.file_map, self.file_mapping)
+        json.dump(self.mic_map, self.mic_mapping)
+        json.dump(self.kmer_map, self.kmer_mapping)
+        json.dump(self.label_map, self.label_mapping)
 
         # Write out numpy array
         np.savetxt(self.node_labels, self.node_label_array, fmt='%d')
