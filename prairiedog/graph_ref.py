@@ -24,11 +24,10 @@ class GraphRef(GRef):
         self.MIC_DF = pd.read_csv(config.MIC_CSV, index_col=0)
         self.MIC_COLUMNS = self.MIC_DF.columns
         # Reference for all files encountered
-        self.file_map = {}
-        self.mic_maps = {
-            mic: {} for mic in self.MIC_COLUMNS
-        }
-        self.kmer_map = {}
+        self.file_map = {}  # src file str : some int
+        self.mic_map = {}  # MIC value : some int
+        self.kmer_map = {}  # kmer str : some int
+        self.label_map = {}  # some label for a kmer : some int
         # NumPy arrays
         self.node_label_array = None
         self.node_attributes_array = None
@@ -80,9 +79,8 @@ class GraphRef(GRef):
         for label in self.MIC_COLUMNS:
             mic = series[label]
             graph_label_file = self._get_graph_label_file(label)
-            mic_map = self.mic_maps[label]
             with open(graph_label_file, 'a') as f:
-                f.write('{}\n'.format(self._upsert_map(mic_map, mic)))
+                f.write('{}\n'.format(self._upsert_map(self.mic_map, mic)))
 
     def incr_node_id(self, km: Kmers):
         """
@@ -109,7 +107,8 @@ class GraphRef(GRef):
         self.write_graph_label(km)
 
     def _find_kmer_label(self, kmer: str):
-        pass
+        # TODO: implement this
+        return "AMR element"
 
     def record_node_labels(self, pos_id: int, kmer: str):
         """
@@ -118,7 +117,9 @@ class GraphRef(GRef):
         :param kmer:
         :return:
         """
-        pass
+        label = self._find_kmer_label(kmer)
+        label_id = self._upsert_map(self.label_map, label)
+        self.node_label_array[pos_id] = label_id
 
     def record_node_attributes(self, pos_id: int, kmer: str):
         """
@@ -150,15 +151,22 @@ class GraphRef(GRef):
 
     def close(self):
         """
-        Make sure to write out all mappings for reference
+        Make sure to write out:
+        - all mappings for reference
+        - KMERS_node_labels.txt
+        - KMERS_node_attributes.txt
         :return:
         """
-        pass
-        # def _write(fl, di):
-        #     with open(fl, 'a') as fil:
-        #         for k, v in di:
-        #             fil.write('{}, {}\n'.format(k, v))
-        #
-        # _write(self.file_mapping, self.file_map)
-        # _write(self.mic_mapping, self.mic_map)
-        # _write(self.kmer_mapping, self.kmer_map)
+        # Write out dictionary maps
+        def _write_d(fl, di):
+            with open(fl, 'a') as fil:
+                for k, v in di:
+                    fil.write('{}, {}\n'.format(k, v))
+        _write_d(self.file_mapping, self.file_map)
+        _write_d(self.mic_mapping, self.mic_map)
+        _write_d(self.kmer_mapping, self.kmer_map)
+        _write_d(self.label_map, self.label_map)
+
+        # Write out numpy array
+        np.savetxt(self.node_labels, self.node_label_array, fmt='%d')
+        np.savetxt(self.node_attributes, self.node_attributes_array, fmt='%d')
