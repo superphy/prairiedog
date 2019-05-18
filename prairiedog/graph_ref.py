@@ -98,11 +98,12 @@ class GraphRef(GRef):
         :return:
         """
         self.node_id_count += km.unique_kmers
-        i = self._upsert_map(self.file_map, km.filepath)
+        graph_id = self._upsert_map(self.file_map, km.filepath)
 
         # Call to write out a KMERS_graph_indicator.txt file
         with open(self.graph_indicator, 'a') as f:
-            f.write('{}\n'.format(i))
+            for i in km.unique_kmers:
+                f.write('{}\n'.format(graph_id))
 
         # Call to write out KMERS_graph_labels_{}.txt files
         self.write_graph_label(km)

@@ -22,10 +22,12 @@ def test_graphref_incr_node():
     gr = kmg.gr
 
     with open(gr.graph_indicator) as f:
-        lines = f.readlines()
+        lines = [int(li.rstrip()) for li in f.readlines()]
     # The number of lines written should equal the number of unique nodes per
     # file
     assert len(lines) == gr.n
+    # The max graph indicator id should be the number of files
+    assert max(lines) == len(kmg.km_list)
 
     with open(gr._get_graph_label_file('AMP')) as f:
         lines = f.readlines()
