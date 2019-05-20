@@ -31,6 +31,8 @@ def test_graphref_output():
     assert len(lines) == gr.n
     # The max graph indicator id should be the number of files
     assert max(lines) == len(kmg.km_list)
+    # Min should not be 0
+    assert min(lines) == 1
 
     ####
     #   KMERS_graph_labels.txt
@@ -59,6 +61,8 @@ def test_graphref_output():
     assert len(lines) == gr.n
     # The node attribute we use is the kmer, the max of which is 4^k
     assert max(lines) <= 4**config.K
+    # Min should not be 0
+    assert min(lines) == 0
 
     ####
     #   Check that we can read all dictionary mapping files
