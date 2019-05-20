@@ -62,7 +62,7 @@ def test_graphref_output():
     # The node attribute we use is the kmer, the max of which is 4^k
     assert max(lines) <= 4**config.K
     # Min should not be 0
-    assert min(lines) == 0
+    assert min(lines) == 1
 
     ####
     #   Check that we can read all dictionary mapping files
