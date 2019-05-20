@@ -3,11 +3,14 @@
 """Console script for prairiedog."""
 import sys
 import os
+import logging
 
 import click
 
 import prairiedog.config as config
 from prairiedog.prairiedog import Prairiedog
+
+log = logging.getLogger("prairiedog")
 
 
 @click.command()
@@ -23,8 +26,12 @@ def main(k, input_folder):
     else:
         config.INPUT_FILES = [input_folder]
     # Main call
-    pdog = Prairiedog()
-    pdog.run()
+    if len(config.INPUT_FILES) == 0:
+        log.critical("No input files found in folder {}, exiting...".format(
+            config.INPUT_DIRECTORY))
+        return
+    else:
+        Prairiedog()
     return 0
 
 
