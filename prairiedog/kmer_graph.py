@@ -72,7 +72,7 @@ class KmerGraph:
                 subgraph = future.result()
                 files_graphed += 1
                 log.info("{} / {} done, graphed {}".format(
-                    files_graphed, len(self.km_list), subgraph.km))
+                    files_graphed, len(self.km_list), subgraph))
                 self.gr.append(subgraph)
         en = time.time()
         log.info(
