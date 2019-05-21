@@ -12,6 +12,14 @@ prairiedog
 
 Supports Python3.5+
 
+Usage
+-----
+
+::
+
+    python setup.py install
+    prairiedog -k 11 -i samples/
+
 Tests & Benchmarks
 ------------------
 
