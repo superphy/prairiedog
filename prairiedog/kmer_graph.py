@@ -5,6 +5,7 @@ import typing
 from concurrent.futures import ProcessPoolExecutor, as_completed, Future, wait
 
 
+import prairiedog.config as config
 from prairiedog.kmers import Kmers
 from prairiedog.networkx_graph import NetworkXGraph
 from prairiedog.graph_ref import GraphRef
@@ -36,29 +37,17 @@ class KmerGraph:
             else:
                 kmer_futures = [
                     pool.submit(Kmers, f) for f in self.km_list]
-            # Block until parsing of all Kmer files is done, should only take
-            # a few seconds
-            wait(kmer_futures)
         return kmer_futures
-
-    @staticmethod
-    def _calculate_n(kmer_futures: typing.List[Future]) -> int:
-        log.debug("Calculating n (total number of unique kmers/file)")
-        c = 0
-        for future in kmer_futures:
-            km = future.result()
-            c += km.unique_kmers
-        log.debug("Calculated n as {}".format(c))
-        return c
 
     def _load(self):
         st = time.time()
         files_graphed = 0
         log.info("Starting to create KmerGraph in pid {}".format(os.getpid()))
         kmer_futures = self._parse_kmers()
-        n = self._calculate_n(kmer_futures)
+        # This is the max possible number of node ids
+        max_n = 4**config.K * len(config.INPUT_FILES)
         # We need to init NumPy arrays for node labels and attributes
-        self.gr = GraphRef(n)
+        self.gr = GraphRef(max_n)
         log.info("Parsed Kmers for all {} files".format(len(self.km_list)))
         with ProcessPoolExecutor() as pool:
             subgraph_futures = []

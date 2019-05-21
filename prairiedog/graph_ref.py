@@ -183,5 +183,11 @@ class GraphRef(GRef):
         _write_d(self.label_mapping, self.label_map)
 
         # Write out numpy array
-        np.savetxt(self.node_labels, self.node_label_array, fmt='%d')
-        np.savetxt(self.node_attributes, self.node_attributes_array, fmt='%d')
+        np.savetxt(
+            self.node_labels,
+            self.node_label_array[np.nonzero(self.node_label_array)],
+            fmt='%d')
+        np.savetxt(
+            self.node_attributes,
+            self.node_attributes_array[np.nonzero(self.node_attributes_array)],
+            fmt='%d')
