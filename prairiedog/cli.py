@@ -15,16 +15,16 @@ log = logging.getLogger("prairiedog")
 
 @click.command()
 @click.option('-k', default=11, help='K-mer size.')
-@click.option('--input_folder', default='samples/',
+@click.option('-i', default='samples/',
               help='Folder of file to input')
-def main(k, input_folder):
+def main(k, i):
     """Console script for prairiedog."""
     # Setup config
     config.K = k
-    if os.path.isdir(input_folder):
-        config.INPUT_DIRECTORY = input_folder
+    if os.path.isdir(i):
+        config.INPUT_DIRECTORY = i
     else:
-        config.INPUT_FILES = [input_folder]
+        config.INPUT_FILES = [i]
     # Main call
     if len(config.INPUT_FILES) == 0:
         log.critical("No input files found in folder {}, exiting...".format(
