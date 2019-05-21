@@ -24,7 +24,10 @@ class KmerGraph:
             self.km_list = [km_list]
         self.k = k
         # GraphRef
-        self.gr = None
+        # This is the max possible number of node ids
+        max_n = 4 ** config.K * len(config.INPUT_FILES)
+        # We need to init NumPy arrays for node labels and attributes
+        self.gr = GraphRef(max_n)
         # Load call
         self._load()
 
@@ -44,10 +47,6 @@ class KmerGraph:
         files_graphed = 0
         log.info("Starting to create KmerGraph in pid {}".format(os.getpid()))
         kmer_futures = self._parse_kmers()
-        # This is the max possible number of node ids
-        max_n = 4**config.K * len(config.INPUT_FILES)
-        # We need to init NumPy arrays for node labels and attributes
-        self.gr = GraphRef(max_n)
         log.info("Parsed Kmers for all {} files".format(len(self.km_list)))
         with ProcessPoolExecutor() as pool:
             subgraph_futures = []
