@@ -15,7 +15,7 @@ INPUTS = [f.split('.')[0] for f in os.listdir('samples/')
 
 rule all:
     input:
-         'output/KMERS_A.txt'
+         'outputs/KMERS_A.txt'
 
 rule kmers:
     input:
@@ -24,8 +24,8 @@ rule kmers:
         'outputs/kmers/{sample}.pkl'
     run:
         pathlib.Path('outputs/kmers/').mkdir(parents=True, exist_ok=True)
-        km = Kmers({input},{K})
-        pickle.dump(km, open({output},'wb'))
+        km = Kmers(input[0],K)
+        pickle.dump(km, open(output[0],'wb'))
 
 rule offset:
     input:
@@ -34,12 +34,12 @@ rule offset:
         'outputs/kmers/offsets.pkl', 'outputs/graphref.pkl'
     run:
         offsets = {}
-        max_n = 4 ** {K} * len({INPUTS})
-        gr = GraphRef(max_n)
-        for kmf in {input}:
+        max_n = 4 ** K * len(INPUTS)
+        gr = GraphRef(max_n, 'outputs')
+        for kmf in input:
             km = pickle.load(open(kmf,'rb'))
             offset = gr.node_id_count
-            offsets[{kmf}] = offset
+            offsets[kmf] = offset
             gr.incr_node_id(km)
         pickle.dump(offsets, open('outputs/kmers/offsets.pkl','wb'))
         pickle.dump(gr, open('outputs/graphref.pkl','wb'))
@@ -49,23 +49,28 @@ rule subgraphs:
         kmf='outputs/kmers/{sample}.pkl',
         offsets='outputs/kmers/offsets.pkl'
     output:
-        'output/subgraphs/{sample}.pkl'
+        'outputs/subgraphs/{sample}.pkl'
     run:
-        offsets = pickle.load(open({kmf}, 'rb'))
-        offset = offsets[{kmf}]
-        km = pickle.load(open({kmf},'rb'))
+        pathlib.Path('outputs/subgraphs/').mkdir(parents=True, exist_ok=True)
+        offsets = pickle.load(open(input.offsets, 'rb'))
+        offset = offsets[input.kmf]
+        km = pickle.load(open(input.kmf,'rb'))
         sg = SubgraphRef(offset, km, NetworkXGraph())
-        pickle.dump(sg, open({output},'wb'))
+        pickle.dump(sg, open(output[0],'wb'))
 
 rule graph:
     input:
-        subgraphs=expand('output/subgraphs/{input}.pkl', input=INPUTS),
+        subgraphs=expand('outputs/subgraphs/{input}.pkl', input=INPUTS),
         graphref='outputs/graphref.pkl'
     output:
-        'output/KMERS_A.txt'
+        'outputs/KMERS_A.txt'
     run:
-        gr = pickle.load(open({graphref}))
-        for sgf in {subgraphs}:
+        gr = pickle.load(open(input.graphref, 'rb'))
+        for sgf in input.subgraphs:
             sg = pickle.load(open(sgf,'rb'))
             gr.append(sg)
         gr.close()
+
+rule clean:
+    shell:
+        "rm -rf outputs/"

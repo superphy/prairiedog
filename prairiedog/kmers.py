@@ -34,6 +34,8 @@ class Kmers:
             "Parsing Kmers for file {} with K size {} in pid {}".format(
                 self.filepath, self.k, os.getpid()
             ))
+        log.debug("Seeing current working directory as: {}".format(
+            os.getcwd()))
         st = time.time()
         with open(self.filepath) as f:
             for line in f:

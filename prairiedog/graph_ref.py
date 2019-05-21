@@ -18,7 +18,7 @@ class GraphRef(GRef):
     """
     Helper class to track node ints, etc.
     """
-    def __init__(self, n):
+    def __init__(self, n, output_folder = None):
         self.n = n
         self.node_id_count = 0
         self.MIC_DF = pd.read_csv(config.MIC_CSV, index_col=0)
@@ -33,8 +33,11 @@ class GraphRef(GRef):
         self.node_attributes_array = None
         self._init_node_arrays(n)
         # Output folders
-        pf = '{date:%Y-%m-%d_%H-%M-%S}'.format(date=datetime.datetime.now())
-        self.output_folder = 'output/{}'.format(pf)
+        if output_folder:
+            self.output_folder = output_folder
+        else:
+            pf = '{date:%Y-%m-%d_%H-%M-%S}'.format(date=datetime.datetime.now())
+            self.output_folder = 'outputs/{}'.format(pf)
         self._setup_folders()
         # Calculate constants for output sizes
         self.max_n = (4**config.K)*config.INPUT_FILES
@@ -142,6 +145,7 @@ class GraphRef(GRef):
         strings and other variables into incrementing ints for the models.
         This function is called to get the node_id for NetworkX.
         """
+        log.info("Appending subgraph {} to core graph".format(subgraph))
         ####
         #   KMERS_A.txt
         ####
