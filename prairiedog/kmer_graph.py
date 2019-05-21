@@ -2,7 +2,7 @@ import time
 import logging
 import os
 import typing
-from concurrent.futures import ProcessPoolExecutor, as_completed, Future, wait
+from concurrent.futures import ProcessPoolExecutor, as_completed, Future
 
 
 import prairiedog.config as config
