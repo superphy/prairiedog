@@ -3,12 +3,12 @@ import math
 import shutil
 import logging
 import itertools
+import glob
 
 import pytest
 
 from prairiedog import kmers
 from prairiedog.networkx_graph import NetworkXGraph
-from prairiedog.kmer_graph import KmerGraph
 
 log = logging.getLogger('prairiedog')
 
@@ -88,3 +88,14 @@ def kmer_map():
     mp = map(''.join, itertools.product('ATCG', repeat=11))
     d = {x: i + 1 for i, x in enumerate(mp)}
     return d
+
+
+@pytest.fixture(params=[
+    ['tests/SRR1060582_SHORTENED.fasta', 'tests/SRR1106609_SHORTENED.fasta']])
+def setup_snakefile(request):
+    for f in request.param:
+        shutil.copy2(f, 'samples/')
+    yield request.param
+    files = [os.path.basename(f) for f in request.param]
+    for f in files:
+        os.remove(os.path.join('samples/', f))

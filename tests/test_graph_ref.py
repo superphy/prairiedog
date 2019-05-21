@@ -1,4 +1,8 @@
+import subprocess
+import pickle
+
 import pandas as pd
+
 from prairiedog.kmer_graph import KmerGraph
 from prairiedog import config
 
@@ -9,18 +13,17 @@ def test_pandas_read_mic_csv():
     assert True
 
 
-def test_graphref_output():
+def test_graphref_output(setup_snakefile):
     # Set the config MIC csv to use our test one
     config.MIC_CSV = 'tests/public_mic_class_dataframe_test.csv'
+
     # Use KmerGraph to drive graph creation for two files
-    kmg = KmerGraph(
-        [
-            'tests/SRR1060582_SHORTENED.fasta',
-            'tests/SRR1106609_SHORTENED.fasta'
-        ]
+    subprocess.run('snakemake', check=True)
+
+    # GraphRef created by snakemake
+    gr = pickle.load(
+        open('outputs/graphref.pkl', 'rb')
     )
-    # Alias a variable to the inner GraphRef
-    gr = kmg.gr
 
     ####
     #   KMERS_graph_indicator.txt
@@ -31,7 +34,7 @@ def test_graphref_output():
     # file
     # assert len(lines) == gr.n
     # The max graph indicator id should be the number of files
-    assert max(lines) == len(kmg.km_list)
+    assert max(lines) == len(setup_snakefile)
 
     ####
     #   KMERS_graph_labels.txt
@@ -40,10 +43,10 @@ def test_graphref_output():
         lines = f.readlines()
     # The KMERS_graph_labels_AMP.txt file should only have as many lines as
     # there are genome files processed
-    assert len(lines) == len(kmg.km_list)
+    assert len(lines) == len(setup_snakefile)
 
     # Write out all maps and node_*.txt files
-    kmg.gr.close()
+    gr.close()
 
     ####
     #   KMERS_node_labels.txt
