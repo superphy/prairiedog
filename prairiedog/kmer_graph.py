@@ -25,7 +25,7 @@ class KmerGraph:
         self.k = k
         # GraphRef
         # This is the max possible number of node ids
-        max_n = 4 ** config.K * len(config.INPUT_FILES)
+        max_n = 4 ** self.k * len(self.km_list)
         # We need to init NumPy arrays for node labels and attributes
         self.gr = GraphRef(max_n)
         # Load call
