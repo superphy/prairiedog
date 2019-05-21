@@ -22,7 +22,7 @@ class KmerGraph:
             self.km_list = km_list
         elif isinstance(km_list, str):
             self.km_list = [km_list]
-        if self.k:
+        if k:
             self.k = k
         else:
             self.k = config.K
