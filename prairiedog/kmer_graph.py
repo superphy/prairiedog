@@ -22,7 +22,10 @@ class KmerGraph:
             self.km_list = km_list
         elif isinstance(km_list, str):
             self.km_list = [km_list]
-        self.k = k
+        if self.k:
+            self.k = k
+        else:
+            self.k = config.K
         # GraphRef
         # This is the max possible number of node ids
         max_n = 4 ** self.k * len(self.km_list)
