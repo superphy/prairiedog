@@ -205,13 +205,24 @@ class GraphRef(GRef):
 
         # Write out numpy array
         log.info("Writing out node labels as {}".format(self.node_labels))
+        node_label_array_nonzero = self.node_label_array[
+            np.nonzero(self.node_label_array)]
+        if len(node_label_array_nonzero) == 0:
+            log.critical("Length on node label array is zero")
+            raise Exception("Length on node label array is zero")
         np.savetxt(
             self.node_labels,
-            self.node_label_array[np.nonzero(self.node_label_array)],
+            node_label_array_nonzero,
             fmt='%d')
+
         log.info("Writing out node attributes as {}".format(
             self.node_attributes))
+        node_attributes_array_nonzero = self.node_attributes_array[
+            np.nonzero(self.node_attributes_array)]
+        if len(node_attributes_array_nonzero) == 0:
+            log.critical("Length on node attribute array is zero")
+            raise Exception("Length on node attribute array is zero")
         np.savetxt(
             self.node_attributes,
-            self.node_attributes_array[np.nonzero(self.node_attributes_array)],
+            node_attributes_array_nonzero,
             fmt='%d')
