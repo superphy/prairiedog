@@ -1,4 +1,4 @@
-import pickle
+import dill
 import pathlib
 import os
 
@@ -27,7 +27,7 @@ rule kmers:
     run:
         pathlib.Path('outputs/kmers/').mkdir(parents=True, exist_ok=True)
         km = Kmers(input[0],K)
-        pickle.dump(km, open(output[0],'wb'))
+        dill.dump(km, open(output[0],'wb'))
 
 rule offset:
     input:
@@ -39,14 +39,14 @@ rule offset:
         max_n = 4 ** K * len(INPUTS)
         gr = GraphRef(max_n, 'outputs', MIC_CSV)
         for kmf in input:
-            km = pickle.load(open(kmf,'rb'))
+            km = dill.load(open(kmf,'rb'))
             offset = gr.node_id_count
             offsets[kmf] = offset
             gr.incr_node_id(km)
-        pickle.dump(offsets,
-                    open('outputs/kmers/offsets.pkl','wb'), protocol=4)
-        pickle.dump(gr,
-                    open('outputs/graphref.pkl','wb'), protocol=4)
+        dill.dump(offsets,
+                    open('outputs/kmers/offsets.pkl','wb'))
+        dill.dump(gr,
+                    open('outputs/graphref.pkl','wb'))
 
 rule subgraphs:
     input:
@@ -56,11 +56,11 @@ rule subgraphs:
         'outputs/subgraphs/{sample}.pkl'
     run:
         pathlib.Path('outputs/subgraphs/').mkdir(parents=True, exist_ok=True)
-        offsets = pickle.load(open(input.offsets, 'rb'))
+        offsets = dill.load(open(input.offsets, 'rb'))
         offset = offsets[input.kmf]
-        km = pickle.load(open(input.kmf,'rb'))
+        km = dill.load(open(input.kmf,'rb'))
         sg = SubgraphRef(offset, km, NetworkXGraph())
-        pickle.dump(sg, open(output[0],'wb'), protocol=4)
+        dill.dump(sg, open(output[0],'wb'))
 
 rule graph:
     input:
@@ -69,9 +69,9 @@ rule graph:
     output:
         'outputs/KMERS_A.txt'
     run:
-        gr = pickle.load(open(input.graphref, 'rb'))
+        gr = dill.load(open(input.graphref, 'rb'))
         for sgf in input.subgraphs:
-            sg = pickle.load(open(sgf,'rb'))
+            sg = dill.load(open(sgf,'rb'))
             gr.append(sg)
         gr.close()
 
