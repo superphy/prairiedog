@@ -34,6 +34,7 @@ def test_graphref_output(setup_snakefile):
     # assert len(lines) == gr.n
     # The max graph indicator id should be the number of files
     assert max(lines) == len(setup_snakefile)
+    assert min(lines) == 1
 
     ####
     #   KMERS_graph_labels.txt
@@ -59,6 +60,7 @@ def test_graphref_output(setup_snakefile):
     # The node attribute we use is the kmer, the max of which is 4^k
     node_attributes = np.loadtxt(gr.node_attributes, dtype=int)
     assert 1 <= len(node_attributes) <= gr.n
+    assert min(node_attributes) == 1
 
     ####
     #   Check that we can read all dictionary mapping files
