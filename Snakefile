@@ -76,6 +76,7 @@ rule graph:
         for sgf in input.subgraphs:
             sg = dill.load(open(sgf,'rb'))
             gr.append(sg)
+        dill.dump(gr, open(input.graphref, 'wb'), protocol=4)
         gr.close()
 
 rule clean:
