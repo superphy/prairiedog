@@ -21,7 +21,7 @@ def test_graphref_output(setup_snakefile):
 
     # GraphRef created by snakemake
     gr = pickle.load(
-        open('outputs/graphref.pkl', 'rb')
+        open('outputs/graphref_final.pkl', 'rb')
     )
 
     ####
