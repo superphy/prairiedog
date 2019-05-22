@@ -12,6 +12,27 @@ prairiedog
 
 Supports Python3.5+
 
+Usage
+-----
+
+To recreate the models, we have to install datrie from src (see https://github.com/pytries/datrie/issues/52), run:
+
+::
+
+    python -m venv venv
+    . venv/bin/activate
+    pip install -r requirements.txt
+    pip install git+https://github.com/pytries/datrie.git
+    pip install snakemake
+    snakemake --config samples=samples/
+
+To use prairiedog on existing models, run:
+
+::
+
+    python setup.py install
+    prairiedog
+
 Tests & Benchmarks
 ------------------
 

@@ -3,7 +3,7 @@ import math
 import shutil
 import logging
 import itertools
-import glob
+import subprocess
 
 import pytest
 
@@ -99,3 +99,4 @@ def setup_snakefile(request):
     files = [os.path.basename(f) for f in request.param]
     for f in files:
         os.remove(os.path.join('samples/', f))
+    subprocess.run("snakemake clean", shell=True)
