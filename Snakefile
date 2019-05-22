@@ -1,4 +1,3 @@
-import pickle
 import pathlib
 import os
 
@@ -41,7 +40,7 @@ rule offset:
         max_n = 4 ** K * len(INPUTS)
         gr = GraphRef(max_n, 'outputs', MIC_CSV)
         for kmf in input:
-            km = pickle.load(open(kmf,'rb'))
+            km = dill.load(open(kmf,'rb'))
             offset = gr.node_id_count
             offsets[kmf] = offset
             gr.incr_node_id(km)
