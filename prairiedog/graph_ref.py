@@ -174,9 +174,12 @@ class GraphRef(GRef):
         inverted = {
             value: key
             for key, value in subgraph.subgraph_kmer_map.items()}
+        assert len(inverted) != 0
+        assert len(subgraph.graph.nodes) != 0
         for node_id in subgraph.graph.nodes:
             kmer = inverted[node_id]
-            # Node IDs start at 1
+            # Node IDs start at 1, but we are writing to indexes in a NumPy
+            # array
             pos_id = node_id - 1
             self.record_node_labels(pos_id, kmer)
             self.record_node_attributes(pos_id, kmer)
