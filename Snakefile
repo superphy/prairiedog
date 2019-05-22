@@ -70,13 +70,13 @@ rule graph:
         subgraphs=expand('outputs/subgraphs/{input}.pkl', input=INPUTS),
         graphref='outputs/graphref.pkl'
     output:
-        'outputs/KMERS_A.txt'
+        'outputs/KMERS_A.txt', 'outputs/graphref_final.pkl'
     run:
         gr = dill.load(open(input.graphref, 'rb'))
         for sgf in input.subgraphs:
             sg = dill.load(open(sgf,'rb'))
             gr.append(sg)
-        dill.dump(gr, open(input.graphref, 'wb'), protocol=4)
+        dill.dump(gr, open(output[1], 'wb'), protocol=4)
         gr.close()
 
 rule clean:
