@@ -32,8 +32,8 @@ class GraphRef(GRef):
         self.kmer_map = {}  # kmer str : some int
         self.label_map = {}  # some label for a kmer : some int
         # NumPy arrays
-        self.node_label_array = None
-        self.node_attributes_array = None
+        self._node_label_array = None
+        self._node_attributes_array = None
         # Output folders
         if output_folder:
             self.output_folder = output_folder
@@ -61,10 +61,21 @@ class GraphRef(GRef):
         self.label_mapping = os.path.join(
             self.output_folder, 'KMERS_label_mapping.txt')
 
-    def _init_node_arrays(self, n: int):
-        log.debug("Initializing NumPy arrays to length {}".format(n))
-        self.node_label_array = np.empty(n, dtype=int)
-        self.node_attributes_array = np.empty(n, dtype=int)
+    @property
+    def node_label_array(self):
+        if self._node_label_array is None:
+            log.debug("Initializing node label array to length {}".format(
+                self.n))
+            self._node_label_array = np.empty(self.n, dtype=int)
+        return self._node_label_array
+
+    @property
+    def node_attributes_array(self):
+        if self._node_attributes_array is None:
+            log.debug("Initializing node attribute array to length {}".format(
+                self.n))
+            self._node_attributes_array = np.empty(self.n, dtype=int)
+        return self._node_attributes_array
 
     def _setup_folders(self):
         pathlib.Path(self.output_folder).mkdir(parents=True, exist_ok=True)
@@ -148,8 +159,6 @@ class GraphRef(GRef):
         This function is called to get the node_id for NetworkX.
         """
         log.info("Appending subgraph {} to core graph".format(subgraph))
-        if self.node_label_array is None or self.node_attributes_array is None:
-            self._init_node_arrays(self.n)
         ####
         #   KMERS_A.txt
         ####
