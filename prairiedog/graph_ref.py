@@ -18,10 +18,13 @@ class GraphRef(GRef):
     """
     Helper class to track node ints, etc.
     """
-    def __init__(self, n):
+    def __init__(self, n, output_folder=None, mic_csv=None):
         self.n = n
         self.node_id_count = 0
-        self.MIC_DF = pd.read_csv(config.MIC_CSV, index_col=0)
+        if mic_csv:
+            self.MIC_DF = pd.read_csv(mic_csv, index_col=0)
+        else:
+            self.MIC_DF = pd.read_csv(config.MIC_CSV, index_col=0)
         self.MIC_COLUMNS = self.MIC_DF.columns
         # Reference for all files encountered
         self.file_map = {}  # src file str : some int
@@ -29,16 +32,16 @@ class GraphRef(GRef):
         self.kmer_map = {}  # kmer str : some int
         self.label_map = {}  # some label for a kmer : some int
         # NumPy arrays
-        self.node_label_array = None
-        self.node_attributes_array = None
-        self._init_node_arrays(n)
+        self._node_label_array = None
+        self._node_attributes_array = None
         # Output folders
-        pf = '{date:%Y-%m-%d_%H-%M-%S}'.format(date=datetime.datetime.now())
-        self.output_folder = 'output/{}'.format(pf)
+        if output_folder:
+            self.output_folder = output_folder
+        else:
+            pf = '{date:%Y-%m-%d_%H-%M-%S}'.format(
+                date=datetime.datetime.now())
+            self.output_folder = 'outputs/{}'.format(pf)
         self._setup_folders()
-        # Calculate constants for output sizes
-        self.max_n = (4**config.K)*config.INPUT_FILES
-        self.N = len(config.INPUT_FILES)
         # Output files
         self.adj_matrix = os.path.join(
             self.output_folder, 'KMERS_A.txt')
@@ -58,10 +61,21 @@ class GraphRef(GRef):
         self.label_mapping = os.path.join(
             self.output_folder, 'KMERS_label_mapping.txt')
 
-    def _init_node_arrays(self, n: int):
-        log.debug("Initializing NumPy arrays to length {}".format(n))
-        self.node_label_array = np.empty(n, dtype=int)
-        self.node_attributes_array = np.empty(n, dtype=int)
+    @property
+    def node_label_array(self):
+        if self._node_label_array is None:
+            log.debug("Initializing node label array to length {}".format(
+                self.n))
+            self._node_label_array = np.empty(self.n, dtype=int)
+        return self._node_label_array
+
+    @property
+    def node_attributes_array(self):
+        if self._node_attributes_array is None:
+            log.debug("Initializing node attribute array to length {}".format(
+                self.n))
+            self._node_attributes_array = np.empty(self.n, dtype=int)
+        return self._node_attributes_array
 
     def _setup_folders(self):
         pathlib.Path(self.output_folder).mkdir(parents=True, exist_ok=True)
@@ -99,6 +113,8 @@ class GraphRef(GRef):
         :param km:
         :return:
         """
+        log.info("Appending {} to KMERS_graph_labels_*.txt and \
+            KMERS_graph_indicator.txt".format(km))
         self.node_id_count += km.unique_kmers
         graph_id = self._upsert_map(self.file_map, km.filepath)
 
@@ -142,6 +158,7 @@ class GraphRef(GRef):
         strings and other variables into incrementing ints for the models.
         This function is called to get the node_id for NetworkX.
         """
+        log.info("Appending subgraph {} to core graph".format(subgraph))
         ####
         #   KMERS_A.txt
         ####
@@ -157,12 +174,17 @@ class GraphRef(GRef):
         inverted = {
             value: key
             for key, value in subgraph.subgraph_kmer_map.items()}
+        assert len(inverted) != 0
+        n_nodes = len(subgraph.graph.nodes)
+        assert n_nodes != 0
         for node_id in subgraph.graph.nodes:
             kmer = inverted[node_id]
-            # Node IDs start at 1
+            # Node IDs start at 1, but we are writing to indexes in a NumPy
+            # array
             pos_id = node_id - 1
             self.record_node_labels(pos_id, kmer)
             self.record_node_attributes(pos_id, kmer)
+        log.info("Recorded {} nodes to node arrays".format(n_nodes))
 
     def close(self):
         """
@@ -177,11 +199,35 @@ class GraphRef(GRef):
             with open(fl, 'a') as f:
                 for k, v in di.items():
                     f.write('{}, {}\n'.format(k, v))
+        log.info("Writing out file mapping as {}".format(self.file_mapping))
         _write_d(self.file_mapping, self.file_map)
+        log.info("Writing out MIC mapping as {}".format(self.mic_mapping))
         _write_d(self.mic_mapping, self.mic_map)
+        log.info("Writing out Kmer mapping as {}".format(self.kmer_mapping))
         _write_d(self.kmer_mapping, self.kmer_map)
+        log.info("Writing out label mapping as {}".format(self.label_mapping))
         _write_d(self.label_mapping, self.label_map)
 
         # Write out numpy array
-        np.savetxt(self.node_labels, self.node_label_array, fmt='%d')
-        np.savetxt(self.node_attributes, self.node_attributes_array, fmt='%d')
+        log.info("Writing out node labels as {}".format(self.node_labels))
+        node_label_array_nonzero = self.node_label_array[
+            np.nonzero(self.node_label_array)]
+        if len(node_label_array_nonzero) == 0:
+            log.critical("Length on node label array is zero")
+            raise Exception("Length on node label array is zero")
+        np.savetxt(
+            self.node_labels,
+            node_label_array_nonzero,
+            fmt='%d')
+
+        log.info("Writing out node attributes as {}".format(
+            self.node_attributes))
+        node_attributes_array_nonzero = self.node_attributes_array[
+            np.nonzero(self.node_attributes_array)]
+        if len(node_attributes_array_nonzero) == 0:
+            log.critical("Length on node attribute array is zero")
+            raise Exception("Length on node attribute array is zero")
+        np.savetxt(
+            self.node_attributes,
+            node_attributes_array_nonzero,
+            fmt='%d')
