@@ -18,8 +18,8 @@ def test_graphref_output(setup_snakefile):
     mic_csv = 'tests/public_mic_class_dataframe_test.csv'
 
     # Use Snakemake to drive graph creation for two files
-    subprocess.run(['snakemake', '--config' 'graph_labels={}'.format(mic_csv)],
-                   check=True)
+    subprocess.run('snakemake --config graph_labels={}'.format(mic_csv),
+                   check=True, shell=True)
 
     # GraphRef created by snakemake
     gr = pickle.load(
