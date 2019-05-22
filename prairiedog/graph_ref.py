@@ -39,7 +39,8 @@ class GraphRef(GRef):
         if output_folder:
             self.output_folder = output_folder
         else:
-            pf = '{date:%Y-%m-%d_%H-%M-%S}'.format(date=datetime.datetime.now())
+            pf = '{date:%Y-%m-%d_%H-%M-%S}'.format(
+                date=datetime.datetime.now())
             self.output_folder = 'outputs/{}'.format(pf)
         self._setup_folders()
         # Calculate constants for output sizes

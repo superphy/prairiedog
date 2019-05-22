@@ -2,8 +2,7 @@ import subprocess
 import pickle
 
 import pandas as pd
-
-from prairiedog import config
+import numpy as np
 
 
 def test_pandas_read_mic_csv():
@@ -51,18 +50,15 @@ def test_graphref_output(setup_snakefile):
     ####
     #   KMERS_node_labels.txt
     ####
-    with open(gr.node_labels) as f:
-        lines = [int(li.rstrip()) for li in f.readlines()]
-    assert 1<= len(lines) == gr.n
+    node_labels = np.loadtxt(gr.node_labels, dtype=int)
+    assert 1 <= len(node_labels) <= gr.n
 
     ####
     #   KMERS_node_attributes.txt
     ####
-    with open(gr.node_attributes) as f:
-        lines = [int(li.rstrip()) for li in f.readlines()]
-    # assert len(lines) == gr.n
     # The node attribute we use is the kmer, the max of which is 4^k
-    assert max(lines) <= 4**config.K
+    node_attributes = np.loadtxt(gr.node_attributes, dtype=int)
+    assert 1 <= len(node_attributes) <= gr.n
 
     ####
     #   Check that we can read all dictionary mapping files
