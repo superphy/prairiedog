@@ -15,10 +15,11 @@ def test_pandas_read_mic_csv():
 
 def test_graphref_output(setup_snakefile):
     # Set the config MIC csv to use our test one
-    config.MIC_CSV = 'tests/public_mic_class_dataframe_test.csv'
+    mic_csv = 'tests/public_mic_class_dataframe_test.csv'
 
     # Use KmerGraph to drive graph creation for two files
-    subprocess.run('snakemake', check=True)
+    subprocess.run('snakemake --config graph_labels={}'.format(mic_csv),
+                   check=True)
 
     # GraphRef created by snakemake
     gr = pickle.load(

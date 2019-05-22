@@ -18,10 +18,13 @@ class GraphRef(GRef):
     """
     Helper class to track node ints, etc.
     """
-    def __init__(self, n, output_folder = None):
+    def __init__(self, n, output_folder=None, mic_csv=None):
         self.n = n
         self.node_id_count = 0
-        self.MIC_DF = pd.read_csv(config.MIC_CSV, index_col=0)
+        if mic_csv:
+            self.MIC_DF = pd.read_csv(mic_csv, index_col=0)
+        else:
+            self.MIC_DF = pd.read_csv(config.MIC_CSV, index_col=0)
         self.MIC_COLUMNS = self.MIC_DF.columns
         # Reference for all files encountered
         self.file_map = {}  # src file str : some int
@@ -102,6 +105,8 @@ class GraphRef(GRef):
         :param km:
         :return:
         """
+        log.info("Appending {} to KMERS_graph_labels_*.txt and \
+            KMERS_graph_indicator.txt".format(km))
         self.node_id_count += km.unique_kmers
         graph_id = self._upsert_map(self.file_map, km.filepath)
 

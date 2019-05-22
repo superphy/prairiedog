@@ -7,11 +7,13 @@ from prairiedog.networkx_graph import NetworkXGraph
 from prairiedog.graph_ref import GraphRef
 from prairiedog.subgraph_ref import SubgraphRef
 
-K = 11
+configfile: "config.yaml"
 
-INPUTS = [f.split('.')[0] for f in os.listdir('samples/')
+K = config["k"]
+INPUTS = [f.split('.')[0] for f in os.listdir(config["samples"])
            if f.endswith(('.fna', '.fasta', '.fa'))
 ]
+MIC_CSV = config["graph_labels"]
 
 rule all:
     input:
@@ -35,7 +37,7 @@ rule offset:
     run:
         offsets = {}
         max_n = 4 ** K * len(INPUTS)
-        gr = GraphRef(max_n, 'outputs')
+        gr = GraphRef(max_n, 'outputs', MIC_CSV)
         for kmf in input:
             km = pickle.load(open(kmf,'rb'))
             offset = gr.node_id_count
