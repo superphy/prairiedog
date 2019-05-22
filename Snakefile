@@ -45,9 +45,9 @@ rule offset:
             offsets[kmf] = offset
             gr.incr_node_id(km)
         dill.dump(offsets,
-                    open('outputs/kmers/offsets.pkl','wb'))
+                    open('outputs/kmers/offsets.pkl','wb'), protocol=4)
         dill.dump(gr,
-                    open('outputs/graphref.pkl','wb'))
+                    open('outputs/graphref.pkl','wb'), protocol=4)
 
 rule subgraphs:
     input:

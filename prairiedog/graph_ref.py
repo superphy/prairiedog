@@ -34,7 +34,6 @@ class GraphRef(GRef):
         # NumPy arrays
         self.node_label_array = None
         self.node_attributes_array = None
-        self._init_node_arrays(n)
         # Output folders
         if output_folder:
             self.output_folder = output_folder
@@ -43,9 +42,6 @@ class GraphRef(GRef):
                 date=datetime.datetime.now())
             self.output_folder = 'outputs/{}'.format(pf)
         self._setup_folders()
-        # Calculate constants for output sizes
-        self.max_n = (4**config.K)*config.INPUT_FILES
-        self.N = len(config.INPUT_FILES)
         # Output files
         self.adj_matrix = os.path.join(
             self.output_folder, 'KMERS_A.txt')
@@ -152,6 +148,8 @@ class GraphRef(GRef):
         This function is called to get the node_id for NetworkX.
         """
         log.info("Appending subgraph {} to core graph".format(subgraph))
+        if self.node_label_array is None or self.node_attributes_array is None:
+            self._init_node_arrays(self.n)
         ####
         #   KMERS_A.txt
         ####
