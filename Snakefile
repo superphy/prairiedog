@@ -41,8 +41,10 @@ rule offset:
             offset = gr.node_id_count
             offsets[kmf] = offset
             gr.incr_node_id(km)
-        pickle.dump(offsets, open('outputs/kmers/offsets.pkl','wb'))
-        pickle.dump(gr, open('outputs/graphref.pkl','wb'))
+        pickle.dump(offsets,
+                    open('outputs/kmers/offsets.pkl','wb'), protocol=4)
+        pickle.dump(gr,
+                    open('outputs/graphref.pkl','wb'), protocol=4)
 
 rule subgraphs:
     input:
@@ -56,7 +58,7 @@ rule subgraphs:
         offset = offsets[input.kmf]
         km = pickle.load(open(input.kmf,'rb'))
         sg = SubgraphRef(offset, km, NetworkXGraph())
-        pickle.dump(sg, open(output[0],'wb'))
+        pickle.dump(sg, open(output[0],'wb'), protocol=4)
 
 rule graph:
     input:
