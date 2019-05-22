@@ -44,6 +44,8 @@ rule offset:
             offset = gr.node_id_count
             offsets[kmf] = offset
             gr.incr_node_id(km)
+            # It seems the km object is being kept in memory for too long
+            del km
         dill.dump(offsets,
                     open('outputs/kmers/offsets.pkl','wb'), protocol=4)
         dill.dump(gr,
