@@ -1,6 +1,8 @@
-import dill
+import pickle
 import pathlib
 import os
+
+import dill
 
 from prairiedog.kmers import Kmers
 from prairiedog.networkx_graph import NetworkXGraph
@@ -39,7 +41,7 @@ rule offset:
         max_n = 4 ** K * len(INPUTS)
         gr = GraphRef(max_n, 'outputs', MIC_CSV)
         for kmf in input:
-            km = dill.load(open(kmf,'rb'))
+            km = pickle.load(open(kmf,'rb'))
             offset = gr.node_id_count
             offsets[kmf] = offset
             gr.incr_node_id(km)
