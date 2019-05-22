@@ -5,3 +5,4 @@ networkx==2.3
 numpy
 pandas
 click>=6.0
+dill

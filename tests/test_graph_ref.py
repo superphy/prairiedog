@@ -1,6 +1,9 @@
+import subprocess
+import pickle
+
 import pandas as pd
-from prairiedog.kmer_graph import KmerGraph
-from prairiedog import config
+import numpy as np
+
 
 def test_pandas_read_mic_csv():
     pd.read_csv('tests/public_mic_class_dataframe_test.csv')
@@ -8,18 +11,18 @@ def test_pandas_read_mic_csv():
     assert True
 
 
-def test_graphref_output():
+def test_graphref_output(setup_snakefile):
     # Set the config MIC csv to use our test one
-    config.MIC_CSV = 'tests/public_mic_class_dataframe_test.csv'
-    # Use KmerGraph to drive graph creation for two files
-    kmg = KmerGraph(
-        [
-            'tests/SRR1060582_SHORTENED.fasta',
-            'tests/SRR1106609_SHORTENED.fasta'
-        ]
+    mic_csv = 'tests/public_mic_class_dataframe_test.csv'
+
+    # Use Snakemake to drive graph creation for two files
+    subprocess.run('snakemake --config graph_labels={}'.format(mic_csv),
+                   check=True, shell=True)
+
+    # GraphRef created by snakemake
+    gr = pickle.load(
+        open('outputs/graphref_final.pkl', 'rb')
     )
-    # Alias a variable to the inner GraphRef
-    gr = kmg.gr
 
     ####
     #   KMERS_graph_indicator.txt
@@ -28,10 +31,9 @@ def test_graphref_output():
         lines = [int(li.rstrip()) for li in f.readlines()]
     # The number of lines written should equal the number of unique nodes per
     # file
-    assert len(lines) == gr.n
+    # assert len(lines) == gr.n
     # The max graph indicator id should be the number of files
-    assert max(lines) == len(kmg.km_list)
-    # Min should not be 0
+    assert max(lines) == len(setup_snakefile)
     assert min(lines) == 1
 
     ####
@@ -41,28 +43,24 @@ def test_graphref_output():
         lines = f.readlines()
     # The KMERS_graph_labels_AMP.txt file should only have as many lines as
     # there are genome files processed
-    assert len(lines) == len(kmg.km_list)
+    assert len(lines) == len(setup_snakefile)
 
     # Write out all maps and node_*.txt files
-    kmg.gr.close()
+    gr.close()
 
     ####
     #   KMERS_node_labels.txt
     ####
-    with open(gr.node_labels) as f:
-        lines = [int(li.rstrip()) for li in f.readlines()]
-    assert len(lines) == gr.n
+    node_labels = np.loadtxt(gr.node_labels, dtype=int)
+    assert 1 <= len(node_labels) <= gr.n
 
     ####
     #   KMERS_node_attributes.txt
     ####
-    with open(gr.node_attributes) as f:
-        lines = [int(li.rstrip()) for li in f.readlines()]
-    assert len(lines) == gr.n
     # The node attribute we use is the kmer, the max of which is 4^k
-    assert max(lines) <= 4**config.K
-    # Min should not be 0
-    assert min(lines) == 1
+    node_attributes = np.loadtxt(gr.node_attributes, dtype=int)
+    assert 1 <= len(node_attributes) <= gr.n
+    assert min(node_attributes) == 1
 
     ####
     #   Check that we can read all dictionary mapping files
