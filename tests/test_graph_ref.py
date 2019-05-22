@@ -3,7 +3,6 @@ import pickle
 
 import pandas as pd
 
-from prairiedog.kmer_graph import KmerGraph
 from prairiedog import config
 
 
@@ -54,7 +53,7 @@ def test_graphref_output(setup_snakefile):
     ####
     with open(gr.node_labels) as f:
         lines = [int(li.rstrip()) for li in f.readlines()]
-    # assert len(lines) == gr.n
+    assert 1<= len(lines) == gr.n
 
     ####
     #   KMERS_node_attributes.txt

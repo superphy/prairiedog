@@ -186,16 +186,23 @@ class GraphRef(GRef):
             with open(fl, 'a') as f:
                 for k, v in di.items():
                     f.write('{}, {}\n'.format(k, v))
+        log.info("Writing out file mapping as {}".format(self.file_mapping))
         _write_d(self.file_mapping, self.file_map)
+        log.info("Writing out MIC mapping as {}".format(self.mic_mapping))
         _write_d(self.mic_mapping, self.mic_map)
+        log.info("Writing out Kmer mapping as {}".format(self.kmer_mapping))
         _write_d(self.kmer_mapping, self.kmer_map)
+        log.info("Writing out label mapping as {}".format(self.label_mapping))
         _write_d(self.label_mapping, self.label_map)
 
         # Write out numpy array
+        log.info("Writing out node labels as {}".format(self.node_labels))
         np.savetxt(
             self.node_labels,
             self.node_label_array[np.nonzero(self.node_label_array)],
             fmt='%d')
+        log.info("Writing out node attributes as {}".format(
+            self.node_attributes))
         np.savetxt(
             self.node_attributes,
             self.node_attributes_array[np.nonzero(self.node_attributes_array)],
