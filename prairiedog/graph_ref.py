@@ -2,6 +2,7 @@ import os
 import pathlib
 import datetime
 import logging
+import time
 
 import pandas as pd
 import numpy as np
@@ -159,6 +160,7 @@ class GraphRef(GRef):
         This function is called to get the node_id for NetworkX.
         """
         log.info("Appending subgraph {} to core graph".format(subgraph))
+        st = time.time()
         ####
         #   KMERS_A.txt
         ####
@@ -184,7 +186,9 @@ class GraphRef(GRef):
             pos_id = node_id - 1
             self.record_node_labels(pos_id, kmer)
             self.record_node_attributes(pos_id, kmer)
-        log.info("Recorded {} nodes to node arrays".format(n_nodes))
+        en = time.time()
+        log.info("Recorded {} nodes to node arrays in {} s".format(
+            n_nodes, en-st))
 
     def close(self):
         """
