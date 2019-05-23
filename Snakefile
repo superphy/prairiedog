@@ -39,7 +39,11 @@ rule offset:
         offsets = {}
         max_n = 4 ** K * len(INPUTS)
         gr = GraphRef(max_n, 'outputs', MIC_CSV)
-        for kmf in input:
+        # Note that start=1 is only for the index, sgf still starts at
+        # position 0
+        for index, kmf in enumerate(input, start=1):
+            print("rule 'offset' on Kmer {} / {}".format(index,
+                                                            input))
             km = dill.load(open(kmf,'rb'))
             offset = gr.node_id_count
             offsets[kmf] = offset
@@ -73,7 +77,11 @@ rule graph:
         'outputs/KMERS_A.txt', 'outputs/graphref_final.pkl'
     run:
         gr = dill.load(open(input.graphref, 'rb'))
-        for sgf in input.subgraphs:
+        # Note that start=1 is only for the index, sgf still starts at
+        # position 0
+        for index, sgf in enumerate(input.subgraphs, start=1):
+            print("rule 'graph' on subgraph {} / {}".format(index,
+                                                            input.subgraphs))
             sg = dill.load(open(sgf,'rb'))
             gr.append(sg)
         dill.dump(gr, open(output[1], 'wb'), protocol=4)
