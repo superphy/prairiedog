@@ -1,7 +1,12 @@
 import pathlib
 import os
+import shutil
+import subprocess
 
 import dill
+import pandas as pd
+import numpy as np
+from contextlib import contextmanager
 
 from prairiedog.kmers import Kmers
 from prairiedog.networkx_graph import NetworkXGraph
@@ -15,6 +20,11 @@ INPUTS = [f.split('.')[0] for f in os.listdir(config["samples"])
            if f.endswith(('.fna', '.fasta', '.fa'))
 ]
 MIC_CSV = config["graph_labels"]
+MIC_COLUMNS = pd.read_csv(MIC_CSV).columns
+
+###################
+# Graphing steps
+###################
 
 rule all:
     input:
@@ -74,7 +84,11 @@ rule graph:
         subgraphs=expand('outputs/subgraphs/{input}.pkl', input=INPUTS),
         graphref='outputs/graphref.pkl'
     output:
-        'outputs/KMERS_A.txt', 'outputs/graphref_final.pkl'
+        'outputs/KMERS_A.txt',
+        'outputs/graphref_final.pkl',
+        'outputs/KMERS_graph_indicator.txt',
+        'outputs/KMERS_node_attributes.txt',
+        'outputs/KMERS_node_labels.txt'
     run:
         gr = dill.load(open(input.graphref, 'rb'))
         # Note that start=1 is only for the index, sgf still starts at
@@ -86,6 +100,57 @@ rule graph:
             gr.append(sg)
         dill.dump(gr, open(output[1], 'wb'), protocol=4)
         gr.close()
+
+###################
+# Training steps
+###################
+
+@contextmanager
+def _setup_training(target: str) -> int:
+    graph_labels = pathlib.Path(
+        'outputs/KMERS_graph_labels_{}.txt'.format(target))
+    dst = pathlib.Path('diffpool/data/KMERS/KMERS_graph_labels.txt')
+    print("Copying {} to {}".format(graph, dst))
+    shutil.copy2(graph_labels, dst)
+    n = len(
+        np.unique(
+            np.loadtxt(dst, dtype=int)
+        )
+    )
+    yield n
+    os.remove(dst)
+
+def train_model(target):
+    print("Currently training for {}".format(target))
+    with _setup_training(target) as n:
+        subprocess.run(
+            'python -m train --bmname=KMERS --assign-ratio=0.1 \
+            --hidden-dim=30 --output-dim=30 --cuda=0 --num-classes={} \
+            --method=soft-assign'.format(n), shell=True)
+
+rule train:
+    input:
+        a='outputs/KMERS_A.txt',
+        gi='outputs/KMERS_graph_indicator.txt',
+        na='outputs/KMERS_node_attributes.txt',
+        nl='outputs/KMERS_node_labels.txt'
+    output:
+        'diffpool/data/KMERS/KMERS_A.txt',
+        'diffpool/data/KMERS/KMERS_graph_indicator.txt',
+        'diffpool/data/KMERS/KMERS_node_attributes.txt',
+        'diffpool/data/KMERS/KMERS_node_labels.txt',
+    run:
+        # File moving
+        directory = pathlib.Path('diffpool/data/KMERS/')
+        directory.mkdir(parents=True, exist_ok=True)
+        shutil.move(input.a, directory)
+        shutil.move(input.gi, directory)
+        shutil.move(input.na, directory)
+        shutil.move(input.nl, directory)
+        # Actual train
+        for target in MIC_COLUMNS:
+            print("Currently training for {}".format(target))
+            train_model(target)
 
 rule clean:
     shell:
