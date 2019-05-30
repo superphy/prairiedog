@@ -44,7 +44,9 @@ rule offset:
     input:
         expand('outputs/kmers/{input}.pkl', input=INPUTS)
     output:
-        'outputs/kmers/offsets.pkl', 'outputs/graphref.pkl'
+        'outputs/kmers/offsets.pkl',
+        'outputs/graphref.pkl',
+        'outputs/KMERS_graph_indicator.txt'
     run:
         offsets = {}
         max_n = 4 ** K * len(INPUTS)
@@ -52,8 +54,8 @@ rule offset:
         # Note that start=1 is only for the index, sgf still starts at
         # position 0
         for index, kmf in enumerate(input, start=1):
-            print("rule 'offset' on Kmer {} / {}".format(index,
-                                                            input))
+            print("rule 'offset' on Kmer {} / {}".format(
+                index, len(input)))
             km = dill.load(open(kmf,'rb'))
             offset = gr.node_id_count
             offsets[kmf] = offset
@@ -86,7 +88,6 @@ rule graph:
     output:
         'outputs/KMERS_A.txt',
         'outputs/graphref_final.pkl',
-        'outputs/KMERS_graph_indicator.txt',
         'outputs/KMERS_node_attributes.txt',
         'outputs/KMERS_node_labels.txt'
     run:
@@ -94,8 +95,8 @@ rule graph:
         # Note that start=1 is only for the index, sgf still starts at
         # position 0
         for index, sgf in enumerate(input.subgraphs, start=1):
-            print("rule 'graph' on subgraph {} / {}".format(index,
-                                                            input.subgraphs))
+            print("rule 'graph' on subgraph {} / {}".format(
+                index, len(input.subgraphs)))
             sg = dill.load(open(sgf,'rb'))
             gr.append(sg)
         dill.dump(gr, open(output[1], 'wb'), protocol=4)
