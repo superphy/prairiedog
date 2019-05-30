@@ -166,7 +166,9 @@ class GraphRef(GRef):
         ####
         with open(self.adj_matrix, 'a') as f:
             for l in subgraph.graph.edgelist:
-                f.write('{}\n'.format(l))
+                split = l.split(' ')
+                assert len(split) == 2
+                f.write('{}, {}\n'.format(split[0], split[1]))
 
         ####
         #   KMERS_graph_indicator.txt
