@@ -107,12 +107,10 @@ rule graph:
 ###################
 
 @contextmanager
-def _setup_training(target: str) -> int:
-    graph_labels = pathlib.Path(
-        'outputs/KMERS_graph_labels_{}.txt'.format(target))
+def _setup_training(mic_label: str) -> int:
     dst = pathlib.Path('diffpool/data/KMERS/KMERS_graph_labels.txt')
     print("Copying {} to {}".format(graph, dst))
-    shutil.copy2(graph_labels, dst)
+    shutil.copy2(mic_label, dst)
     n = len(
         np.unique(
             np.loadtxt(dst, dtype=int)
@@ -131,7 +129,7 @@ def train_model(target):
             shell=True,
             check=True)
 
-rule train:
+rule move:
     input:
         a='outputs/KMERS_A.txt',
         gi='outputs/KMERS_graph_indicator.txt',
@@ -150,10 +148,22 @@ rule train:
         shutil.move(input.gi, directory)
         shutil.move(input.na, directory)
         shutil.move(input.nl, directory)
+
+rule train:
+    input:
+        mic_labels=expand(
+            'outputs/KMERS_graph_labels_{target}.txt', target=MIC_COLUMNS),
+        outputs=rules.move.output
+    output:
+        'diffpool/results/'
+    run:
         # Actual train
-        for target in MIC_COLUMNS:
-            print("Currently training for {}".format(target))
-            train_model(target)
+        c = 1
+        l = len(input.mic_labels)
+        for mic_label in input.mic_labels:
+            print("{}/{} : Currently training for {}".format(
+                c, l, mic_label))
+            train_model(mic_label)
 
 rule clean:
     shell:
