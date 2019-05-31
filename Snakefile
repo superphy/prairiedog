@@ -124,7 +124,7 @@ def train_model(target):
     print("Currently training for {}".format(target))
     with _setup_training(target) as n:
         subprocess.run(
-            'python -m train --bmname=KMERS --assign-ratio=0.1 \
+            'cd diffpool/ && python -m train --bmname=KMERS --assign-ratio=0.1 \
             --hidden-dim=30 --output-dim=30 --cuda=0 --num-classes={} \
             --method=soft-assign --benchmark-iterations=1'.format(n),
             shell=True,
