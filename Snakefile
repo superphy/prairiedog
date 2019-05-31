@@ -21,6 +21,7 @@ INPUTS = [f.split('.')[0] for f in os.listdir(config["samples"])
 ]
 MIC_CSV = config["graph_labels"]
 MIC_COLUMNS = pd.read_csv(MIC_CSV).columns
+MIC_COLUMNS.pop('run', None)
 
 ###################
 # Graphing steps
