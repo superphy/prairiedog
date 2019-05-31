@@ -127,7 +127,9 @@ def train_model(target):
         subprocess.run(
             'python -m train --bmname=KMERS --assign-ratio=0.1 \
             --hidden-dim=30 --output-dim=30 --cuda=0 --num-classes={} \
-            --method=soft-assign'.format(n), shell=True)
+            --method=soft-assign --benchmark-iterations=1'.format(n),
+            shell=True,
+            check=True)
 
 rule train:
     input:
