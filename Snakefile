@@ -29,7 +29,7 @@ MIC_COLUMNS.remove('run')
 
 rule all:
     input:
-         rules.subgraphs.output
+         'outputs/done.txt'
 
 rule kmers:
     input:
@@ -75,6 +75,14 @@ rule subgraphs:
         sg = SubgraphRef(km, NetworkXGraph(), gr, target='AMP')
         sg.save(output[0])
         open(output[1]).close()
+
+rule done:
+    input:
+        'outputs/subgraphs/{sample}.g'
+    output:
+        'outputs/done.txt'
+    run:
+        open(output[0]).close()
 
 ###################
 # Training steps
