@@ -1,8 +1,5 @@
 import os
-import pathlib
-import datetime
 import logging
-import time
 import itertools
 
 import pandas as pd
@@ -11,7 +8,6 @@ import numpy as np
 import prairiedog.config as config
 from prairiedog.kmers import Kmers
 from prairiedog.gref import GRef
-from prairiedog.subgraph_ref import SubgraphRef
 
 log = logging.getLogger("prairiedog")
 
