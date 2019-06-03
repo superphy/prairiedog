@@ -67,7 +67,8 @@ rule subgraphs:
         kmf='outputs/kmers/{sample}.pkl',
         gr='outputs/graphref.pkl',
     output:
-        'outputs/subgraphs/{sample}.g'
+        'outputs/subgraphs/{sample}.g',
+        'outputs/subgraphs/'
     run:
         pathlib.Path('outputs/subgraphs/').mkdir(parents=True, exist_ok=True)
         km = dill.load(open(input.kmf,'rb'))
