@@ -1,6 +1,7 @@
 import os
 import logging
 import itertools
+import typing
 
 import pandas as pd
 import numpy as np
@@ -28,7 +29,7 @@ class GraphRef(GRef):
         self.mic_map = {}  # MIC value : some int
 
         # Used to create unique node labels for later one-hot encoding
-        self.kmer_map = GraphRef._kmer_map()
+        self.kmer_map, self.num_unique_node_labels = GraphRef._kmer_map()
 
     @staticmethod
     def _one_hot(node_label: int, num_unique_node_labels: int) -> np.ndarray:
@@ -37,16 +38,18 @@ class GraphRef(GRef):
         return np.array(node_label_one_hot)
 
     @staticmethod
-    def _kmer_map() -> dict:
+    def _kmer_map() -> typing.Tuple[dict, int]:
         log.debug("Computing Kmer Map to One-Hot encodings...")
         possible_kmers = [
             ''.join(x) for x in itertools.product('ATCG', repeat=config.K)]
+        # While tempting to pre-calculate one-hot encodings here, it takes
+        # up way too much RAM.
         d = {
-            kmer: GraphRef._one_hot(i, len(possible_kmers))
+            kmer: i
             for i, kmer in enumerate(possible_kmers)
         }
         log.debug("Done computing Kmer Map to One-Hot encodings")
-        return d
+        return d, len(possible_kmers)
 
     @staticmethod
     def get_short_name(km: Kmers):
@@ -86,4 +89,6 @@ class GraphRef(GRef):
         return mic
 
     def get_node_label(self, kmer: str) -> np.ndarray:
-        return self.kmer_map[kmer]
+        kmer_id = self.kmer_map[kmer]
+        one_hot = GraphRef._one_hot(kmer_id, self.num_unique_node_labels)
+        return one_hot
