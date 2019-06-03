@@ -88,5 +88,6 @@ class SubgraphRef(GRef):
             km, c, en-st))
         return c
 
-    def save(self):
+    def save(self, f: str):
+        self.graph.save(f)
 
