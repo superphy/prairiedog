@@ -29,7 +29,7 @@ MIC_COLUMNS.remove('run')
 
 rule all:
     input:
-         'outputs/subgraphs/{sample}.g'
+         'outputs/subgraphs/'
 
 rule kmers:
     input:
