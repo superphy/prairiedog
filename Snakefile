@@ -29,7 +29,7 @@ MIC_COLUMNS.remove('run')
 
 rule all:
     input:
-         'outputs/subgraphs/'
+         'outputs/subgraphs/done.txt'
 
 rule kmers:
     input:
@@ -68,13 +68,14 @@ rule subgraphs:
         gr='outputs/graphref.pkl',
     output:
         'outputs/subgraphs/{sample}.g',
-        'outputs/subgraphs/'
+        'outputs/subgraphs/done.txt'
     run:
         pathlib.Path('outputs/subgraphs/').mkdir(parents=True, exist_ok=True)
         km = dill.load(open(input.kmf,'rb'))
         gr = dill.load(open(input.gr, 'rb'))
         sg = SubgraphRef(km, NetworkXGraph(), gr, target='AMP')
         sg.save(output[0])
+        open(output[1]).close()
 
 ###################
 # Training steps
