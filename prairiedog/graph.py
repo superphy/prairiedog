@@ -45,3 +45,7 @@ class Graph(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def edgelist(self) -> typing.Generator:
         pass
+
+    @abc.abstractmethod
+    def set_graph_labels(self, labels: dict):
+        pass

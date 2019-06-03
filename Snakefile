@@ -29,7 +29,7 @@ MIC_COLUMNS.remove('run')
 
 rule all:
     input:
-         'outputs/KMERS_A.txt'
+         'outputs/subgraphs/{sample}.g'
 
 rule kmers:
     input:
@@ -41,67 +41,39 @@ rule kmers:
         km = Kmers(input[0],K)
         dill.dump(km, open(output[0],'wb'))
 
-rule offset:
+rule index:
     input:
         expand('outputs/kmers/{input}.pkl', input=INPUTS)
     output:
-        'outputs/kmers/offsets.pkl',
         'outputs/graphref.pkl',
-        'outputs/KMERS_graph_indicator.txt'
     run:
-        offsets = {}
-        max_n = 4 ** K * len(INPUTS)
-        gr = GraphRef(max_n, 'outputs', MIC_CSV)
+        gr = GraphRef(MIC_CSV)
         # Note that start=1 is only for the index, sgf still starts at
         # position 0
         for index, kmf in enumerate(input, start=1):
             print("rule 'offset' on Kmer {} / {}".format(
                 index, len(input)))
             km = dill.load(open(kmf,'rb'))
-            offset = gr.node_id_count
-            offsets[kmf] = offset
-            gr.incr_node_id(km)
+            gr.index_kmers(km)
             # It seems the km object is being kept in memory for too long
             del km
-        dill.dump(offsets,
-                    open('outputs/kmers/offsets.pkl','wb'), protocol=4)
+        print("rule 'offset' found max_num_nodes to be {}".format(
+            gr.max_num_nodes))
         dill.dump(gr,
                     open('outputs/graphref.pkl','wb'), protocol=4)
 
 rule subgraphs:
     input:
         kmf='outputs/kmers/{sample}.pkl',
-        offsets='outputs/kmers/offsets.pkl'
+        gr='outputs/graphref.pkl',
     output:
-        'outputs/subgraphs/{sample}.pkl'
+        'outputs/subgraphs/{sample}.g'
     run:
         pathlib.Path('outputs/subgraphs/').mkdir(parents=True, exist_ok=True)
-        offsets = dill.load(open(input.offsets, 'rb'))
-        offset = offsets[input.kmf]
         km = dill.load(open(input.kmf,'rb'))
-        sg = SubgraphRef(offset, km, NetworkXGraph())
-        dill.dump(sg, open(output[0],'wb'))
-
-rule graph:
-    input:
-        subgraphs=expand('outputs/subgraphs/{input}.pkl', input=INPUTS),
-        graphref='outputs/graphref.pkl'
-    output:
-        'outputs/KMERS_A.txt',
-        'outputs/graphref_final.pkl',
-        'outputs/KMERS_node_attributes.txt',
-        'outputs/KMERS_node_labels.txt'
-    run:
-        gr = dill.load(open(input.graphref, 'rb'))
-        # Note that start=1 is only for the index, sgf still starts at
-        # position 0
-        for index, sgf in enumerate(input.subgraphs, start=1):
-            print("rule 'graph' on subgraph {} / {}".format(
-                index, len(input.subgraphs)))
-            sg = dill.load(open(sgf,'rb'))
-            gr.append(sg)
-        dill.dump(gr, open(output[1], 'wb'), protocol=4)
-        gr.close()
+        gr = dill.load(open(input.gr, 'rb'))
+        sg = SubgraphRef(km, NetworkXGraph(), gr, target='AMP')
+        sg.save(output[0])
 
 ###################
 # Training steps
