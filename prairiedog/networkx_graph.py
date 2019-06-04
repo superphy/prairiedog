@@ -47,7 +47,8 @@ class NetworkXGraph(prairiedog.graph.Graph):
         for k, v in labels.items():
             self.g.graph[k] = v
 
-    def _filter_degree(self, bottom_percentile=0.25):
+    def _filter_degree(self, bottom_percentile=0.5):
+        # TODO: we should create a graph of this
         max_degrees = max([
             v
             for _, v in self.g.degree()
