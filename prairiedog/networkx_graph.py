@@ -48,7 +48,10 @@ class NetworkXGraph(prairiedog.graph.Graph):
             self.g.graph[k] = v
 
     def _filter_degree(self, bottom_percentile=0.25):
-        max_degrees = max(list(self.g.degree))
+        max_degrees = max([
+            v
+            for _, v in self.g.degree()
+        ])
         log.debug("Found max degrees to be {}".format(max_degrees))
         bottom_degrees = int(bottom_percentile*max_degrees)
         log.debug("Removing nodes with degree less than {}".format(
