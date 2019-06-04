@@ -58,7 +58,7 @@ class NetworkXGraph(prairiedog.graph.Graph):
             bottom_degrees))
         remove = [
             node
-            for node, degree in self.g.degree().items()
+            for node, degree in self.g.degree()
             if degree < bottom_degrees]
         self.g.remove_nodes_from(remove)
 
