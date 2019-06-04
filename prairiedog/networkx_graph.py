@@ -47,7 +47,7 @@ class NetworkXGraph(prairiedog.graph.Graph):
         for k, v in labels.items():
             self.g.graph[k] = v
 
-    def _filter_degree(self, bottom_percentile=0.5):
+    def _filter_degree(self, bottom_percentile=0.9):
         # TODO: we should create a graph of this
         max_degrees = max([
             v
@@ -63,8 +63,13 @@ class NetworkXGraph(prairiedog.graph.Graph):
             if degree <= bottom_degrees]
         self.g.remove_nodes_from(remove)
 
+    def _filter_isolates(self):
+        log.debug("Filtering isolates")
+        self.g.remove_nodes_from(list(nx.isolates(self.g)))
+
     def filter(self):
         self._filter_degree()
+        self._filter_isolates()
 
     def __len__(self):
         return len(self.g)
