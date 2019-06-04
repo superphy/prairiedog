@@ -92,4 +92,4 @@ class GraphRef(GRef):
         kmer_id = self.kmer_map[kmer]
         # one_hot = GraphRef._one_hot(kmer_id, self.num_unique_node_labels)
         # return one_hot
-        return kmer_id
+        return np.array([kmer_id])
