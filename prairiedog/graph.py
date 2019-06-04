@@ -49,3 +49,11 @@ class Graph(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def set_graph_labels(self, labels: dict):
         pass
+
+    @abc.abstractmethod
+    def filter(self):
+        pass
+
+    @abc.abstractmethod
+    def __len__(self):
+        pass

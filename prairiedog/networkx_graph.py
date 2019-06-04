@@ -46,3 +46,10 @@ class NetworkXGraph(prairiedog.graph.Graph):
     def set_graph_labels(self, labels: dict):
         for k, v in labels.items():
             self.g.graph[k] = v
+
+    def filter(self):
+        log.debug("Removing unconnected nodes")
+        self.g.remove_nodes_from(list(nx.isolates(self.g)))
+
+    def __len__(self):
+        return len(self.g)
