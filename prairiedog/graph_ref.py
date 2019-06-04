@@ -39,7 +39,7 @@ class GraphRef(GRef):
 
     @staticmethod
     def _kmer_map() -> typing.Tuple[dict, int]:
-        log.debug("Computing Kmer Map to One-Hot encodings...")
+        log.debug("Computing Kmer Map...")
         possible_kmers = [
             ''.join(x) for x in itertools.product('ATCG', repeat=config.K)]
         # While tempting to pre-calculate one-hot encodings here, it takes
@@ -48,7 +48,7 @@ class GraphRef(GRef):
             kmer: i
             for i, kmer in enumerate(possible_kmers)
         }
-        log.debug("Done computing Kmer Map to One-Hot encodings")
+        log.debug("Done computing Kmer Map")
         return d, len(possible_kmers)
 
     @staticmethod
@@ -90,5 +90,6 @@ class GraphRef(GRef):
 
     def get_node_label(self, kmer: str) -> np.ndarray:
         kmer_id = self.kmer_map[kmer]
-        one_hot = GraphRef._one_hot(kmer_id, self.num_unique_node_labels)
-        return one_hot
+        # one_hot = GraphRef._one_hot(kmer_id, self.num_unique_node_labels)
+        # return one_hot
+        return kmer_id
