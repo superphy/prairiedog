@@ -1,5 +1,4 @@
 # Ignore genome files in this directory
-*.fasta
 *.fna
 *.fa
 # Except this file
