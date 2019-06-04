@@ -90,8 +90,11 @@ class SubgraphRef(GRef):
 
     def save(self, f: str):
         # Drop some nodes due to size constraints
-        log.debug("Full graph has {} nodes".format(len(self.graph)))
+        full_length = len(self.graph)
         self.graph.filter()
-        log.debug("Filtered graph has {} nodes".format(len(self.graph)))
+        filtered_length = len(self.graph)
+        log.debug("After filtering, graph size when from {} to {}".format(
+            full_length, filtered_length
+        ))
         self.graph.save(f)
 
