@@ -51,13 +51,13 @@ rule index:
         # Note that start=1 is only for the index, sgf still starts at
         # position 0
         for index, kmf in enumerate(input, start=1):
-            print("rule 'offset' on Kmer {} / {}".format(
+            print("rule 'index' on Kmer {} / {}".format(
                 index, len(input)))
             km = dill.load(open(kmf,'rb'))
             gr.index_kmers(km)
             # It seems the km object is being kept in memory for too long
             del km
-        print("rule 'offset' found max_num_nodes to be {}".format(
+        print("rule 'index' found max_num_nodes to be {}".format(
             gr.max_num_nodes))
         dill.dump(gr,
                     open('outputs/graphref.pkl','wb'), protocol=4)

@@ -86,10 +86,11 @@ class GraphRef(GRef):
         short_name = GraphRef.get_short_name(km)
         series = self.MIC_DF.loc[short_name, :]
         mic = series[column]
-        return mic
+        graph_label = self.mic_map[mic]
+        return graph_label
 
     def get_node_label(self, kmer: str) -> np.ndarray:
         kmer_id = self.kmer_map[kmer]
         # one_hot = GraphRef._one_hot(kmer_id, self.num_unique_node_labels)
         # return one_hot
-        return np.array([kmer_id])
+        return np.array([kmer_id], dtype=int)
