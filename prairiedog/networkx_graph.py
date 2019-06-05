@@ -75,9 +75,9 @@ class NetworkXGraph(prairiedog.graph.Graph):
         return len(self.g)
 
     def update_edge_label(self, src: int, dst: int, key: str, value: str):
-        prev = self.g[src, dst][key]
+        prev = self.g.edge[src, dst][key]
         if isinstance(prev, list):
             prev.append(value)
         else:
-            self.g[src, dst][key] = value
-        return self.g[src, dst][key]
+            self.g.edge[src, dst][key] = value
+        return self.g.edge[src, dst][key]
