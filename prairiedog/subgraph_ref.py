@@ -42,8 +42,9 @@ class SubgraphRef(GRef):
                 self.graph.upsert_node(node2_label)
                 # Create an edge
                 self.graph.add_edge(node1_label, node2_label)
+                edge_label = gr.get_edge_label(km)
                 self.graph.update_edge_label(node1_label, node2_label,
-                                             "src", km.filepath)
+                                             "src", edge_label)
                 # Set node1_id to node2_id
                 node1_label = node2_label
                 c += 1

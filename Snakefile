@@ -49,6 +49,10 @@ rule pangenome:
         'outputs/graphref.pkl',
         'outputs/pangenome.g'
     run:
+        try:
+            os.remove('outputs/sizes.txt')
+        except:
+            pass
         sizes = []
         gr = GraphRef(MIC_CSV)
         sg = SubgraphRef(NetworkXGraph())
@@ -68,6 +72,8 @@ rule pangenome:
             sz = py.memory_info()[0]/2.**30
             sizes.append(sz)
             print("Current graph size is {} GB".format(sz))
+            with open('outputs/sizes.txt', 'a') as f:
+                f.write('{}\n'.format(sz))
 
             # It seems the km object is being kept in memory for too long
             del km

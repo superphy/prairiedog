@@ -31,6 +31,8 @@ class GraphRef(GRef):
         # Used to create unique node labels for later one-hot encoding
         self.kmer_map, self.num_unique_node_labels = GraphRef._kmer_map()
 
+        self.file_map = {}
+
     @staticmethod
     def _one_hot(node_label: int, num_unique_node_labels: int) -> np.ndarray:
         node_label_one_hot = [0] * num_unique_node_labels
@@ -68,6 +70,15 @@ class GraphRef(GRef):
             mic = series[label]
             self._upsert_map(self.mic_map, mic)
 
+    def _record_edge_label(self, km: Kmers):
+        """
+        This int label is used to identify a given file
+        :param km:
+        :return:
+        """
+        short_name = GraphRef.get_short_name(km)
+        self._upsert_map(self.file_map, short_name)
+
     def index_kmers(self, km: Kmers):
         """
         :param km:
@@ -95,3 +106,7 @@ class GraphRef(GRef):
         # return one_hot
         # return np.array([kmer_id], dtype=int)
         return kmer_id
+
+    def get_edge_label(self, km: Kmers) -> int:
+        short_name = GraphRef.get_short_name(km)
+        return self.file_map[short_name]
