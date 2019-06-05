@@ -2,6 +2,7 @@ import pathlib
 import os
 import shutil
 import subprocess
+import psutil
 
 import dill
 import pandas as pd
@@ -48,6 +49,7 @@ rule index:
         'outputs/graphref.pkl',
         'outputs/pangenome.g'
     run:
+        sizes = []
         gr = GraphRef(MIC_CSV)
         sg = SubgraphRef(NetworkXGraph())
         pathlib.Path('outputs/subgraphs/').mkdir(parents=True, exist_ok=True)
@@ -59,6 +61,14 @@ rule index:
             km = dill.load(open(kmf,'rb'))
             gr.index_kmers(km)
             sg.update_graph(km, gr)
+
+            # Calculate rough memory usage
+            pid = os.getpid()
+            py = psutil.Process(pid)
+            sz = py.memory_info()[0]/2.**30
+            sizes.append(sz)
+            print("Current graph size is {}".format(sz))
+
             # It seems the km object is being kept in memory for too long
             del km
         print("rule 'index' found max_num_nodes to be {}".format(
@@ -66,6 +76,7 @@ rule index:
         dill.dump(gr,
                     open('outputs/graphref.pkl','wb'), protocol=4)
         sg.save(output[1])
+        dill.dump(sizes, open('outputs/sizes.pkl', 'wb'))
 
 ###################
 # Training steps
