@@ -90,6 +90,7 @@ class GraphRef(GRef):
             self.max_num_nodes = km.unique_kmers
 
         self._record_graph_label(km)
+        self._record_edge_label(km)
 
         log.info("Done indexing {}".format(km))
 
