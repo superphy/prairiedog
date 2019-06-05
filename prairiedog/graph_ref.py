@@ -29,7 +29,8 @@ class GraphRef(GRef):
         self.mic_map = {}  # MIC value : some int
 
         # Used to create unique node labels for later one-hot encoding
-        self.kmer_map, self.num_unique_node_labels = GraphRef._kmer_map()
+        # self.kmer_map, self.num_unique_node_labels = GraphRef._kmer_map()
+        self.kmer_map = {}
 
         self.file_map = {}
 
@@ -89,7 +90,7 @@ class GraphRef(GRef):
         if km.unique_kmers > self.max_num_nodes:
             self.max_num_nodes = km.unique_kmers
 
-        self._record_graph_label(km)
+        # self._record_graph_label(km)
         self._record_edge_label(km)
 
         log.info("Done indexing {}".format(km))
@@ -102,10 +103,7 @@ class GraphRef(GRef):
         return graph_label
 
     def get_node_label(self, kmer: str) -> int:
-        kmer_id = self.kmer_map[kmer]
-        # one_hot = GraphRef._one_hot(kmer_id, self.num_unique_node_labels)
-        # return one_hot
-        # return np.array([kmer_id], dtype=int)
+        kmer_id = self._upsert_map(self.kmer_map, kmer)
         return kmer_id
 
     def get_edge_label(self, km: Kmers) -> int:
