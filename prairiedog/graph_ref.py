@@ -89,8 +89,9 @@ class GraphRef(GRef):
         graph_label = self.mic_map[mic]
         return graph_label
 
-    def get_node_label(self, kmer: str) -> np.ndarray:
+    def get_node_label(self, kmer: str) -> int:
         kmer_id = self.kmer_map[kmer]
         # one_hot = GraphRef._one_hot(kmer_id, self.num_unique_node_labels)
         # return one_hot
-        return np.array([kmer_id], dtype=int)
+        # return np.array([kmer_id], dtype=int)
+        return kmer_id

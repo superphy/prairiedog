@@ -29,7 +29,7 @@ MIC_COLUMNS.remove('run')
 
 rule all:
     input:
-         expand('outputs/subgraphs/{input}.g', input=INPUTS)
+         'outputs/pangenome.g'
 
 rule kmers:
     input:
@@ -46,8 +46,11 @@ rule index:
         expand('outputs/kmers/{input}.pkl', input=INPUTS)
     output:
         'outputs/graphref.pkl',
+        'outputs/pangenome.g'
     run:
         gr = GraphRef(MIC_CSV)
+        sg = SubgraphRef(NetworkXGraph())
+        pathlib.Path('outputs/subgraphs/').mkdir(parents=True, exist_ok=True)
         # Note that start=1 is only for the index, sgf still starts at
         # position 0
         for index, kmf in enumerate(input, start=1):
@@ -55,25 +58,14 @@ rule index:
                 index, len(input)))
             km = dill.load(open(kmf,'rb'))
             gr.index_kmers(km)
+            sg.update_graph(km, gr)
             # It seems the km object is being kept in memory for too long
             del km
         print("rule 'index' found max_num_nodes to be {}".format(
             gr.max_num_nodes))
         dill.dump(gr,
                     open('outputs/graphref.pkl','wb'), protocol=4)
-
-rule subgraphs:
-    input:
-        kmf='outputs/kmers/{sample}.pkl',
-        gr='outputs/graphref.pkl',
-    output:
-        'outputs/subgraphs/{sample}.g'
-    run:
-        pathlib.Path('outputs/subgraphs/').mkdir(parents=True, exist_ok=True)
-        km = dill.load(open(input.kmf,'rb'))
-        gr = dill.load(open(input.gr, 'rb'))
-        sg = SubgraphRef(km, NetworkXGraph(), gr, target='AMP')
-        sg.save(output[0])
+        sg.save(output[1])
 
 ###################
 # Training steps

@@ -57,3 +57,7 @@ class Graph(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __len__(self):
         pass
+
+    @abc.abstractmethod
+    def update_edge_label(self, src: int, dst: int, key: str, value: str):
+        pass
