@@ -42,7 +42,7 @@ rule kmers:
         km = Kmers(input[0],K)
         dill.dump(km, open(output[0],'wb'))
 
-rule index:
+rule pangenome:
     input:
         expand('outputs/kmers/{input}.pkl', input=INPUTS)
     output:
@@ -56,7 +56,7 @@ rule index:
         # Note that start=1 is only for the index, sgf still starts at
         # position 0
         for index, kmf in enumerate(input, start=1):
-            print("rule 'index' on Kmer {} / {}".format(
+            print("rule 'pangenome' on Kmer {} / {}".format(
                 index, len(input)))
             km = dill.load(open(kmf,'rb'))
             gr.index_kmers(km)
@@ -67,11 +67,11 @@ rule index:
             py = psutil.Process(pid)
             sz = py.memory_info()[0]/2.**30
             sizes.append(sz)
-            print("Current graph size is {}".format(sz))
+            print("Current graph size is {} GB".format(sz))
 
             # It seems the km object is being kept in memory for too long
             del km
-        print("rule 'index' found max_num_nodes to be {}".format(
+        print("rule 'pangenome' found max_num_nodes to be {}".format(
             gr.max_num_nodes))
         dill.dump(gr,
                     open('outputs/graphref.pkl','wb'), protocol=4)
