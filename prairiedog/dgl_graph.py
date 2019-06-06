@@ -11,22 +11,17 @@ log = logging.getLogger("prairiedog")
 
 
 class DGLGraph(prairiedog.graph.Graph):
-    def __init__(self, n_labels: int):
+    def __init__(self, n_labels: int, n_nodes):
         self.g = dgl.DGLGraph(multigraph=True)
         self.g.set_n_initializer(dgl.init.zero_initializer)
         self.labels = th.nn.functional.one_hot(
             th.arange(0, n_labels)
         )
+        # We pre-initialize all nodes for performance reasons
+        self.g.add_nodes(n_nodes)
 
     def upsert_node(self, node: int, labels: dict = None):
-        if labels:
-            raise NotImplemented()
-        else:
-            if self.g.has_node(node):
-                pass
-            else:
-                # Nodes are not added by ID
-                self.g.add_nodes(1)
+        pass
 
     def add_edge(self, node_a: int, node_b: int, labels: dict = None):
         if labels is not None:
