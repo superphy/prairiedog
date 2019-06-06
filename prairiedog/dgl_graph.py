@@ -29,9 +29,13 @@ class DGLGraph(prairiedog.graph.Graph):
                 self.g.add_nodes(1)
 
     def add_edge(self, node_a: int, node_b: int, labels: dict = None):
-        for k, v in labels.items():
-            labels[k] = self.labels[v]
-        self.g.add_edge(node_a, node_b, labels)
+        if labels is not None:
+            encoded_labels = {}
+            for k, v in labels.items():
+                encoded_labels[k] = self.labels[v]
+            self.g.add_edge(node_a, node_b, encoded_labels)
+        else:
+            self.g.add_edge(node_a, node_b)
 
     def clear(self):
         self.g.clear()
