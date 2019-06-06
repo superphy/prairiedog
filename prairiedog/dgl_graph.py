@@ -30,6 +30,8 @@ class DGLGraph(prairiedog.graph.Graph, GRef):
                 self.g.add_nodes(1)
 
     def add_edge(self, node_a: int, node_b: int, labels: dict = None):
+        for k, v in labels.items():
+            labels[k] = self.labels[v]
         self.g.add_edge(node_a, node_b, **labels)
 
     def clear(self):
