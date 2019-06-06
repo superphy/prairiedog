@@ -16,7 +16,7 @@ class Graph(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def add_edge(self, node_a: int, node_b: int):
+    def add_edge(self, node_a: int, node_b: int, labels: dict = None):
         pass
 
     @abc.abstractmethod
@@ -56,8 +56,4 @@ class Graph(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def __len__(self):
-        pass
-
-    @abc.abstractmethod
-    def update_edge_label(self, src: int, dst: int, key: str, value: str):
         pass

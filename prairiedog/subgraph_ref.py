@@ -31,20 +31,19 @@ class SubgraphRef(GRef):
         while km.has_next:
             header1, kmer1 = km.next()
             # Create the first node
-            node1_label = gr.get_node_label(kmer1)
+            node1_label = gr.node_label(kmer1)
             self.graph.upsert_node(node1_label)
             c += 1
             # The same contig still has a kmer
             while km.contig_has_next:
                 header2, kmer2 = km.next()
                 # Create the second node
-                node2_label = gr.get_node_label(kmer2)
+                node2_label = gr.node_label(kmer2)
                 self.graph.upsert_node(node2_label)
                 # Create an edge
-                self.graph.add_edge(node1_label, node2_label)
-                edge_label = gr.get_edge_label(km)
-                self.graph.update_edge_label(node1_label, node2_label,
-                                             "src", edge_label)
+                edge_label = gr.edge_label(km)
+                self.graph.add_edge(node1_label, node2_label,
+                                    {"src": edge_label})
                 # Set node1_id to node2_id
                 node1_label = node2_label
                 c += 1

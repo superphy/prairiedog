@@ -3,20 +3,34 @@ import typing
 import pickle
 
 import dgl
+import torch as th
 
 import prairiedog.graph
+from prairiedog.gref import GRef
 
 log = logging.getLogger("prairiedog")
 
-class DGLGraph(prairiedog.graph.Graph):
-    def __init__(self):
-        self.g = dgl.DGLGraph()
+
+class DGLGraph(prairiedog.graph.Graph, GRef):
+    def __init__(self, n_labels: int):
+        self.g = dgl.DGLGraph(multigraph=True)
+        self.g.set_n_initializer(dgl.init.zero_initializer)
+        self.labels = th.nn.functional.one_hot(
+            th.arrange(0, n_labels)
+        )
 
     def upsert_node(self, node: int, labels: dict = None):
-        pass
+        if labels:
+            raise NotImplemented()
+        else:
+            if node in self.g.nodes:
+                pass
+            else:
+                # Nodes are not added by ID
+                self.g.add_nodes(1)
 
-    def add_edge(self, node_a: int, node_b: int):
-        pass
+    def add_edge(self, node_a: int, node_b: int, labels: dict = None):
+        self.g.add_edge(node_a, node_b, **labels)
 
     def clear(self):
         self.g.clear()
@@ -51,6 +65,3 @@ class DGLGraph(prairiedog.graph.Graph):
 
     def filter(self):
         pass
-
-    def update_edge_label(self, src: int, dst: int, key: str, value: str):
-        self.g.edges[src, dst] = value

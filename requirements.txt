@@ -6,3 +6,5 @@ numpy
 pandas
 click>=6.0
 dill
+dgl
+torch

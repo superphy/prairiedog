@@ -13,6 +13,7 @@ from prairiedog.kmers import Kmers
 from prairiedog.networkx_graph import NetworkXGraph
 from prairiedog.graph_ref import GraphRef
 from prairiedog.subgraph_ref import SubgraphRef
+from prairiedog.dgl_graph import DGLGraph
 
 configfile: "config.yaml"
 
@@ -55,7 +56,8 @@ rule pangenome:
             pass
         sizes = []
         gr = GraphRef(MIC_CSV)
-        sg = SubgraphRef(NetworkXGraph())
+        # sg = SubgraphRef(NetworkXGraph())
+        sg = SubgraphRef(DGLGraph(len(input)))
         pathlib.Path('outputs/subgraphs/').mkdir(parents=True, exist_ok=True)
         # Note that start=1 is only for the index, sgf still starts at
         # position 0
