@@ -47,6 +47,7 @@ class SubgraphRef(GRef):
                 # Set node1_id to node2_id
                 node1_label = node2_label
                 c += 1
+                print(c)
             # At this point, we're out of kmers on that contig
             # The loop will check if there's still kmers, and reset kmer1
 
