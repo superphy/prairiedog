@@ -6,12 +6,11 @@ import dgl
 import torch as th
 
 import prairiedog.graph
-from prairiedog.gref import GRef
 
 log = logging.getLogger("prairiedog")
 
 
-class DGLGraph(prairiedog.graph.Graph, GRef):
+class DGLGraph(prairiedog.graph.Graph):
     def __init__(self, n_labels: int):
         self.g = dgl.DGLGraph(multigraph=True)
         self.g.set_n_initializer(dgl.init.zero_initializer)
