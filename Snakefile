@@ -56,8 +56,10 @@ rule pangenome:
             pass
         sizes = []
         gr = GraphRef(MIC_CSV)
-        # sg = SubgraphRef(NetworkXGraph())
-        sg = SubgraphRef(DGLGraph(len(input)))
+        if config['backend'] == 'networkx':
+            sg = SubgraphRef(NetworkXGraph())
+        else:
+            sg = SubgraphRef(DGLGraph(len(input)))
         pathlib.Path('outputs/subgraphs/').mkdir(parents=True, exist_ok=True)
         # Note that start=1 is only for the index, sgf still starts at
         # position 0

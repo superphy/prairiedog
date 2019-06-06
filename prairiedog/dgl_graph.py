@@ -16,7 +16,7 @@ class DGLGraph(prairiedog.graph.Graph, GRef):
         self.g = dgl.DGLGraph(multigraph=True)
         self.g.set_n_initializer(dgl.init.zero_initializer)
         self.labels = th.nn.functional.one_hot(
-            th.arrange(0, n_labels)
+            th.arange(0, n_labels)
         )
 
     def upsert_node(self, node: int, labels: dict = None):

@@ -10,7 +10,7 @@ log = logging.getLogger("prairiedog")
 
 class NetworkXGraph(prairiedog.graph.Graph):
     def __init__(self):
-        self.g = nx.Graph()
+        self.g = nx.MultiDiGraph()
 
     def upsert_node(self, node: str, labels: dict = None):
         if labels and isinstance(labels, dict):
