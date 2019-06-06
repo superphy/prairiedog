@@ -61,7 +61,10 @@ rule pangenome:
             sg = SubgraphRef(NetworkXGraph())
         else:
             print("Using DGL as graph backend")
-            sg = SubgraphRef(DGLGraph(len(input)))
+            sg = SubgraphRef(DGLGraph(
+                n_labels=len(input),
+                n_nodes=4**K + 20 # We have some odd contigs that use N
+            ))
         pathlib.Path('outputs/subgraphs/').mkdir(parents=True, exist_ok=True)
         # Note that start=1 is only for the index, sgf still starts at
         # position 0
