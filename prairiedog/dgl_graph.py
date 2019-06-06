@@ -22,7 +22,7 @@ class DGLGraph(prairiedog.graph.Graph):
         if labels:
             raise NotImplemented()
         else:
-            if node in self.g.nodes:
+            if self.g.has_node(node):
                 pass
             else:
                 # Nodes are not added by ID
