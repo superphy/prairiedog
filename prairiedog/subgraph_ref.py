@@ -33,6 +33,7 @@ class SubgraphRef(GRef):
             # Create the first node
             node1_label = gr.node_label(kmer1)
             self.graph.upsert_node(node1_label)
+            print("upserted node")
             c += 1
             # The same contig still has a kmer
             while km.contig_has_next:
@@ -40,10 +41,12 @@ class SubgraphRef(GRef):
                 # Create the second node
                 node2_label = gr.node_label(kmer2)
                 self.graph.upsert_node(node2_label)
+                print("upserted node")
                 # Create an edge
                 edge_label = gr.edge_label(km)
                 self.graph.add_edge(node1_label, node2_label,
                                     {"src": edge_label})
+                print("added edge")
                 # Set node1_id to node2_id
                 node1_label = node2_label
                 c += 1
