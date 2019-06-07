@@ -32,6 +32,7 @@ class GraphRef(GRef):
 
         # Used to create unique node labels for later one-hot encoding
         self.kmer_enc, self.num_unique_node_labels = GraphRef._kmer_map()
+        self.kmer_map = {}
 
     @staticmethod
     def _kmer_map() -> typing.Tuple[OneHotEncoder, int]:
@@ -84,8 +85,9 @@ class GraphRef(GRef):
         return graph_label
 
     def get_node_label(self, kmer: str) -> th.Tensor:
-        kmer_onehot = self.kmer_enc.transform(
-            np.array([kmer]).reshape(-1, 1)
-        )
-        tensor = th.tensor(kmer_onehot.toarray())
-        return tensor
+        # kmer_onehot = self.kmer_enc.transform(
+        #     np.array([kmer]).reshape(-1, 1)
+        # )
+        # tensor = th.tensor(kmer_onehot.toarray())
+        # return tensor
+        return self._upsert_map(self.kmer_map, kmer) - 1

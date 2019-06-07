@@ -3,6 +3,7 @@ import typing
 
 import dill
 import torch as th
+import numpy as np
 from torch_geometric.data import Data
 
 import prairiedog.graph
@@ -54,7 +55,9 @@ class TGGraph(prairiedog.graph.Graph):
         data = Data(
             edge_index=th.tensor(
                 [self.edge_list_a, self.edge_list_b], dtype=th.long),
-            y=TGGraph._sorted_values(self.y)
+            y=th.from_numpy(
+                np.array(TGGraph._sorted_values(self.y))
+            ).to(th.long)
         )
         log.info("Writing graph out with name {}".format(f))
         dill.dump(data, open(f, 'wb'), protocol=4)
