@@ -55,14 +55,19 @@ class TGGraph(prairiedog.graph.Graph):
         log.info("Converting to a torch_geometric.data")
         log.debug("Creating tensor for node labels")
         # TODO: this is actually x
-        yt = th.tensor(np.array(TGGraph._sorted_values(self.y)), dtype=th.long)
+        yt = th.tensor(
+            np.array(
+                TGGraph._sorted_values(self.y)
+            ), dtype=th.long).squeeze()
+        log.debug("One hot")
+        x = one_hot(
+            yt - yt.min(dim=0)[0]
+        )
         log.debug("Creating Data instance")
         data = Data(
             edge_index=th.tensor(
                 [self.edge_list_a, self.edge_list_b], dtype=th.long),
-            x=one_hot(
-                yt - yt.min(dim=0)[0]
-            )
+            x=x
         )
         log.info("Writing graph out with name {}".format(f))
         dill.dump(data, open(f, 'wb'), protocol=4)
