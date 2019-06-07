@@ -5,6 +5,8 @@ import typing
 
 import pandas as pd
 import numpy as np
+import torch as th
+from sklearn.preprocessing import OneHotEncoder
 
 import prairiedog.config as config
 from prairiedog.kmers import Kmers
@@ -29,27 +31,19 @@ class GraphRef(GRef):
         self.mic_map = {}  # MIC value : some int
 
         # Used to create unique node labels for later one-hot encoding
-        self.kmer_map, self.num_unique_node_labels = GraphRef._kmer_map()
+        self.kmer_enc, self.num_unique_node_labels = GraphRef._kmer_map()
 
     @staticmethod
-    def _one_hot(node_label: int, num_unique_node_labels: int) -> np.ndarray:
-        node_label_one_hot = [0] * num_unique_node_labels
-        node_label_one_hot[node_label] = 1
-        return np.array(node_label_one_hot)
-
-    @staticmethod
-    def _kmer_map() -> typing.Tuple[dict, int]:
+    def _kmer_map() -> typing.Tuple[OneHotEncoder, int]:
         log.debug("Computing Kmer Map...")
-        possible_kmers = [
+        possible_kmers = np.array([
             ''.join(x) for x in itertools.product('ATCG', repeat=config.K)]
-        # While tempting to pre-calculate one-hot encodings here, it takes
-        # up way too much RAM.
-        d = {
-            kmer: i
-            for i, kmer in enumerate(possible_kmers)
-        }
+        ).reshape(-1, 1)
+        # Use Scikit-Learn's OneHotEncoder to create sparse matrices
+        enc = OneHotEncoder(handle_unknown='ignore')
+        enc.fit_transform(possible_kmers)
         log.debug("Done computing Kmer Map")
-        return d, len(possible_kmers)
+        return enc, len(possible_kmers)
 
     @staticmethod
     def get_short_name(km: Kmers):
@@ -89,8 +83,9 @@ class GraphRef(GRef):
         graph_label = self.mic_map[mic]
         return graph_label
 
-    def get_node_label(self, kmer: str) -> np.ndarray:
-        kmer_id = self.kmer_map[kmer]
-        one_hot = GraphRef._one_hot(kmer_id, self.num_unique_node_labels)
-        return one_hot
-        # return np.array([kmer_id], dtype=int)
+    def get_node_label(self, kmer: str) -> th.Tensor:
+        kmer_onehot = self.kmer_enc.transform(
+            np.array([kmer]).reshape(-1, 1)
+        )
+        tensor = th.tensor(kmer_onehot.toarray())
+        return tensor

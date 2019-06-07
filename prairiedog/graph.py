@@ -6,9 +6,11 @@ class Graph(metaclass=abc.ABCMeta):
     """We expect this to be a directed graph.
     """
     @abc.abstractmethod
-    def upsert_node(self, node: int, labels: dict = None):
+    def upsert_node(self, node: int, labels: dict = None,
+                    label: typing.Any = None):
         """
         Upsert nodes with labels.
+        :param label:
         :param node:
         :param labels:
         :return:

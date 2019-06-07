@@ -45,14 +45,13 @@ class SubgraphRef(GRef):
         st = time.time()
         c = 0
         while km.has_next:
+            l = []
             header1, kmer1 = km.next()
             # Create the first node
             node1_id = self._upsert_map(
                 self.subgraph_kmer_map, kmer1)
             node1_label = gr.get_node_label(kmer1)
-            self.graph.upsert_node(node1_id, labels={
-                "feat": node1_label,
-            })
+            self.graph.upsert_node(node1_id, label=node1_label)
             c += 1
             # The same contig still has a kmer
             while km.contig_has_next:
@@ -61,9 +60,7 @@ class SubgraphRef(GRef):
                 node2_id = self._upsert_map(
                     self.subgraph_kmer_map, kmer2)
                 node2_label = gr.get_node_label(kmer2)
-                self.graph.upsert_node(node2_id, labels={
-                    "feat": node2_label
-                })
+                self.graph.upsert_node(node2_id, label=node2_label)
                 # Create an edge
                 self.graph.add_edge(node1_id, node2_id)
                 # Set node1_id to node2_id
@@ -74,14 +71,14 @@ class SubgraphRef(GRef):
 
         # Set graph labels
         # Target is drug target, ex. "AMP"
-        graph_label = gr.get_graph_label(km, target)
-        feat_dim = node1_label.shape[0]
-        labels = {
-            'label': graph_label,
-            'feat_dim': feat_dim,
-        }
-        log.debug("Tagging graph with labels: {}".format(labels))
-        self.graph.set_graph_labels(labels)
+        # graph_label = gr.get_graph_label(km, target)
+        # feat_dim = node1_label.shape[0]
+        # labels = {
+        #     'label': graph_label,
+        #     'feat_dim': feat_dim,
+        # }
+        # log.debug("Tagging graph with labels: {}".format(labels))
+        # self.graph.set_graph_labels(labels)
 
         en = time.time()
         log.debug("Done graphing {}, covering {} kmers in {} s".format(

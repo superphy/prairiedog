@@ -9,7 +9,8 @@ import numpy as np
 from contextlib import contextmanager
 
 from prairiedog.kmers import Kmers
-from prairiedog.networkx_graph import NetworkXGraph
+# from prairiedog.networkx_graph import NetworkXGraph
+from prairiedog.tg_graph import TGGraph
 from prairiedog.graph_ref import GraphRef
 from prairiedog.subgraph_ref import SubgraphRef
 
@@ -72,7 +73,7 @@ rule subgraphs:
         pathlib.Path('outputs/subgraphs/').mkdir(parents=True, exist_ok=True)
         km = dill.load(open(input.kmf,'rb'))
         gr = dill.load(open(input.gr, 'rb'))
-        sg = SubgraphRef(km, NetworkXGraph(), gr, target='AMP')
+        sg = SubgraphRef(km, TGGraph(), gr, target='AMP')
         sg.save(output[0])
 
 ###################
