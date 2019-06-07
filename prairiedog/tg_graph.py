@@ -5,6 +5,7 @@ import dill
 import torch as th
 import numpy as np
 from torch_geometric.data import Data
+from torch_geometric.utils import remove_self_loops, one_hot
 
 import prairiedog.graph
 
@@ -52,12 +53,13 @@ class TGGraph(prairiedog.graph.Graph):
 
     def save(self, f):
         log.info("Converting to a torch_geometric.data")
+        yt = th.tensor(np.array(TGGraph._sorted_values(self.y)), dtype=th.long)
         data = Data(
             edge_index=th.tensor(
                 [self.edge_list_a, self.edge_list_b], dtype=th.long),
-            y=th.from_numpy(
-                np.array(TGGraph._sorted_values(self.y))
-            ).to(th.long)
+            x=one_hot(
+                yt - yt.min(dim=0)[0]
+            )
         )
         log.info("Writing graph out with name {}".format(f))
         dill.dump(data, open(f, 'wb'), protocol=4)
