@@ -53,7 +53,10 @@ class TGGraph(prairiedog.graph.Graph):
 
     def save(self, f):
         log.info("Converting to a torch_geometric.data")
+        log.debug("Creating tensor for node labels")
+        # TODO: this is actually x
         yt = th.tensor(np.array(TGGraph._sorted_values(self.y)), dtype=th.long)
+        log.debug("Creating Data instance")
         data = Data(
             edge_index=th.tensor(
                 [self.edge_list_a, self.edge_list_b], dtype=th.long),
