@@ -14,7 +14,7 @@ from prairiedog.networkx_graph import NetworkXGraph
 from prairiedog.graph_ref import GraphRef
 from prairiedog.subgraph_ref import SubgraphRef
 from prairiedog.dgl_graph import DGLGraph
-from prairiedog.lemon_graph import LGGraph
+from prairiedog.lemon_graph import LGGraph, DB_PATH
 
 configfile: "config.yaml"
 
@@ -78,6 +78,8 @@ rule pangenome:
             km = dill.load(open(kmf,'rb'))
             gr.index_kmers(km)
             sg.update_graph(km, gr)
+            if config['backend'] == 'lemongraph':
+                sg.save(output[1])
 
             # Calculate rough memory usage
             pid = os.getpid()
@@ -94,7 +96,11 @@ rule pangenome:
             gr.max_num_nodes))
         dill.dump(gr,
                     open('outputs/graphref.pkl','wb'), protocol=4)
-        sg.save(output[1])
+        if config['backend'] == 'lemongraph':
+            shutil.copy2(DB_PATH, output[1])
+        else:
+            sg.save(output[1])
+
         dill.dump(sizes, open('outputs/sizes.pkl', 'wb'))
 
 ###################
