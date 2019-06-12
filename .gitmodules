@@ -4,3 +4,4 @@
 [submodule "lemongraph"]
 	path = lemongraph
 	url = https://github.com/NationalSecurityAgency/lemongraph.git
+	ignore = dirty
