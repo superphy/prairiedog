@@ -20,7 +20,7 @@ class LGGraph(prairiedog.graph.Graph):
     def add_edge(self, node_a: str, node_b: str, labels: dict = None):
         with self.g.transaction(write=True) as txn:
             # Check if node exists
-            tup = txn.query('n(value="{}"'.format(node_a))
+            tup = txn.query('n(value="{}")'.format(node_a))
             if len(tup) != 0:
                 # Or something went wrong and we have duplicates
                 assert len(tup) == 1
@@ -31,7 +31,7 @@ class LGGraph(prairiedog.graph.Graph):
                 na = txn.node(type='km', value=node_a)
                 log.debug("Created node {}".format(na))
 
-            tup = txn.query('n(value="{}"'.format(node_a))
+            tup = txn.query('n(value="{}")'.format(node_a))
             if len(tup) != 0:
                 # Or something went wrong and we have duplicates
                 assert len(tup) == 1
