@@ -1,6 +1,7 @@
 import logging
 import time
 import os
+import typing
 
 log = logging.getLogger("prairiedog")
 
@@ -105,6 +106,9 @@ class Kmers:
         self.pi += 1
 
         return header, sl
+
+    def kmers(self) -> typing.Generator:
+        yield self.next()
 
     def reset(self):
         """

@@ -44,6 +44,65 @@ rule kmers:
         km = Kmers(input[0],K)
         dill.dump(km, open(output[0],'wb'))
 
+rule json:
+    input:
+        expand('outputs/kmers/{input}.pkl', input=INPUTS)
+    output:
+        'outputs/train.pkl',
+        'outputs/pangenome.g'
+    run:
+        try:
+            os.remove('outputs/sizes.txt')
+        except:
+            pass
+        sizes = []
+        gr = GraphRef(MIC_CSV)
+        if config['backend'] == 'networkx':
+            print("Using NetworkX as graph backend")
+            sg = SubgraphRef(NetworkXGraph())
+        elif config['backend'] == 'lemongraph':
+            print("Using LemonGraph as graph backend")
+            sg = SubgraphRef(LGGraph())
+        else:
+            print("Using DGL as graph backend")
+            sg = SubgraphRef(DGLGraph(
+                n_labels=len(input),
+                n_nodes=4**K + 20 # We have some odd contigs that use N
+            ))
+        pathlib.Path('outputs/subgraphs/').mkdir(parents=True, exist_ok=True)
+        # Note that start=1 is only for the index, sgf still starts at
+        # position 0
+        for index, kmf in enumerate(input, start=1):
+            print("rule 'pangenome' on Kmer {} / {}".format(
+                index, len(input)))
+            km = dill.load(open(kmf,'rb'))
+            gr.index_kmers(km)
+            sg.update_graph(km, gr)
+            if config['backend'] == 'lemongraph':
+                sg.save(output[1])
+
+            # Calculate rough memory usage
+            pid = os.getpid()
+            py = psutil.Process(pid)
+            sz = py.memory_info()[0]/2.**30
+            sizes.append(sz)
+            print("Current graph size is {} GB".format(sz))
+            with open('outputs/sizes.txt', 'a') as f:
+                f.write('{}\n'.format(sz))
+
+            # It seems the km object is being kept in memory for too long
+            del km
+        print("rule 'pangenome' found max_num_nodes to be {}".format(
+            gr.max_num_nodes))
+        dill.dump(gr,
+                    open('outputs/graphref.pkl','wb'), protocol=4)
+        if config['backend'] == 'lemongraph':
+            shutil.copy2(DB_PATH, output[1])
+        else:
+            sg.save(output[1])
+
+        dill.dump(sizes, open('outputs/sizes.pkl', 'wb'))
+
 rule pangenome:
     input:
         expand('outputs/kmers/{input}.pkl', input=INPUTS)
