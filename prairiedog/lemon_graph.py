@@ -21,11 +21,13 @@ class LGGraph(prairiedog.graph.Graph):
     def add_edge(self, node_a: str, node_b: str, labels: dict = None):
         na = self.txn.node(type='km', value=node_a)
         nb = self.txn.node(type='km', value=node_b)
+        log.debug("Created nodes {} {}".format(na, nb))
 
         edge = self.txn.edge(src=na, tgt=nb, type='km', value='s')
+        log.debug("Created edge {}".format(edge))
         if labels is not None:
             for k, v in labels.items():
-                edge[k] = v
+                edge[str(k)] = v
 
     def clear(self):
         pass
