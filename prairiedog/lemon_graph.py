@@ -15,7 +15,7 @@ class LGGraph(prairiedog.graph.Graph):
         self.g = LemonGraph.Graph(DB_PATH)
         self._ctx = None
         self._txn = None
-        
+
     @property
     def ctx(self):
         if self._ctx is None:
