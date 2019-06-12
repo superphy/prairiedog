@@ -18,7 +18,7 @@ class LGGraph(prairiedog.graph.Graph):
         pass
 
     def add_edge(self, node_a: str, node_b: str, labels: dict = None):
-        with g.transaction(write=True) as txn:
+        with self.g.transaction(write=True) as txn:
             na = txn.node(type='km', value=node_a)
             nb = txn.node(type='km', value=node_b)
             log.debug("Created nodes {} {}".format(na, nb))
