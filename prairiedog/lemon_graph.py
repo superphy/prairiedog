@@ -20,7 +20,7 @@ class LGGraph(prairiedog.graph.Graph):
     def add_edge(self, node_a: str, node_b: str, labels: dict = None):
         with self.g.transaction(write=True) as txn:
             # Check if node exists
-            tup = txn.query('n(value="{}")'.format(node_a))
+            tup = tuple(txn.query('n(value="{}")'.format(node_a)))
             if len(tup) != 0:
                 # Or something went wrong and we have duplicates
                 assert len(tup) == 1
@@ -31,7 +31,7 @@ class LGGraph(prairiedog.graph.Graph):
                 na = txn.node(type='km', value=node_a)
                 log.debug("Created node {}".format(na))
 
-            tup = txn.query('n(value="{}")'.format(node_a))
+            tup = tuple(txn.query('n(value="{}")'.format(node_a)))
             if len(tup) != 0:
                 # Or something went wrong and we have duplicates
                 assert len(tup) == 1
@@ -48,10 +48,10 @@ class LGGraph(prairiedog.graph.Graph):
             if labels is not None:
                 log.debug("Trying to add edge labels {} ...".format(labels))
                 for k, v in labels.items():
-                    tup = txn.query(
+                    tup = tuple(txn.query(
                         'n(value="{}")-e(value="{}")-n(value="{}")'.format(
                             node_a, v, node_b
-                        ))
+                        )))
                     if len(tup) != 0:
                         log.debug(
                             "Edge {} already exists, skipping...".format(
