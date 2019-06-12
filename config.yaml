@@ -6,4 +6,4 @@ graph_labels:
     samples/public_mic_class_dataframe.csv
 
 backend:
-    dgl
+    lemongraph

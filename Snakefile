@@ -14,6 +14,7 @@ from prairiedog.networkx_graph import NetworkXGraph
 from prairiedog.graph_ref import GraphRef
 from prairiedog.subgraph_ref import SubgraphRef
 from prairiedog.dgl_graph import DGLGraph
+from prairiedog.lemon_graph import LGGraph
 
 configfile: "config.yaml"
 
@@ -59,6 +60,9 @@ rule pangenome:
         if config['backend'] == 'networkx':
             print("Using NetworkX as graph backend")
             sg = SubgraphRef(NetworkXGraph())
+        elif config['backend'] == 'lemongraph':
+            print("Using LemonGraph as graph backend")
+            sg = SubgraphRef(LGGraph())
         else:
             print("Using DGL as graph backend")
             sg = SubgraphRef(DGLGraph(
