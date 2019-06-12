@@ -26,8 +26,11 @@ class LGGraph(prairiedog.graph.Graph):
             edge = txn.edge(src=na, tgt=nb, type='km', value='s')
             log.debug("Created edge {}".format(edge))
             if labels is not None:
+                log.debug("Trying to add edge labels...")
                 for k, v in labels.items():
                     edge[str(k)] = v
+
+        log.debug("Done adding edge")
 
     def clear(self):
         pass
