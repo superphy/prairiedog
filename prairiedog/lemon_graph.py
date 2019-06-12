@@ -1,5 +1,6 @@
 import logging
 import typing
+import shutil
 
 import LemonGraph
 
@@ -12,22 +13,21 @@ DB_PATH = 'pangenome.lemongraph'
 class LGGraph(prairiedog.graph.Graph):
     def __init__(self):
         self.g = LemonGraph.Graph(DB_PATH)
-        self.ctx = self.g.transaction(write=True)
-        self.txn = self.ctx.__enter__()
 
     def upsert_node(self, node: str, labels: dict = None):
         pass
 
     def add_edge(self, node_a: str, node_b: str, labels: dict = None):
-        na = self.txn.node(type='km', value=node_a)
-        nb = self.txn.node(type='km', value=node_b)
-        log.debug("Created nodes {} {}".format(na, nb))
+        with g.transaction(write=True) as txn:
+            na = txn.node(type='km', value=node_a)
+            nb = txn.node(type='km', value=node_b)
+            log.debug("Created nodes {} {}".format(na, nb))
 
-        edge = self.txn.edge(src=na, tgt=nb, type='km', value='s')
-        log.debug("Created edge {}".format(edge))
-        if labels is not None:
-            for k, v in labels.items():
-                edge[str(k)] = v
+            edge = txn.edge(src=na, tgt=nb, type='km', value='s')
+            log.debug("Created edge {}".format(edge))
+            if labels is not None:
+                for k, v in labels.items():
+                    edge[str(k)] = v
 
     def clear(self):
         pass
@@ -44,7 +44,7 @@ class LGGraph(prairiedog.graph.Graph):
         return dict(self.txn.nodes()[node])
 
     def save(self, f):
-        self.ctx.__exit__()
+        shutil.copy2(DB_PATH, f)
 
     @property
     def edgelist(self) -> typing.Generator:
