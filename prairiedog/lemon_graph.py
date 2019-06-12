@@ -28,7 +28,7 @@ class LGGraph(prairiedog.graph.Graph):
             if labels is not None:
                 log.debug("Trying to add edge labels {} ...".format(labels))
                 for k, v in labels.items():
-                    edge[str(k)] = v
+                    edge[str(k)] = str(v)
 
         log.debug("Done adding edge")
 
