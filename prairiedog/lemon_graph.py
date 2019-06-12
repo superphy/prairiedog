@@ -1,6 +1,5 @@
 import logging
 import typing
-import shutil
 
 import LemonGraph
 
@@ -9,6 +8,7 @@ import prairiedog.graph
 log = logging.getLogger("prairiedog")
 
 DB_PATH = 'pangenome.lemongraph'
+
 
 class LGGraph(prairiedog.graph.Graph):
     def __init__(self):
@@ -37,9 +37,9 @@ class LGGraph(prairiedog.graph.Graph):
 
         if labels is not None:
             for k, v in labels.items():
-                edge = self.txn.edge(src=na, tgt=nb, type=k, value=v)
+                self.txn.edge(src=na, tgt=nb, type=k, value=v)
         else:
-            edge = self.txn.edge(src=na, tgt=nb, type='s', value='v')
+            self.txn.edge(src=na, tgt=nb, type='s', value='v')
 
     def clear(self):
         self.g.delete()
@@ -57,7 +57,6 @@ class LGGraph(prairiedog.graph.Graph):
 
     def save(self, f):
         self.ctx.__exit__(None, None, None)
-        # shutil.copy2(DB_PATH, f)
         self._ctx = None
         self._txn = None
 
