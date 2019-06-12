@@ -19,15 +19,49 @@ class LGGraph(prairiedog.graph.Graph):
 
     def add_edge(self, node_a: str, node_b: str, labels: dict = None):
         with self.g.transaction(write=True) as txn:
-            na = txn.node(type='km', value=node_a)
+            # Check if node exists
+            tup = txn.query('n(value="{}"'.format(node_a))
+            if len(tup) != 0:
+                # Or something went wrong and we have duplicates
+                assert len(tup) == 1
+                # Note that the returned node is only valid within a txn
+                na = tup[0]
+                log.debug("Found existing node {}".format(na))
+            else:
+                na = txn.node(type='km', value=node_a)
+                log.debug("Created node {}".format(na))
+
+            tup = txn.query('n(value="{}"'.format(node_a))
+            if len(tup) != 0:
+                # Or something went wrong and we have duplicates
+                assert len(tup) == 1
+                # Note that the returned node is only valid within a txn
+                nb = tup[0]
+                log.debug("Found existing node {}".format(nb))
+            else:
+                nb = txn.node(type='km', value=node_a)
+                log.debug("Created node {}".format(nb))
+
             nb = txn.node(type='km', value=node_b)
             log.debug("Created nodes {} {}".format(na, nb))
 
             if labels is not None:
                 log.debug("Trying to add edge labels {} ...".format(labels))
                 for k, v in labels.items():
-                    edge = txn.edge(src=na, tgt=nb, type=k, value=v)
+                    tup = txn.query(
+                        'n(value="{}")-e(value="{}")-n(value="{}")'.format(
+                            node_a, v, node_b
+                        ))
+                    if len(tup) != 0:
+                        log.debug(
+                            "Edge {} already exists, skipping...".format(
+                                tup
+                            ))
+                    else:
+                        edge = txn.edge(src=na, tgt=nb, type=k, value=v)
+                        log.debug("Created edge {}".format(edge))
             else:
+                # TODO: add query here
                 edge = txn.edge(src=na, tgt=nb, type='s', value='v')
             log.debug("Created edge {}".format(edge))
 
