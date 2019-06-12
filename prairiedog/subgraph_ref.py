@@ -47,7 +47,7 @@ class SubgraphRef(GRef):
                 # Set node1_id to node2_id
                 node1_label = node2_label
                 c += 1
-                if c % 10000 == 0:
+                if c % 100000 == 0:
                     log.debug("{}/{}".format(c, km.unique_kmers))
             # At this point, we're out of kmers on that contig
             # The loop will check if there's still kmers, and reset kmer1
