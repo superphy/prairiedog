@@ -13,8 +13,20 @@ DB_PATH = 'pangenome.lemongraph'
 class LGGraph(prairiedog.graph.Graph):
     def __init__(self):
         self.g = LemonGraph.Graph(DB_PATH)
-        self.ctx = self.g.transaction(write=True)
-        self.txn = self.ctx.__enter__()
+        self._ctx = None
+        self._txn = None
+        
+    @property
+    def ctx(self):
+        if self._ctx is None:
+            self._ctx = self.g.transaction(write=True)
+        return self._ctx
+
+    @property
+    def txn(self):
+        if self._txn is None:
+            self._txn = self.ctx.__enter__()
+        return self._txn
 
     def upsert_node(self, node: str, labels: dict = None):
         pass
@@ -46,6 +58,8 @@ class LGGraph(prairiedog.graph.Graph):
     def save(self, f):
         self.ctx.__exit__(None, None, None)
         # shutil.copy2(DB_PATH, f)
+        self._ctx = None
+        self._txn = None
 
     @property
     def edgelist(self) -> typing.Generator:
