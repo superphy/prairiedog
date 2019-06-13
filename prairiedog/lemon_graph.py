@@ -1,17 +1,20 @@
+import os
 import logging
 import typing
 
 import LemonGraph
 
 import prairiedog.graph
+import prairiedog.config
 
 log = logging.getLogger("prairiedog")
 
-DB_PATH = 'pangenome.lemongraph'
+DB_PATH = '{}/pangenome.lemongraph'.format(prairiedog.config.OUTPUT_DIRECTORY)
 
 
 class LGGraph(prairiedog.graph.Graph):
     def __init__(self):
+        os.makedirs(prairiedog.config.OUTPUT_DIRECTORY, exist_ok=True)
         self.g = LemonGraph.Graph(DB_PATH)
         self._ctx = None
         self._txn = None
