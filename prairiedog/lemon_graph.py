@@ -32,18 +32,20 @@ class LGGraph(prairiedog.graph.Graph):
         return self._txn
 
     def upsert_node(self, node: str, labels: dict = None):
-        node = self.txn.node(type='n', value=node)
+        # node = self.txn.node(type='n', value=node)
+        #
+        # if labels is not None:
+        #     for k, v in labels.items():
+        #         node[k] = v
+        pass
 
-        if labels is not None:
-            for k, v in labels.items():
-                node[k] = v
-
-    def add_edge(self, node_a: str, node_b: str, labels: dict = None):
+    def add_edge(self, node_a: str, node_b: str, labels: dict = None,
+                 edge_type: str = 'e', edge_value: str = 'und'):
         na = self.txn.node(type='n', value=node_a)
         nb = self.txn.node(type='n', value=node_b)
 
         # Add the edge
-        edge = self.txn.edge(src=na, tgt=nb, type='e', value='und')
+        edge = self.txn.edge(src=na, tgt=nb, type=edge_type, value=edge_value)
 
         if labels is not None:
             for k, v in labels.items():
