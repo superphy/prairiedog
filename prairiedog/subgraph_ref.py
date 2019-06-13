@@ -14,6 +14,7 @@ class SubgraphRef(GRef):
     """
     Helper for creating a NetworkX graph, created for each genome file.
     """
+
     def __init__(self, graph: Graph):
         """
         """
@@ -49,10 +50,16 @@ class SubgraphRef(GRef):
                 } if encode else {
                     "genome": str(km),
                     "contig": header2,
-                    "incr": edge_c
+                    "incr": str(edge_c)
                 }
-                self.graph.add_edge(node1_label, node2_label,
-                                    edge_label)
+                try:
+                    self.graph.add_edge(node1_label, node2_label,
+                                        edge_label)
+                except Exception as e:
+                    log.fatal(
+                        "Failed to add edge between {} and {} with labels \
+                        {}".format(node1_label, node2_label, edge_label))
+                    raise e
                 # Set node1_id to node2_id
                 node1_label = node2_label
                 c += 1
@@ -64,7 +71,7 @@ class SubgraphRef(GRef):
 
         en = time.time()
         log.debug("Done graphing {}, covering {} kmers in {} s".format(
-            km, c, en-st))
+            km, c, en - st))
         return c
 
     def save(self, f: str):
@@ -76,4 +83,3 @@ class SubgraphRef(GRef):
         #     full_length, filtered_length
         # ))
         self.graph.save(f)
-
