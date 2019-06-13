@@ -14,6 +14,7 @@ class SubgraphRef(GRef):
     """
     Helper for creating a NetworkX graph, created for each genome file.
     """
+
     def __init__(self, graph: Graph):
         """
         """
@@ -22,7 +23,8 @@ class SubgraphRef(GRef):
     def __str__(self):
         return "SubgraphRef"
 
-    def update_graph(self, km: Kmers, gr: GraphRef) -> int:
+    def update_graph(self,
+                     km: Kmers, gr: GraphRef, encode: bool = False) -> int:
         log.debug(
             "Starting to graph {} in pid {}".format(
                 km, os.getpid()))
@@ -31,30 +33,44 @@ class SubgraphRef(GRef):
         while km.has_next:
             header1, kmer1 = km.next()
             # Create the first node
-            node1_label = gr.node_label(kmer1)
+            node1_label = gr.node_label(kmer1) if encode else kmer1
             self.graph.upsert_node(node1_label)
             c += 1
+            # Used to incrementally encode the edges
+            edge_c = 0
             # The same contig still has a kmer
             while km.contig_has_next:
                 header2, kmer2 = km.next()
                 # Create the second node
-                node2_label = gr.node_label(kmer2)
+                node2_label = gr.node_label(kmer2) if encode else kmer2
                 self.graph.upsert_node(node2_label)
                 # Create an edge
-                edge_label = gr.edge_label(km)
-                self.graph.add_edge(node1_label, node2_label,
-                                    {"src": edge_label})
+                edge_label = {
+                    "src": gr.edge_label(km)
+                } if encode else {
+                    "incr": str(edge_c)
+                }
+                try:
+                    self.graph.add_edge(
+                        node1_label, node2_label, labels=edge_label,
+                        edge_type=str(km), edge_value=header2)
+                except Exception as e:
+                    log.fatal(
+                        "Failed to add edge between {} and {} with labels \
+                        {}".format(node1_label, node2_label, edge_label))
+                    raise e
                 # Set node1_id to node2_id
                 node1_label = node2_label
                 c += 1
+                edge_c += 1
                 if c % 100000 == 0:
-                    log.debug("{}/{}".format(c, km.unique_kmers))
+                    log.debug("{}/{}".format(c, len(km)))
             # At this point, we're out of kmers on that contig
             # The loop will check if there's still kmers, and reset kmer1
 
         en = time.time()
         log.debug("Done graphing {}, covering {} kmers in {} s".format(
-            km, c, en-st))
+            km, c, en - st))
         return c
 
     def save(self, f: str):
@@ -66,4 +82,3 @@ class SubgraphRef(GRef):
         #     full_length, filtered_length
         # ))
         self.graph.save(f)
-

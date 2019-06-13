@@ -16,7 +16,8 @@ class Graph(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def add_edge(self, node_a: int, node_b: int, labels: dict = None):
+    def add_edge(self, node_a: int, node_b: int, labels: dict = None,
+                 edge_type: str = 'e', edge_value: str = 'und'):
         pass
 
     @abc.abstractmethod

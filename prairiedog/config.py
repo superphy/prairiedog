@@ -1,3 +1,7 @@
+# This configures the core prairiedog code
+# For pipeline work, the configurations are stored in the upper-level
+# config.yaml loaded by Snakemake
+
 import os
 
 K = 11
@@ -13,3 +17,5 @@ def _input_files():
 
 
 INPUT_FILES = _input_files()
+
+OUTPUT_DIRECTORY = 'outputs/'
