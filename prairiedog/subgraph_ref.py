@@ -48,13 +48,12 @@ class SubgraphRef(GRef):
                 edge_label = {
                     "src": gr.edge_label(km)
                 } if encode else {
-                    "genome": str(km),
-                    "contig": header2,
                     "incr": str(edge_c)
                 }
                 try:
-                    self.graph.add_edge(node1_label, node2_label,
-                                        edge_label)
+                    self.graph.add_edge(
+                        node1_label, node2_label, labels=edge_label,
+                        edge_type=str(km), edge_value=header2)
                 except Exception as e:
                     log.fatal(
                         "Failed to add edge between {} and {} with labels \
