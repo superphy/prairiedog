@@ -1,7 +1,12 @@
 import pathlib
 import os
+import shutil
+import subprocess
 
 import dill
+import pandas as pd
+import numpy as np
+from contextlib import contextmanager
 
 from prairiedog.kmers import Kmers
 from prairiedog.networkx_graph import NetworkXGraph
@@ -15,10 +20,16 @@ INPUTS = [f.split('.')[0] for f in os.listdir(config["samples"])
            if f.endswith(('.fna', '.fasta', '.fa'))
 ]
 MIC_CSV = config["graph_labels"]
+MIC_COLUMNS = set(pd.read_csv(MIC_CSV).columns)
+MIC_COLUMNS.remove('run')
+
+###################
+# Graphing steps
+###################
 
 rule all:
     input:
-         'outputs/KMERS_A.txt'
+         expand('outputs/subgraphs/{input}.g', input=INPUTS)
 
 rule kmers:
     input:
@@ -30,62 +41,102 @@ rule kmers:
         km = Kmers(input[0],K)
         dill.dump(km, open(output[0],'wb'))
 
-rule offset:
+rule index:
     input:
         expand('outputs/kmers/{input}.pkl', input=INPUTS)
     output:
-        'outputs/kmers/offsets.pkl', 'outputs/graphref.pkl'
+        'outputs/graphref.pkl',
     run:
-        offsets = {}
-        max_n = 4 ** K * len(INPUTS)
-        gr = GraphRef(max_n, 'outputs', MIC_CSV)
+        gr = GraphRef(MIC_CSV)
         # Note that start=1 is only for the index, sgf still starts at
         # position 0
         for index, kmf in enumerate(input, start=1):
-            print("rule 'offset' on Kmer {} / {}".format(index,
-                                                            input))
+            print("rule 'index' on Kmer {} / {}".format(
+                index, len(input)))
             km = dill.load(open(kmf,'rb'))
-            offset = gr.node_id_count
-            offsets[kmf] = offset
-            gr.incr_node_id(km)
+            gr.index_kmers(km)
             # It seems the km object is being kept in memory for too long
             del km
-        dill.dump(offsets,
-                    open('outputs/kmers/offsets.pkl','wb'), protocol=4)
+        print("rule 'index' found max_num_nodes to be {}".format(
+            gr.max_num_nodes))
         dill.dump(gr,
                     open('outputs/graphref.pkl','wb'), protocol=4)
 
 rule subgraphs:
     input:
         kmf='outputs/kmers/{sample}.pkl',
-        offsets='outputs/kmers/offsets.pkl'
+        gr='outputs/graphref.pkl',
     output:
-        'outputs/subgraphs/{sample}.pkl'
+        'outputs/subgraphs/{sample}.g'
     run:
         pathlib.Path('outputs/subgraphs/').mkdir(parents=True, exist_ok=True)
-        offsets = dill.load(open(input.offsets, 'rb'))
-        offset = offsets[input.kmf]
         km = dill.load(open(input.kmf,'rb'))
-        sg = SubgraphRef(offset, km, NetworkXGraph())
-        dill.dump(sg, open(output[0],'wb'))
+        gr = dill.load(open(input.gr, 'rb'))
+        sg = SubgraphRef(km, NetworkXGraph(), gr, target='AMP')
+        sg.save(output[0])
 
-rule graph:
+###################
+# Training steps
+###################
+
+@contextmanager
+def _setup_training(mic_label: str) -> int:
+    dst = pathlib.Path('diffpool/data/KMERS/KMERS_graph_labels.txt')
+    print("Copying {} to {}".format(graph, dst))
+    shutil.copy2(mic_label, dst)
+    n = len(
+        np.unique(
+            np.loadtxt(dst, dtype=int)
+        )
+    )
+    yield n
+    os.remove(dst)
+
+def train_model(target):
+    print("Currently training for {}".format(target))
+    with _setup_training(target) as n:
+        subprocess.run(
+            'cd diffpool/ && python -m train --bmname=KMERS --assign-ratio=0.1 \
+            --hidden-dim=30 --output-dim=30 --cuda=0 --num-classes={} \
+            --method=soft-assign --benchmark-iterations=1'.format(n),
+            shell=True,
+            check=True)
+
+rule move:
     input:
-        subgraphs=expand('outputs/subgraphs/{input}.pkl', input=INPUTS),
-        graphref='outputs/graphref.pkl'
+        a='outputs/KMERS_A.txt',
+        gi='outputs/KMERS_graph_indicator.txt',
+        na='outputs/KMERS_node_attributes.txt',
+        nl='outputs/KMERS_node_labels.txt'
     output:
-        'outputs/KMERS_A.txt', 'outputs/graphref_final.pkl'
+        'diffpool/data/KMERS/KMERS_A.txt',
+        'diffpool/data/KMERS/KMERS_graph_indicator.txt',
+        'diffpool/data/KMERS/KMERS_node_attributes.txt',
+        'diffpool/data/KMERS/KMERS_node_labels.txt',
     run:
-        gr = dill.load(open(input.graphref, 'rb'))
-        # Note that start=1 is only for the index, sgf still starts at
-        # position 0
-        for index, sgf in enumerate(input.subgraphs, start=1):
-            print("rule 'graph' on subgraph {} / {}".format(index,
-                                                            input.subgraphs))
-            sg = dill.load(open(sgf,'rb'))
-            gr.append(sg)
-        dill.dump(gr, open(output[1], 'wb'), protocol=4)
-        gr.close()
+        # File moving
+        directory = pathlib.Path('diffpool/data/KMERS/')
+        directory.mkdir(parents=True, exist_ok=True)
+        shutil.move(input.a, directory)
+        shutil.move(input.gi, directory)
+        shutil.move(input.na, directory)
+        shutil.move(input.nl, directory)
+
+rule train:
+    input:
+        mic_labels=expand(
+            'outputs/KMERS_graph_labels_{target}.txt', target=MIC_COLUMNS),
+        outputs=rules.move.output
+    output:
+        'diffpool/results/'
+    run:
+        # Actual train
+        c = 1
+        l = len(input.mic_labels)
+        for mic_label in input.mic_labels:
+            print("{}/{} : Currently training for {}".format(
+                c, l, mic_label))
+            train_model(mic_label)
 
 rule clean:
     shell:
