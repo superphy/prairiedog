@@ -24,9 +24,7 @@ class Kmers:
         self.unique_kmers = self._count_unique()
 
     def __str__(self):
-        return "Kmers for file {} with {} contigs and K size {}".format(
-            self.filepath, len(self.headers), self.k
-        )
+        return os.path.basename(self.filepath)
 
     def __len__(self):
         return self._n
