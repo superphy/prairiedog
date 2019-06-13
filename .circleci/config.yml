@@ -35,6 +35,13 @@ jobs:
                       pip install -r requirements.txt
                       pip install -r requirements_dev.txt
 
+            - run:
+                  name: install lemongraph
+                  command: |
+                      . venv/bin/activate
+                      sudo apt-get install libffi-dev zlib1g-dev python-dev python-cffi
+                      cd lemongraph && python setup.py install
+
 
             - save_cache:
                   paths:
