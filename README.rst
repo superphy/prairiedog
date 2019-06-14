@@ -24,7 +24,7 @@ To recreate the models, we have to install datrie from src (see https://github.c
     pip install -r requirements.txt
     pip install git+https://github.com/pytries/datrie.git
     pip install snakemake
-    snakemake --config samples=samples/
+    snakemake -j 24 --config samples=samples/
 
 To use prairiedog on existing models, run:
 

@@ -14,7 +14,6 @@ class SubgraphRef(GRef):
     """
     Helper for creating a NetworkX graph, created for each genome file.
     """
-
     def __init__(self, graph: Graph):
         """
         """
@@ -67,7 +66,6 @@ class SubgraphRef(GRef):
                     log.debug("{}/{}".format(c, len(km)))
             # At this point, we're out of kmers on that contig
             # The loop will check if there's still kmers, and reset kmer1
-
         en = time.time()
         log.debug("Done graphing {}, covering {} kmers in {} s".format(
             km, c, en - st))
