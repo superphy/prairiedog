@@ -9,6 +9,7 @@ import pytest
 
 from prairiedog import kmers
 from prairiedog.networkx_graph import NetworkXGraph
+from prairiedog.lemon_graph import LGGraph
 
 log = logging.getLogger('prairiedog')
 
@@ -62,10 +63,12 @@ def km(request):
 
 
 # TODO: use params to test against multiple backing stores
-@pytest.fixture(scope="function", params=["networkx"])
+@pytest.fixture(scope="function", params=["networkx", "lemongraph"])
 def g(request):
     if request.param == "networkx":
         return NetworkXGraph()
+    elif request.param == "lemongraph":
+        return LGGraph()
 
 
 @pytest.fixture

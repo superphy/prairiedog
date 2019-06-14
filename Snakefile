@@ -2,6 +2,7 @@ import pathlib
 import os
 import shutil
 import subprocess
+import psutil
 
 import dill
 import pandas as pd
@@ -12,6 +13,8 @@ from prairiedog.kmers import Kmers
 from prairiedog.networkx_graph import NetworkXGraph
 from prairiedog.graph_ref import GraphRef
 from prairiedog.subgraph_ref import SubgraphRef
+from prairiedog.dgl_graph import DGLGraph
+from prairiedog.lemon_graph import LGGraph, DB_PATH
 
 configfile: "config.yaml"
 
@@ -29,8 +32,8 @@ MIC_COLUMNS.remove('run')
 
 rule all:
     input:
-         expand('outputs/subgraphs/{input}.g', input=INPUTS)
-
+         'outputs/pangenome.g'
+        
 rule kmers:
     input:
         'samples/{sample}.fasta'
@@ -41,102 +44,64 @@ rule kmers:
         km = Kmers(input[0],K)
         dill.dump(km, open(output[0],'wb'))
 
-rule index:
+rule pangenome:
     input:
         expand('outputs/kmers/{input}.pkl', input=INPUTS)
     output:
         'outputs/graphref.pkl',
+        'outputs/pangenome.g'
     run:
+        try:
+            os.remove('outputs/sizes.txt')
+        except:
+            pass
+        sizes = []
         gr = GraphRef(MIC_CSV)
+        if config['backend'] == 'networkx':
+            print("Using NetworkX as graph backend")
+            sg = SubgraphRef(NetworkXGraph())
+        elif config['backend'] == 'lemongraph':
+            print("Using LemonGraph as graph backend")
+            sg = SubgraphRef(LGGraph())
+        else:
+            print("Using DGL as graph backend")
+            sg = SubgraphRef(DGLGraph(
+                n_labels=len(input),
+                n_nodes=4**K + 20 # We have some odd contigs that use N
+            ))
+        pathlib.Path('outputs/subgraphs/').mkdir(parents=True, exist_ok=True)
         # Note that start=1 is only for the index, sgf still starts at
         # position 0
         for index, kmf in enumerate(input, start=1):
-            print("rule 'index' on Kmer {} / {}".format(
+            print("rule 'pangenome' on Kmer {} / {}".format(
                 index, len(input)))
             km = dill.load(open(kmf,'rb'))
             gr.index_kmers(km)
+            sg.update_graph(km, gr)
+            if config['backend'] == 'lemongraph':
+                sg.save(output[1])
+
+            # Calculate rough memory usage
+            pid = os.getpid()
+            py = psutil.Process(pid)
+            sz = py.memory_info()[0]/2.**30
+            sizes.append(sz)
+            print("Current graph size is {} GB".format(sz))
+            with open('outputs/sizes.txt', 'a') as f:
+                f.write('{}\n'.format(sz))
+
             # It seems the km object is being kept in memory for too long
             del km
-        print("rule 'index' found max_num_nodes to be {}".format(
+        print("rule 'pangenome' found max_num_nodes to be {}".format(
             gr.max_num_nodes))
         dill.dump(gr,
                     open('outputs/graphref.pkl','wb'), protocol=4)
+        if config['backend'] == 'lemongraph':
+            shutil.copy2(DB_PATH, output[1])
+        else:
+            sg.save(output[1])
 
-rule subgraphs:
-    input:
-        kmf='outputs/kmers/{sample}.pkl',
-        gr='outputs/graphref.pkl',
-    output:
-        'outputs/subgraphs/{sample}.g'
-    run:
-        pathlib.Path('outputs/subgraphs/').mkdir(parents=True, exist_ok=True)
-        km = dill.load(open(input.kmf,'rb'))
-        gr = dill.load(open(input.gr, 'rb'))
-        sg = SubgraphRef(km, NetworkXGraph(), gr, target='AMP')
-        sg.save(output[0])
-
-###################
-# Training steps
-###################
-
-@contextmanager
-def _setup_training(mic_label: str) -> int:
-    dst = pathlib.Path('diffpool/data/KMERS/KMERS_graph_labels.txt')
-    print("Copying {} to {}".format(graph, dst))
-    shutil.copy2(mic_label, dst)
-    n = len(
-        np.unique(
-            np.loadtxt(dst, dtype=int)
-        )
-    )
-    yield n
-    os.remove(dst)
-
-def train_model(target):
-    print("Currently training for {}".format(target))
-    with _setup_training(target) as n:
-        subprocess.run(
-            'cd diffpool/ && python -m train --bmname=KMERS --assign-ratio=0.1 \
-            --hidden-dim=30 --output-dim=30 --cuda=0 --num-classes={} \
-            --method=soft-assign --benchmark-iterations=1'.format(n),
-            shell=True,
-            check=True)
-
-rule move:
-    input:
-        a='outputs/KMERS_A.txt',
-        gi='outputs/KMERS_graph_indicator.txt',
-        na='outputs/KMERS_node_attributes.txt',
-        nl='outputs/KMERS_node_labels.txt'
-    output:
-        'diffpool/data/KMERS/KMERS_A.txt',
-        'diffpool/data/KMERS/KMERS_graph_indicator.txt',
-        'diffpool/data/KMERS/KMERS_node_attributes.txt',
-        'diffpool/data/KMERS/KMERS_node_labels.txt',
-    run:
-        # File moving
-        directory = pathlib.Path('diffpool/data/KMERS/')
-        directory.mkdir(parents=True, exist_ok=True)
-        shutil.move(input.a, directory)
-        shutil.move(input.gi, directory)
-        shutil.move(input.na, directory)
-        shutil.move(input.nl, directory)
-
-rule train:
-    input:
-        mic_labels=expand(
-            'outputs/KMERS_graph_labels_{target}.txt', target=MIC_COLUMNS),
-        outputs=rules.move.output
-    output:
-        'diffpool/results/'
-    run:
-        # Actual train
-        c = 1
-        l = len(input.mic_labels)
-        for mic_label in input.mic_labels:
-            print("{}/{} : Currently training for {}".format(
-                c, l, mic_label))
-            train_model(mic_label)
+        dill.dump(sizes, open('outputs/sizes.pkl', 'wb'))
 
 rule clean:
     shell:

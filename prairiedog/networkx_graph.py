@@ -18,8 +18,11 @@ class NetworkXGraph(prairiedog.graph.Graph):
         else:
             self.g.add_node(node)
 
-    def add_edge(self, node_a: str, node_b: str):
-        self.g.add_edge(node_a, node_b)
+    def add_edge(self, node_a: str, node_b: str, labels: dict = None):
+        if labels and isinstance(labels, dict):
+            self.g.add_edge(node_a, node_b, **labels)
+        else:
+            self.g.add_edge(node_a, node_b)
 
     def clear(self):
         self.g.clear()
