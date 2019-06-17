@@ -118,5 +118,5 @@ def lg() -> LGGraph:
         - GCA_900015695.1_ED647_contigs_genomic_SHORTENED.fasta
     :return:
     """
-    g = LGGraph('tests/pangenome.lemongraph', delete_on_exit=True)
+    g = LGGraph('tests/pangenome.lemongraph', delete_on_exit=False)
     return g
