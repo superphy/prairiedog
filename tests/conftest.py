@@ -4,6 +4,7 @@ import shutil
 import logging
 import itertools
 import subprocess
+import tempfile
 
 import pytest
 
@@ -68,7 +69,10 @@ def g(request):
     if request.param == "networkx":
         return NetworkXGraph()
     elif request.param == "lemongraph":
-        return lg()
+        # Create a new LemonGraph instance with its own database file
+        fd, path = tempfile.mkstemp()
+        os.close(fd)
+        return LGGraph(path, delete_on_exit=True)
 
 
 @pytest.fixture
