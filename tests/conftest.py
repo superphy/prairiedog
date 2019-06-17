@@ -63,7 +63,7 @@ def km(request):
 
 
 # TODO: use params to test against multiple backing stores
-@pytest.fixture(scope="function", params=["networkx", "lemongraph"])
+@pytest.fixture(scope="function", params=["lemongraph"])
 def g(request):
     if request.param == "networkx":
         return NetworkXGraph()
