@@ -98,7 +98,7 @@ class Graph(metaclass=abc.ABCMeta):
         tgt_map = Graph._edge_map(tgt_edges)
 
         list_edges = []
-        for k, v in src_map:
+        for k, v in src_map.items():
             # Check if there's a target edge with the same origin
             if k in tgt_map and tgt_map[k] > v:
                 for edge in src_edges:
