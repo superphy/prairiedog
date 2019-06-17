@@ -68,7 +68,7 @@ def g(request):
     if request.param == "networkx":
         return NetworkXGraph()
     elif request.param == "lemongraph":
-        yield lg()
+        return lg()
 
 
 @pytest.fixture
@@ -114,6 +114,5 @@ def lg() -> LGGraph:
         - GCA_900015695.1_ED647_contigs_genomic_SHORTENED.fasta
     :return:
     """
-    g = LGGraph('tests/pangenome.lemongraph')
-    yield g
-    g.clear()
+    g = LGGraph('tests/pangenome.lemongraph', delete_on_exit=True)
+    return g
