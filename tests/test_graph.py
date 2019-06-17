@@ -23,8 +23,8 @@ def test_graph_basics_nodes(g: Graph):
 def test_graph_basics_edges(g: Graph):
     expected = ["ABC", "BCE", "CEF"]
     expected = [Node(value=v) for v in expected]
-    g.add_edge(expected[0], expected[1])
-    g.add_edge(expected[1], expected[2])
+    g.add_edge(Edge(src=expected[0].value, tgt=expected[1].value))
+    g.add_edge(Edge(src=expected[1].value, tgt=expected[2].value))
     assert g.edges == {
         (expected[0], expected[1]),
         (expected[1], expected[2])

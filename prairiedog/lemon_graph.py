@@ -20,10 +20,13 @@ class LGGraph(prairiedog.graph.Graph):
     """
 
     def __init__(self, db_path: str = None, delete_on_exit=False):
-        os.makedirs(prairiedog.config.OUTPUT_DIRECTORY, exist_ok=True)
+        log.debug("Creating LemonGraph with backing file {}".format(
+            db_path if db_path is not None else DB_PATH
+        ))
         if db_path is not None:
             self.g = LemonGraph.Graph(db_path)
         else:
+            os.makedirs(prairiedog.config.OUTPUT_DIRECTORY, exist_ok=True)
             self.g = LemonGraph.Graph(DB_PATH)
         self._ctx = None
         self._txn = None
@@ -35,6 +38,7 @@ class LGGraph(prairiedog.graph.Graph):
         :return:
         """
         if self.delete_on_exit:
+            log.debug("Wiping LemonGraph")
             self.clear()
 
     @property
@@ -82,7 +86,7 @@ class LGGraph(prairiedog.graph.Graph):
         for node in nodes:
             # Create a dictionary to store other labels
             labels = {}
-            for k,v in node.items():
+            for k, v in node.items():
                 if k not in ('value', 'type', 'ID'):
                     labels[k] = v
             labels = None if not labels else labels
