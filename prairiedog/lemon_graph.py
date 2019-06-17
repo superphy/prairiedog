@@ -53,15 +53,48 @@ class LGGraph(prairiedog.graph.Graph):
             self._txn = self.ctx.__enter__()
         return self._txn
 
-    def upsert_node(self, node: Node):
+    @staticmethod
+    def _parse_node(node: dict) -> Node:
+        """
+        Parses the node returned by LemonGraph into our Node class
+        :param node:
+        :return:
+        """
+        # Create a dictionary to store other labels
+        labels = {}
+        for k, v in node.items():
+            if k not in ('value', 'type', 'ID'):
+                labels[k] = v
+        labels = None if not labels else labels
+        return Node(value=node['value'], node_type=node['type'],
+                    db_id=node['ID'], labels=labels)
+
+    @staticmethod
+    def _parse_edge(edge: dict) -> Edge:
+        """
+        Parses the edge returned by LemonGraph into our Edge class
+        :param edge:
+        :return:
+        """
+        # Create a dictionary to store other labels
+        labels = {}
+        for k, v in edge.items():
+            if k not in ('value', 'type', 'ID', 'srcID', 'tgtID'):
+                labels[k] = v
+        labels = None if not labels else labels
+        return Edge(src=edge['srcID'], tgt=edge['tgtID'],
+                    edge_type=edge['type'], edge_value=edge['value'],
+                    labels=labels, db_id=edge['ID'])
+
+    def upsert_node(self, node: Node) -> Node:
         n = self.txn.node(type=node.node_type, value=node.value)
 
         if node.labels is not None:
             for k, v in node.labels.items():
                 n[k] = v
-        pass
+        return LGGraph._parse_node(n)
 
-    def add_edge(self, edge: Edge):
+    def add_edge(self, edge: Edge) -> Edge:
         na = self.txn.node(type='n', value=edge.src)
         nb = self.txn.node(type='n', value=edge.tgt)
 
@@ -76,6 +109,8 @@ class LGGraph(prairiedog.graph.Graph):
             for k, v in edge.labels.items():
                 e[k] = v
 
+        return LGGraph._parse_edge(e)
+
     def clear(self):
         self.g.delete()
 
@@ -84,16 +119,7 @@ class LGGraph(prairiedog.graph.Graph):
         nodes = set(self.txn.nodes())
         r_nodes = []
         for node in nodes:
-            # Create a dictionary to store other labels
-            labels = {}
-            for k, v in node.items():
-                if k not in ('value', 'type', 'ID'):
-                    labels[k] = v
-            labels = None if not labels else labels
-            r_nodes.append(
-                Node(value=node['value'], node_type=node['type'],
-                     db_id=node['ID'],labels=labels)
-            )
+            r_nodes.append(LGGraph._parse_node(node))
         return set(r_nodes)
 
     @property

@@ -10,7 +10,7 @@ class Graph(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def upsert_node(self, node: Node):
+    def upsert_node(self, node: Node) -> Node:
         """
         Upsert nodes with labels.
         :param node:
@@ -19,7 +19,7 @@ class Graph(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def add_edge(self, edge: Edge):
+    def add_edge(self, edge: Edge) -> Edge:
         pass
 
     @abc.abstractmethod

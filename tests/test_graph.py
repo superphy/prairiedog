@@ -23,12 +23,18 @@ def test_graph_basics_nodes(g: Graph):
 def test_graph_basics_edges(g: Graph):
     expected = ["ABC", "BCE", "CEF"]
     expected = [Node(value=v) for v in expected]
+
+    nodes_with_ids = []
+    for node in expected:
+        # Returned the node with db_id set, these are required to check edges
+        n = g.upsert_node(node)
+        nodes_with_ids.append(n)
+
     g.add_edge(Edge(src=expected[0].value, tgt=expected[1].value))
     g.add_edge(Edge(src=expected[1].value, tgt=expected[2].value))
-    assert g.edges == {
-        (expected[0], expected[1]),
-        (expected[1], expected[2])
-    }
+    assert {(e.src, e.tgt) for e in g.edges} == {
+        (nodes_with_ids[0].db_id, nodes_with_ids[1].db_id),
+        (nodes_with_ids[1].db_id, nodes_with_ids[2].db_id)}
 
 
 def test_graph_node_labels(g: Graph):
