@@ -124,7 +124,11 @@ class LGGraph(prairiedog.graph.Graph):
 
     @property
     def edges(self) -> typing.Set[Edge]:
-        return set(self.txn.edges())
+        edges = set(self.txn.edges())
+        r_edges = []
+        for edge in edges:
+            r_edges.append(LGGraph._parse_edge(edge))
+        return set(r_edges)
 
     def get_labels(self, node: str) -> dict:
         return dict(self.txn.nodes()[node])
