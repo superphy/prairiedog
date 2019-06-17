@@ -159,10 +159,12 @@ class LGGraph(prairiedog.graph.Graph):
         edges_a = tuple(self.txn.query('@n(value="{}")->e()'.format(
             node_a)))
         if len(edges_a) == 0:
+            log.warning("No nodes found with value {}".format(node_a))
             return False, ()
         edges_b = tuple(self.txn.query('@n(value="{}")->e()'.format(
             node_b)))
         if len(edges_b) == 0:
+            log.warning("No nodes found with value {}".format(node_b))
             return False, ()
 
         # Unravel theses edge tuples; this should return a tuple of

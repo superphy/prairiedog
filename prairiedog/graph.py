@@ -104,4 +104,8 @@ class Graph(metaclass=abc.ABCMeta):
                     if edge.origin == k and edge.incr == v:
                         list_edges.append(edge)
 
+        if len(list_edges):
+            log.warning("No connected edges found for src_map {} and tgt_map \
+            {}".format(src_map, tgt_map))
+
         return True if len(list_edges) > 0 else False, tuple(list_edges)
