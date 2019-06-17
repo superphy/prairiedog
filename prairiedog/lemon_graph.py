@@ -164,16 +164,10 @@ class LGGraph(prairiedog.graph.Graph):
         if len(edges_b) == 0:
             return False, ()
 
-        log.debug("edges_a before unraveling\n{}".format(edges_a))
-        log.debug("edges_b before unraveling\n{}".format(edges_b))
-
         # Unravel theses edge tuples; this should return a tuple of
         # dictionaries
         edges_a = (e[0] for e in edges_a)
         edges_b = (e[0] for e in edges_b)
-
-        log.debug("edges_a after unraveling\n{}".format(edges_a))
-        log.debug("edges_b after unraveling\n{}".format(edges_b))
 
         # Convert these to Edge objects
         edges_a = (
@@ -196,9 +190,6 @@ class LGGraph(prairiedog.graph.Graph):
             )
             for e in edges_b
         )
-
-        log.debug("edges_a after conversion to Edge(s)\n{}".format(edges_a))
-        log.debug("edges_b after conversion to Edge(s)\n{}".format(edges_b))
 
         # If matched, the src edges are where we should start from to find a
         # path

@@ -87,7 +87,6 @@ class Graph(metaclass=abc.ABCMeta):
                     d[edge.origin] = edge.incr
             else:
                 d[edge.origin] = edge.incr
-        log.debug("Parsed into edge map as {}".format(d))
         return d
 
     @staticmethod
