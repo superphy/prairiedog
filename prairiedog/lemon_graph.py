@@ -80,7 +80,7 @@ class LGGraph(prairiedog.graph.Graph):
 
     @property
     def edgelist(self) -> typing.Generator:
-        raise NotImplemented
+        raise NotImplementedError
 
     def set_graph_labels(self, labels: dict):
         for k, v in labels.items():
