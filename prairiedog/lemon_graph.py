@@ -77,11 +77,20 @@ class LGGraph(prairiedog.graph.Graph):
 
     @property
     def nodes(self) -> typing.Set[Node]:
-        nodes = set(
-            Node(value=n['value'], node_type=n['type'], db_id=n['ID'])
-            for n in self.txn.nodes()
-        )
-        return nodes
+        nodes = set(self.txn.nodes())
+        r_nodes = []
+        for node in nodes:
+            # Create a dictionary to store other labels
+            labels = {}
+            for k,v in node.items():
+                if k not in ('value', 'type', 'ID'):
+                    labels[k] = v
+            labels = None if not labels else labels
+            r_nodes.append(
+                Node(value=node['value'], node_type=node['type'],
+                     db_id=node['ID'],labels=labels)
+            )
+        return set(r_nodes)
 
     @property
     def edges(self) -> typing.Set[Edge]:

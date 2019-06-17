@@ -10,7 +10,7 @@ from prairiedog.node import Node
 from prairiedog.edge import Edge
 
 
-def test_graph_basics(g: Graph):
+def test_graph_basics_nodes(g: Graph):
     expected = ["ABC", "BCE", "CEF"]
     expected = set(Node(value=v) for v in expected)
     for node in expected:
@@ -19,6 +19,10 @@ def test_graph_basics(g: Graph):
     # node values
     assert set(n.value for n in g.nodes) == set(ne.value for ne in expected)
 
+
+def test_graph_basics_edges(g: Graph):
+    expected = ["ABC", "BCE", "CEF"]
+    expected = [Node(value=v) for v in expected]
     g.add_edge(expected[0], expected[1])
     g.add_edge(expected[1], expected[2])
     assert g.edges == {
@@ -27,14 +31,21 @@ def test_graph_basics(g: Graph):
     }
 
 
-def test_graph_labels(g: Graph):
-    expected = {
-        "ABC": {"species": "dog"},
-        "BCE": {"species": "cat"}
-    }
-    for k, v in expected.items():
-        g.upsert_node(k, v)
-    assert g.nodes == set(expected.keys())
+def test_graph_node_labels(g: Graph):
+    expected = [
+        Node(value="ABC", labels={"species": "dog"}),
+        Node(value="BCE", labels={"species": "cat"})
+    ]
+    for node in expected:
+        g.upsert_node(node)
 
-    for k, v in expected.items():
-        assert g.get_labels(k) == v
+    assert len(g.nodes) == 2
+
+    for node in g.nodes:
+        if node.value == "ABC":
+            assert node.labels == expected[0].labels
+        elif node.value == "BCE":
+            assert node.labels == expected[1].labels
+        else:
+            # Something went wrong
+            assert False
