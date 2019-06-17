@@ -18,9 +18,12 @@ class LGGraph(prairiedog.graph.Graph):
     LemonGraph defines directed edges.
     """
 
-    def __init__(self):
+    def __init__(self, db_path: str = None):
         os.makedirs(prairiedog.config.OUTPUT_DIRECTORY, exist_ok=True)
-        self.g = LemonGraph.Graph(DB_PATH)
+        if db_path is not None:
+            self.g = LemonGraph.Graph(db_path)
+        else:
+            self.g = LemonGraph.Graph(DB_PATH)
         self._ctx = None
         self._txn = None
 

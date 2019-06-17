@@ -103,3 +103,16 @@ def setup_snakefile(request):
     for f in files:
         os.remove(os.path.join('samples/', f))
     subprocess.run("snakemake clean", shell=True)
+
+
+@pytest.fixture
+def lg() -> LGGraph:
+    """
+    A pre-made LemonGraph made from:
+        - SRR1060582_SHORTENED.fasta,
+        - SRR1106609_SHORTENED.fasta
+        - GCA_900015695.1_ED647_contigs_genomic_SHORTENED.fasta
+    :return:
+    """
+    g = LGGraph('tests/pangenome.lemongraph')
+    return g
