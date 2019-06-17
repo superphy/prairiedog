@@ -7,6 +7,7 @@ import LemonGraph
 import prairiedog.graph
 import prairiedog.config
 from prairiedog.edge import Edge
+from prairiedog.node import Node
 
 log = logging.getLogger("prairiedog")
 
@@ -39,12 +40,12 @@ class LGGraph(prairiedog.graph.Graph):
             self._txn = self.ctx.__enter__()
         return self._txn
 
-    def upsert_node(self, node: str, labels: dict = None):
-        node = self.txn.node(type='n', value=node)
+    def upsert_node(self, node: Node):
+        n = self.txn.node(type=node.node_type, value=node.value)
 
-        if labels is not None:
-            for k, v in labels.items():
-                node[k] = v
+        if node.labels is not None:
+            for k, v in node.labels.items():
+                n[k] = v
         pass
 
     def add_edge(self, edge: Edge):
@@ -66,11 +67,15 @@ class LGGraph(prairiedog.graph.Graph):
         self.g.delete()
 
     @property
-    def nodes(self) -> set:
-        return set(self.txn.nodes())
+    def nodes(self) -> typing.Set[Node]:
+        nodes = set(
+            Node(value=n['value'], node_type=n['type'], db_id=n['ID'])
+            for n in self.txn.nodes()
+        )
+        return nodes
 
     @property
-    def edges(self) -> set:
+    def edges(self) -> typing.Set[Edge]:
         return set(self.txn.edges())
 
     def get_labels(self, node: str) -> dict:

@@ -68,7 +68,7 @@ def g(request):
     if request.param == "networkx":
         return NetworkXGraph()
     elif request.param == "lemongraph":
-        return LGGraph()
+        yield lg()
 
 
 @pytest.fixture
@@ -115,4 +115,5 @@ def lg() -> LGGraph:
     :return:
     """
     g = LGGraph('tests/pangenome.lemongraph')
-    return g
+    yield g
+    g.clear()

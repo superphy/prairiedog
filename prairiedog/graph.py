@@ -2,6 +2,7 @@ import abc
 import typing
 
 from prairiedog.edge import Edge
+from prairiedog.node import Node
 
 
 class Graph(metaclass=abc.ABCMeta):
@@ -9,11 +10,10 @@ class Graph(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def upsert_node(self, node: int, labels: dict = None):
+    def upsert_node(self, node: Node):
         """
         Upsert nodes with labels.
         :param node:
-        :param labels:
         :return:
         """
         pass
@@ -28,12 +28,12 @@ class Graph(metaclass=abc.ABCMeta):
 
     @property
     @abc.abstractmethod
-    def nodes(self) -> set:
+    def nodes(self) -> typing.Set[Node]:
         pass
 
     @property
     @abc.abstractmethod
-    def edges(self) -> set:
+    def edges(self) -> typing.Set[Edge]:
         pass
 
     @abc.abstractmethod

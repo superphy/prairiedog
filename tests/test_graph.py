@@ -6,14 +6,18 @@
 import pytest
 
 from prairiedog.graph import Graph
+from prairiedog.node import Node
+from prairiedog.edge import Edge
 
 
 def test_graph_basics(g: Graph):
     expected = ["ABC", "BCE", "CEF"]
+    expected = set(Node(value=v) for v in expected)
     for node in expected:
         g.upsert_node(node)
-    # We assume the backing store might change ordering.
-    assert g.nodes == set(expected)
+    # We assume the backing store might change ordering and only care for the
+    # node values
+    assert set(n.value for n in g.nodes) == set(ne.value for ne in expected)
 
     g.add_edge(expected[0], expected[1])
     g.add_edge(expected[1], expected[2])
