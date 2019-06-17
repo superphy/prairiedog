@@ -22,3 +22,6 @@ class Edge:
     @property
     def origin(self):
         return "{}_{}".format(self.edge_type, self.edge_value)
+
+    def __str__(self):
+        return "{}".format(vars(self))

@@ -8,3 +8,6 @@ class Node:
         self.node_type = node_type
         self.db_id = db_id
         self.labels = labels
+
+    def __str__(self):
+        return "{}".format(vars(self))
