@@ -4,6 +4,7 @@ import shutil
 import logging
 import itertools
 import subprocess
+import tempfile
 
 import pytest
 
@@ -63,12 +64,15 @@ def km(request):
 
 
 # TODO: use params to test against multiple backing stores
-@pytest.fixture(scope="function", params=["networkx", "lemongraph"])
+@pytest.fixture(scope="function", params=["lemongraph"])
 def g(request):
     if request.param == "networkx":
         return NetworkXGraph()
     elif request.param == "lemongraph":
-        return LGGraph()
+        # Create a new LemonGraph instance with its own database file
+        fd, path = tempfile.mkstemp()
+        os.close(fd)
+        return LGGraph(path, delete_on_exit=True)
 
 
 @pytest.fixture
@@ -103,3 +107,16 @@ def setup_snakefile(request):
     for f in files:
         os.remove(os.path.join('samples/', f))
     subprocess.run("snakemake clean", shell=True)
+
+
+@pytest.fixture
+def lg() -> LGGraph:
+    """
+    A pre-made LemonGraph made from:
+        - SRR1060582_SHORTENED.fasta,
+        - SRR1106609_SHORTENED.fasta
+        - GCA_900015695.1_ED647_contigs_genomic_SHORTENED.fasta
+    :return:
+    """
+    g = LGGraph('tests/pangenome.lemongraph', delete_on_exit=False)
+    return g

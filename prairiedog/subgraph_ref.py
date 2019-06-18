@@ -6,6 +6,7 @@ from prairiedog.gref import GRef
 from prairiedog.kmers import Kmers
 from prairiedog.graph import Graph
 from prairiedog.graph_ref import GraphRef
+from prairiedog.edge import Edge
 
 log = logging.getLogger("prairiedog")
 
@@ -44,19 +45,20 @@ class SubgraphRef(GRef):
                 node2_label = gr.node_label(kmer2) if encode else kmer2
                 self.graph.upsert_node(node2_label)
                 # Create an edge
-                edge_label = {
-                    "src": gr.edge_label(km)
-                } if encode else {
-                    "incr": str(edge_c)
-                }
                 try:
                     self.graph.add_edge(
-                        node1_label, node2_label, labels=edge_label,
-                        edge_type=str(km), edge_value=header2)
+                        Edge(
+                            src=node1_label,
+                            tgt=node2_label,
+                            edge_type=str(km),
+                            edge_value=header2,
+                            incr=edge_c
+                        )
+                    )
                 except Exception as e:
                     log.fatal(
-                        "Failed to add edge between {} and {} with labels \
-                        {}".format(node1_label, node2_label, edge_label))
+                        "Failed to add edge between {} and {}".format(
+                            node1_label, node2_label))
                     raise e
                 # Set node1_id to node2_id
                 node1_label = node2_label

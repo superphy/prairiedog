@@ -82,7 +82,7 @@ class GraphRef(GRef):
             self.max_num_nodes = km.unique_kmers
 
         log.info("Done indexing {}".format(km))
-        
+
     def get_graph_label(self, km: Kmers, column: str) -> int:
         short_name = GraphRef.get_short_name(km)
         series = self.MIC_DF.loc[short_name, :]

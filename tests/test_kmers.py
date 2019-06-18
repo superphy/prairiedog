@@ -53,7 +53,7 @@ def test_kmers_index_end():
 def test_kmers_index_diff():
     """Checks last of a contig before switching.
     """
-    km = kmers.Kmers("tests/GCA_900015695.1_ED647_contigs_genomic.fna")
+    km = kmers.Kmers("tests/GCA_900015695.1_ED647_contigs_genomic.fasta")
     header, kmer = km.next()
     assert header == ">FAVS01000269.1 Escherichia coli strain ED647 genome assembly, contig: out_269, whole genome shotgun sequence"
     while km.contig_has_next:

@@ -1,23 +1,28 @@
 import abc
 import typing
+import logging
+
+from prairiedog.edge import Edge
+from prairiedog.node import Node
+
+log = logging.getLogger("prairiedog")
 
 
 class Graph(metaclass=abc.ABCMeta):
     """We expect this to be a directed graph.
     """
+
     @abc.abstractmethod
-    def upsert_node(self, node: int, labels: dict = None):
+    def upsert_node(self, node: Node) -> Node:
         """
         Upsert nodes with labels.
         :param node:
-        :param labels:
         :return:
         """
         pass
 
     @abc.abstractmethod
-    def add_edge(self, node_a: int, node_b: int, labels: dict = None,
-                 edge_type: str = 'e', edge_value: str = 'und'):
+    def add_edge(self, edge: Edge) -> Edge:
         pass
 
     @abc.abstractmethod
@@ -26,12 +31,12 @@ class Graph(metaclass=abc.ABCMeta):
 
     @property
     @abc.abstractmethod
-    def nodes(self) -> set:
+    def nodes(self) -> typing.Set[Node]:
         pass
 
     @property
     @abc.abstractmethod
-    def edges(self) -> set:
+    def edges(self) -> typing.Set[Edge]:
         pass
 
     @abc.abstractmethod
@@ -39,7 +44,7 @@ class Graph(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def save(self, f: str):
+    def save(self, f: str = None):
         pass
 
     @property
@@ -58,3 +63,56 @@ class Graph(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __len__(self):
         pass
+
+    #########
+    # Queries
+    #########
+
+    @abc.abstractmethod
+    def connected(self, node_a: str, node_b: str) -> typing.Tuple[
+                    bool, typing.Tuple]:
+        pass
+
+    @abc.abstractmethod
+    def path(self, node_a: str, node_b: str) -> tuple:
+        pass
+
+    @staticmethod
+    def _edge_map(edges: typing.Tuple[Edge]) -> dict:
+        d = {}
+        for edge in edges:
+            # We only keep the edges with the largest ids
+            if edge.origin in d:
+                if d[edge.origin] < edge.incr:
+                    d[edge.origin] = edge.incr
+            else:
+                d[edge.origin] = edge.incr
+        return d
+
+    @staticmethod
+    def matching_edges(src_edges: typing.Tuple[Edge],
+                       tgt_edges: typing.Tuple[Edge]) -> typing.Tuple[
+                        bool, typing.Tuple[Edge]]:
+        src_map = Graph._edge_map(src_edges)
+        tgt_map = Graph._edge_map(tgt_edges)
+
+        list_edges = []
+        for k, v in src_map.items():
+            # Check if there's a target edge with the same origin.
+            # We accept the case where the value is the same in case its a
+            # direct edge to the target node.
+            if k in tgt_map and tgt_map[k] >= v:
+                # Select the Edge object from src_edges
+                for edge in src_edges:
+                    # If this edge is the one we're looking for, add it to ret.
+                    if edge.origin == k and edge.incr == v:
+                        list_edges.append(edge)
+
+        connected = True if len(list_edges) > 0 else False
+
+        if not connected:
+            log.warning("No connected edges found for src_map {} and tgt_map\
+             {}".format(src_map, tgt_map))
+        else:
+            log.info("Found connecting edge(s) {} ".format(list_edges))
+        return connected, tuple(list_edges)

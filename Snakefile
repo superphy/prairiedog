@@ -19,7 +19,7 @@ from prairiedog.lemon_graph import LGGraph, DB_PATH
 configfile: "config.yaml"
 
 K = config["k"]
-INPUTS = [f.split('.')[0] for f in os.listdir(config["samples"])
+INPUTS = [os.path.splitext(f)[0] for f in os.listdir(config["samples"])
            if f.endswith(('.fna', '.fasta', '.fa'))
 ]
 MIC_CSV = config["graph_labels"]
