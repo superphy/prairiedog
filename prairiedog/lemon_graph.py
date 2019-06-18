@@ -160,61 +160,54 @@ class LGGraph(prairiedog.graph.Graph):
 
     def connected(self, node_a: str, node_b: str) -> typing.Tuple[
                     bool, typing.Tuple]:
-        # Start a new transaction. Normally, we only have to do this after the
-        # first txn.query, but we do it here just in case.
-        self.new_txn(write=False)  # Don't need write access
-        # Gather edges from these nodes and only return the edges
-        edges_a = tuple(self.txn.query('@n(value="{}")->e()'.format(
-            node_a)))
-        if len(edges_a) == 0:
-            log.warning("No nodes found with value {}".format(node_a))
-            return False, ()
-        # Start a new transaction
-        self.new_txn(write=False)
-        edges_b = tuple(self.txn.query('@n(value="{}")->e()'.format(
-            node_b)))
-        if len(edges_b) == 0:
-            log.warning("No nodes found with value {}".format(node_b))
-            return False, ()
+        with self.g.transaction(write=False) as txn:
+            # Gather edges from these nodes and only return the edges
+            edges_a = tuple(txn.query('@n(value="{}")->e()'.format(
+                node_a)))
+            if len(edges_a) == 0:
+                log.warning("No nodes found with value {}".format(node_a))
+                return False, ()
+            edges_b = tuple(txn.query('@n(value="{}")->e()'.format(
+                node_b)))
+            if len(edges_b) == 0:
+                log.warning("No nodes found with value {}".format(node_b))
+                return False, ()
 
-        # After queries, set a new writable-txn as default
-        self.new_txn(write=True)
+            # Unravel theses edge tuples; this should return a tuple of
+            # dictionaries
+            edges_a = (e[0] for e in edges_a)
+            edges_b = (e[0] for e in edges_b)
 
-        # Unravel theses edge tuples; this should return a tuple of
-        # dictionaries
-        edges_a = (e[0] for e in edges_a)
-        edges_b = (e[0] for e in edges_b)
-
-        # Convert these to Edge objects
-        edges_a = (
-            Edge(
-                src=e['srcID'],
-                tgt=e['tgtID'],
-                edge_type=e['type'],
-                edge_value=e['value'],
-                incr=e['incr']
+            # Convert these to Edge objects
+            edges_a = (
+                Edge(
+                    src=e['srcID'],
+                    tgt=e['tgtID'],
+                    edge_type=e['type'],
+                    edge_value=e['value'],
+                    incr=e['incr']
+                )
+                for e in edges_a
             )
-            for e in edges_a
-        )
-        edges_b = (
-            Edge(
-                src=e['srcID'],
-                tgt=e['tgtID'],
-                edge_type=e['type'],
-                edge_value=e['value'],
-                incr=e['incr']
+            edges_b = (
+                Edge(
+                    src=e['srcID'],
+                    tgt=e['tgtID'],
+                    edge_type=e['type'],
+                    edge_value=e['value'],
+                    incr=e['incr']
+                )
+                for e in edges_b
             )
-            for e in edges_b
-        )
 
-        # If matched, the src edges are where we should start from to find a
-        # path
-        matched, src_edges = LGGraph.matching_edges(tuple(edges_a),
-                                                    tuple(edges_b))
-        if matched is not True:
-            return False, ()
-        else:
-            return True, src_edges
+            # If matched, the src edges are where we should start from to find a
+            # path
+            matched, src_edges = LGGraph.matching_edges(tuple(edges_a),
+                                                        tuple(edges_b))
+            if matched is not True:
+                return False, ()
+            else:
+                return True, src_edges
 
     def path(self, node_a: str, node_b: str) -> tuple:
         pass
