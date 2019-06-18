@@ -44,7 +44,7 @@ class Graph(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def save(self, f: str):
+    def save(self, f: str = None):
         pass
 
     @property

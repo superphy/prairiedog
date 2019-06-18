@@ -134,7 +134,7 @@ class LGGraph(prairiedog.graph.Graph):
     def get_labels(self, node: str) -> dict:
         return dict(self.txn.nodes()[node])
 
-    def save(self, f):
+    def save(self, f=None):
         self.ctx.__exit__(None, None, None)
         self._ctx = None
         self._txn = None

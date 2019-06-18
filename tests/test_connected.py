@@ -44,6 +44,7 @@ def test_graph_connected(g: Graph):
     g.upsert_node(n2)
     e = Edge(src="ABC", tgt="BCD")
     g.add_edge(e)
+    g.save()
 
     connected, starting_edges = g.connected('ABC', 'BCD')
     assert connected
@@ -56,6 +57,8 @@ def test_graph_not_connected(g: Graph):
     n2 = Node(value="BCD")
     g.upsert_node(n1)
     g.upsert_node(n2)
+    g.save()
+
     connected, starting_edges = g.connected('ABC', 'BCD')
     assert not connected
     assert len(starting_edges) == 0
@@ -64,6 +67,7 @@ def test_graph_not_connected(g: Graph):
 def test_graph_connected_no_node(g: Graph):
     n1 = Node(value="ABC")
     g.upsert_node(n1)
+    g.save()
 
     connected, starting_edges = g.connected('ABC', 'BCD')
     assert not connected
@@ -81,6 +85,7 @@ def test_graph_connected_distant(g: Graph):
     g.add_edge(e1)
     e2 = Edge(src="BCD", tgt="CDE")
     g.add_edge(e2)
+    g.save()
 
     connected, starting_edges = g.connected('ABC', 'CDE')
     assert connected
@@ -105,6 +110,7 @@ def test_graph_connected_multiple(g: Graph):
     g.add_edge(e1_alt)
     e2_alt = Edge(src="XYZ", tgt="CDE")
     g.add_edge(e2_alt)
+    g.save()
 
     connected, starting_edges = g.connected('ABC', 'CDE')
     assert connected
@@ -127,6 +133,7 @@ def test_graph_connected_shortcut(g: Graph):
     g.add_edge(e2)
     e1_short = Edge(src="ABC", tgt="CDE")
     g.add_edge(e1_short)
+    g.save()
 
     connected, starting_edges = g.connected('ABC', 'CDE')
     assert connected
