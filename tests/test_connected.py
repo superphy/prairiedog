@@ -73,8 +73,9 @@ def test_graph_connected(g: Graph):
 
 def test_graph_connected_path(g: Graph):
     _setup_connected(g)
-    g.path("ABC", "BCE")
+    g.path("ABC", "BCD")
     assert False
+
 
 def _setup_not_connected(g: Graph):
     n1 = Node(value="ABC")
