@@ -168,7 +168,7 @@ class LGGraph(prairiedog.graph.Graph):
             if len(edges_a) == 0:
                 log.warning("No edges found for query {}".format(query_a))
                 return False, ()
-            query_b = 'e()<-@n(value="{}")'.format(node_b)
+            query_b = 'e()->@n(value="{}")'.format(node_b)
             edges_b = tuple(txn.query(query_b))
             if len(edges_b) == 0:
                 log.warning("No edges found for query {}".format(query_b))
