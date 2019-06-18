@@ -17,6 +17,8 @@ class Edge:
             labels.pop('incr')
         else:
             self.incr = incr
+        if not isinstance(self.incr, int):
+            self.incr = int(self.incr)
         self.labels = labels
         self.db_id = db_id
 
