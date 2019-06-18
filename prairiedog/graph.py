@@ -70,7 +70,7 @@ class Graph(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def connected(self, node_a: str, node_b: str) -> typing.Tuple[
-                    bool, typing.Tuple]:
+        bool, typing.Tuple]:
         pass
 
     @abc.abstractmethod
@@ -92,11 +92,11 @@ class Graph(metaclass=abc.ABCMeta):
     @staticmethod
     def matching_edges(src_edges: typing.Tuple[Edge],
                        tgt_edges: typing.Tuple[Edge]) -> typing.Tuple[
-                        bool, typing.Tuple[Edge]]:
+            bool, typing.Tuple[Edge]]:
         src_map = Graph._edge_map(src_edges)
         tgt_map = Graph._edge_map(tgt_edges)
 
-        list_edges = []
+        list_src_edges = []
         for k, v in src_map.items():
             # Check if there's a target edge with the same origin.
             # We accept the case where the value is the same in case its a
@@ -106,13 +106,13 @@ class Graph(metaclass=abc.ABCMeta):
                 for edge in src_edges:
                     # If this edge is the one we're looking for, add it to ret.
                     if edge.origin == k and edge.incr == v:
-                        list_edges.append(edge)
+                        list_src_edges.append(edge)
 
-        connected = True if len(list_edges) > 0 else False
+        connected = True if len(list_src_edges) > 0 else False
 
         if not connected:
-            log.warning("No connected edges found for src_map {} and tgt_map\
-             {}".format(src_map, tgt_map))
+            log.warning("No connected edges found for src_map {} and tgt_map"
+                        "{}".format(src_map, tgt_map))
         else:
-            log.info("Found connecting edge(s) {} ".format(list_edges))
-        return connected, tuple(list_edges)
+            log.info("Found connecting edge(s) {} ".format(list_src_edges))
+        return connected, tuple(list_src_edges)

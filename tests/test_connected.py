@@ -49,7 +49,7 @@ def test_lemongraph_not_connected(lg: LGGraph):
 #####
 
 
-def test_graph_connected(g: Graph):
+def _setup_connected(g: Graph):
     n1 = Node(value="ABC")
     n2 = Node(value="BCD")
     g.upsert_node(n1)
@@ -57,6 +57,10 @@ def test_graph_connected(g: Graph):
     e = Edge(src="ABC", tgt="BCD", incr=0)
     g.add_edge(e)
     g.save()
+
+
+def test_graph_connected(g: Graph):
+    _setup_connected(g)
 
     connected, starting_edges = g.connected('ABC', 'BCD')
     if not connected:
@@ -67,13 +71,17 @@ def test_graph_connected(g: Graph):
     log.debug("Found starting_edges as {}".format(starting_edges[0]))
 
 
-def test_graph_not_connected(g: Graph):
+def _setup_not_connected(g: Graph):
     n1 = Node(value="ABC")
     n2 = Node(value="BCD")
     g.upsert_node(n1)
     g.upsert_node(n2)
     g.save()
 
+
+def test_graph_not_connected(g: Graph):
+    _setup_not_connected(g)
+
     connected, starting_edges = g.connected('ABC', 'BCD')
     if connected:
         raise GraphException(g)
@@ -82,11 +90,15 @@ def test_graph_not_connected(g: Graph):
     assert len(starting_edges) == 0
 
 
-def test_graph_connected_no_node(g: Graph):
+def _setup_connected_no_node(g: Graph):
     n1 = Node(value="ABC")
     g.upsert_node(n1)
     g.save()
 
+
+def test_graph_connected_no_node(g: Graph):
+    _setup_connected_no_node(g)
+
     connected, starting_edges = g.connected('ABC', 'BCD')
     if connected:
         raise GraphException(g)
@@ -95,7 +107,7 @@ def test_graph_connected_no_node(g: Graph):
     assert len(starting_edges) == 0
 
 
-def test_graph_connected_distant(g: Graph):
+def _setup_connected_distant(g: Graph):
     n1 = Node(value="ABC")
     n2 = Node(value="BCD")
     n3 = Node(value="CDE")
@@ -108,6 +120,10 @@ def test_graph_connected_distant(g: Graph):
     g.add_edge(e2)
     g.save()
 
+
+def test_graph_connected_distant(g: Graph):
+    _setup_connected_distant(g)
+
     connected, starting_edges = g.connected('ABC', 'CDE')
     if not connected:
         raise GraphException(g)
@@ -117,7 +133,7 @@ def test_graph_connected_distant(g: Graph):
     log.debug("Found starting_edges as {}".format(starting_edges[0]))
 
 
-def test_graph_connected_multiple(g: Graph):
+def _setup_connected_multiple(g: Graph):
     n1 = Node(value="ABC")
     n2 = Node(value="BCD")
     n2_alt = Node(value="XYZ")
@@ -140,6 +156,10 @@ def test_graph_connected_multiple(g: Graph):
     g.add_edge(e2_alt)
     g.save()
 
+
+def test_graph_connected_multiple(g: Graph):
+    _setup_connected_multiple(g)
+
     connected, starting_edges = g.connected('ABC', 'CDE')
     if not connected:
         raise GraphException(g)
@@ -151,7 +171,7 @@ def test_graph_connected_multiple(g: Graph):
         log.debug(e)
 
 
-def test_graph_connected_shortcut(g: Graph):
+def _setup_connected_shortcut(g: Graph):
     n1 = Node(value="ABC")
     n2 = Node(value="BCD")
     n3 = Node(value="CDE")
@@ -168,6 +188,10 @@ def test_graph_connected_shortcut(g: Graph):
                     incr=0)
     g.add_edge(e1_short)
     g.save()
+
+
+def test_graph_connected_shortcut(g: Graph):
+    _setup_connected_shortcut(g)
 
     connected, starting_edges = g.connected('ABC', 'CDE')
     if not connected:

@@ -8,6 +8,7 @@ import prairiedog.graph
 import prairiedog.config
 from prairiedog.edge import Edge
 from prairiedog.node import Node
+from prairiedog.errors import GraphException
 
 
 log = logging.getLogger("prairiedog")
@@ -210,5 +211,41 @@ class LGGraph(prairiedog.graph.Graph):
             else:
                 return True, src_edges
 
+    def _find_path(self, edge_a: Edge, edge_b: Edge) -> typing.Tuple[Node]:
+        query = 'n()'
+        i = edge_a.incr
+        # This will only add 1 edge if edge_a.incr == edge_b.incr
+        while i <= edge_b.incr:
+            query += '->@e(type="{}",value="{}",incr="{}")->n()'.format(
+                edge_a.edge_type, edge_a.edge_value, i
+            )
+            i += 1
+        log.debug("Using query {}".format(query))
+
+        with self.g.transaction(write=False) as txn:
+            chains = tuple(txn.query(query))
+            raise GraphException(g=self)
+
     def path(self, node_a: str, node_b: str) -> tuple:
-        pass
+        connected, src_edges = self.connected(node_a, node_b)
+        if not connected:
+            return ()
+        # Iterate through the possible paths; can be 1 or more.
+        for src_edge in src_edges:
+            log.info("Finding path between {} and {} with source edge {}"
+                     "".format(node_a, node_b, src_edge))
+            with self.g.transaction(write=False) as txn:
+                # Find the last edge we're looking for.
+                query = 'e(type="{}",value="{}")->n(value="{}")'.format(
+                    src_edge.edge_type, src_edge.edge_value, node_b)
+                tgt_edges = tuple(txn.query(query))
+
+                # There should be at least one connection, but can be more
+                # if there are repeats.
+                if len(tgt_edges) == 0:
+                    raise GraphException(g=self)
+
+                log.info("Checking for {} target edges".format(len(tgt_edges)))
+                for tgt_edge in tgt_edges:
+                    log.info("Checking for target edge {}".format(tgt_edge))
+                    path = self._find_path(src_edge, tgt_edge)
