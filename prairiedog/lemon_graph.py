@@ -163,15 +163,15 @@ class LGGraph(prairiedog.graph.Graph):
                     bool, typing.Tuple]:
         with self.g.transaction(write=False) as txn:
             # Gather edges from these nodes and only return the edges
-            edges_a = tuple(txn.query('@n(value="{}")->e()'.format(
-                node_a)))
+            query_a = '@n(value="{}")->e()'.format(node_a)
+            edges_a = tuple(txn.query(query_a))
             if len(edges_a) == 0:
-                log.warning("No nodes found with value {}".format(node_a))
+                log.warning("No edges found for query {}".format(query_a))
                 return False, ()
-            edges_b = tuple(txn.query('e()<-@n(value="{}")'.format(
-                node_b)))
+            query_b = 'e()<-@n(value="{}")'.format(node_b)
+            edges_b = tuple(txn.query(query_b))
             if len(edges_b) == 0:
-                log.warning("No nodes found with value {}".format(node_b))
+                log.warning("No edges found for query {}".format(query_b))
                 return False, ()
 
             # Unravel theses edge tuples; this should return a tuple of
@@ -201,8 +201,8 @@ class LGGraph(prairiedog.graph.Graph):
                 for e in edges_b
             )
 
-            # If matched, the src edges are where we should start from to find a
-            # path
+            # If matched, the src edges are where we should start from to find
+            # a path
             matched, src_edges = LGGraph.matching_edges(tuple(edges_a),
                                                         tuple(edges_b))
             if matched is not True:
