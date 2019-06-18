@@ -211,7 +211,7 @@ class LGGraph(prairiedog.graph.Graph):
             else:
                 return True, src_edges
 
-    def _find_path(self, edge_a: Edge, edge_b: Edge) -> typing.Tuple[Node]:
+    def _find_path(self, edge_a: Edge, edge_b: Edge, txn) -> typing.Tuple[Node]:
         query = 'n()'
         i = edge_a.incr
         # This will only add 1 edge if edge_a.incr == edge_b.incr
@@ -222,9 +222,8 @@ class LGGraph(prairiedog.graph.Graph):
             i += 1
         log.debug("Using query {}".format(query))
 
-        with self.g.transaction(write=False) as txn:
-            chains = tuple(txn.query(query))
-            raise GraphException(g=self)
+        chains = tuple(txn.query(query))
+        raise GraphException(g=self)
 
     def path(self, node_a: str, node_b: str) -> tuple:
         connected, src_edges = self.connected(node_a, node_b)
@@ -252,4 +251,4 @@ class LGGraph(prairiedog.graph.Graph):
                 log.info("Checking for {} target edges".format(len(tgt_edges)))
                 for tgt_edge in tgt_edges:
                     log.info("Checking for target edge {}".format(tgt_edge))
-                    path = self._find_path(src_edge, tgt_edge)
+                    path = self._find_path(src_edge, tgt_edge, txn)

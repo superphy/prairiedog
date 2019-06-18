@@ -17,7 +17,7 @@ class Edge:
             labels.pop('incr')
         else:
             self.incr = incr
-        if not isinstance(self.incr, int):
+        if self.incr is not None and not isinstance(self.incr, int):
             self.incr = int(self.incr)
         self.labels = labels
         self.db_id = db_id
@@ -27,7 +27,7 @@ class Edge:
         return "{}_{}".format(self.edge_type, self.edge_value)
 
     def __str__(self):
-        return "{}".format(vars(self))
+        return "prairiedog.edge.Edge with vars {}".format(vars(self))
     #
     # def __eq__(self, other):
     #     if not isinstance(other, Edge):
