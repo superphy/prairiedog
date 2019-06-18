@@ -71,6 +71,11 @@ def test_graph_connected(g: Graph):
     log.debug("Found starting_edges as {}".format(starting_edges[0]))
 
 
+def test_graph_connected_path(g: Graph):
+    _setup_connected(g)
+    g.path("ABC", "BCE")
+    assert False
+
 def _setup_not_connected(g: Graph):
     n1 = Node(value="ABC")
     n2 = Node(value="BCD")
