@@ -10,4 +10,4 @@ class Node:
         self.labels = labels
 
     def __str__(self):
-        return "{}".format(vars(self))
+        return "prairiedog.node.Node with vars {}".format(vars(self))

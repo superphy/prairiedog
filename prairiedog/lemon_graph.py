@@ -223,6 +223,7 @@ class LGGraph(prairiedog.graph.Graph):
         log.debug("Using query {}".format(query))
 
         chains = tuple(txn.query(query))
+        log.debug("Got chains {}".format(chains))
         raise GraphException(g=self)
 
     def path(self, node_a: str, node_b: str) -> tuple:

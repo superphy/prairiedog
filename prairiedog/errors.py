@@ -16,8 +16,9 @@ class GraphException(Error):
     Generic error for some problem with LemonGraph
     """
     def __init__(self, g: Graph):
-        super(GraphException, self).__init__("Problem with Graph with nodes {}\
-        and edges {}".format(g.nodes, g.edges))
+        super(GraphException, self).__init__(
+            "Problem with Graph with nodes {} and edges {}".format(
+                g.nodes, g.edges))
         log.error("Dumping nodes:")
         for node in g.nodes:
             log.error(node)
