@@ -236,9 +236,13 @@ class LGGraph(prairiedog.graph.Graph):
                      "".format(node_a, node_b, src_edge))
             with self.g.transaction(write=False) as txn:
                 # Find the last edge we're looking for.
-                query = 'e(type="{}",value="{}")->n(value="{}")'.format(
+                query = 'e(type="{}",value="{}")->@n(value="{}")'.format(
                     src_edge.edge_type, src_edge.edge_value, node_b)
                 tgt_edges = tuple(txn.query(query))
+                log.debug("Got tgt_edges {}".format(tgt_edges))
+                # Unravel
+                tgt_edges = tuple(e[0] for e in tgt_edges)
+                log.debug("tgt_edges after unraveling {}".format(tgt_edges))
 
                 # There should be at least one connection, but can be more
                 # if there are repeats.
