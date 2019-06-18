@@ -263,6 +263,9 @@ class LGGraph(prairiedog.graph.Graph):
                 for tgt_edge in tgt_edges:
                     log.info("Checking for target edge {}".format(tgt_edge))
                     path_nodes = self._find_path(src_edge, tgt_edge, txn)
-                    log.info("Got path {}".format(path_nodes))
+                    if len(path_nodes) <= 2:
+                        raise GraphException(g=self)
+                    log.info("Found path of length {}".format(len(path_nodes)))
+                    log.debug("Got path {}".format(path_nodes))
                     paths.append(path_nodes)
         return tuple(paths)
