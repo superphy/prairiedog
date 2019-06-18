@@ -1,0 +1,7 @@
+[submodule "diffpool"]
+	path = diffpool
+	url = https://github.com/superphy/diffpool.git
+[submodule "lemongraph"]
+	path = lemongraph
+	url = https://github.com/NationalSecurityAgency/lemongraph.git
+	ignore = dirty

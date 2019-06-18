@@ -20,12 +20,14 @@ class Kmers:
         # Load
         self._load()
         # Count the number of unique kmers
+        self._n = 0  # non-unique kmers
         self.unique_kmers = self._count_unique()
 
     def __str__(self):
-        return "Kmers for file {} with {} contigs and K size {}".format(
-            self.filepath, len(self.headers), self.k
-        )
+        return os.path.basename(self.filepath)
+
+    def __len__(self):
+        return self._n
 
     def _load(self):
         # We have to merge multiline sequences
@@ -117,10 +119,13 @@ class Kmers:
         """
         log.debug("Counting unique Kmers in file {}".format(self))
         st = set()
+        c = 0
         while self.has_next:
             _, kmer = self.next()
             st.add(kmer)
+            c += 1
         self.reset()
-        c = len(st)
-        log.debug("Counted {} unique Kmers in file {}".format(c, self))
-        return c
+        uc = len(st)
+        log.debug("Counted {} unique Kmers in file {}".format(uc, self))
+        self._n = c
+        return uc

@@ -1,25 +1,39 @@
 import pathlib
 import os
+import shutil
+import subprocess
+import psutil
 
 import dill
+import pandas as pd
+import numpy as np
+from contextlib import contextmanager
 
 from prairiedog.kmers import Kmers
 from prairiedog.networkx_graph import NetworkXGraph
 from prairiedog.graph_ref import GraphRef
 from prairiedog.subgraph_ref import SubgraphRef
+from prairiedog.dgl_graph import DGLGraph
+from prairiedog.lemon_graph import LGGraph, DB_PATH
 
 configfile: "config.yaml"
 
 K = config["k"]
-INPUTS = [f.split('.')[0] for f in os.listdir(config["samples"])
+INPUTS = [os.path.splitext(f)[0] for f in os.listdir(config["samples"])
            if f.endswith(('.fna', '.fasta', '.fa'))
 ]
 MIC_CSV = config["graph_labels"]
+MIC_COLUMNS = set(pd.read_csv(MIC_CSV).columns)
+MIC_COLUMNS.remove('run')
+
+###################
+# Graphing steps
+###################
 
 rule all:
     input:
-         'outputs/KMERS_A.txt'
-
+         'outputs/pangenome.g'
+        
 rule kmers:
     input:
         'samples/{sample}.fasta'
@@ -30,62 +44,64 @@ rule kmers:
         km = Kmers(input[0],K)
         dill.dump(km, open(output[0],'wb'))
 
-rule offset:
+rule pangenome:
     input:
         expand('outputs/kmers/{input}.pkl', input=INPUTS)
     output:
-        'outputs/kmers/offsets.pkl', 'outputs/graphref.pkl'
+        'outputs/graphref.pkl',
+        'outputs/pangenome.g'
     run:
-        offsets = {}
-        max_n = 4 ** K * len(INPUTS)
-        gr = GraphRef(max_n, 'outputs', MIC_CSV)
+        try:
+            os.remove('outputs/sizes.txt')
+        except:
+            pass
+        sizes = []
+        gr = GraphRef(MIC_CSV)
+        if config['backend'] == 'networkx':
+            print("Using NetworkX as graph backend")
+            sg = SubgraphRef(NetworkXGraph())
+        elif config['backend'] == 'lemongraph':
+            print("Using LemonGraph as graph backend")
+            sg = SubgraphRef(LGGraph())
+        else:
+            print("Using DGL as graph backend")
+            sg = SubgraphRef(DGLGraph(
+                n_labels=len(input),
+                n_nodes=4**K + 20 # We have some odd contigs that use N
+            ))
+        pathlib.Path('outputs/subgraphs/').mkdir(parents=True, exist_ok=True)
         # Note that start=1 is only for the index, sgf still starts at
         # position 0
         for index, kmf in enumerate(input, start=1):
-            print("rule 'offset' on Kmer {} / {}".format(index,
-                                                            input))
+            print("rule 'pangenome' on Kmer {} / {}".format(
+                index, len(input)))
             km = dill.load(open(kmf,'rb'))
-            offset = gr.node_id_count
-            offsets[kmf] = offset
-            gr.incr_node_id(km)
+            gr.index_kmers(km)
+            sg.update_graph(km, gr)
+            if config['backend'] == 'lemongraph':
+                sg.save(output[1])
+
+            # Calculate rough memory usage
+            pid = os.getpid()
+            py = psutil.Process(pid)
+            sz = py.memory_info()[0]/2.**30
+            sizes.append(sz)
+            print("Current graph size is {} GB".format(sz))
+            with open('outputs/sizes.txt', 'a') as f:
+                f.write('{}\n'.format(sz))
+
             # It seems the km object is being kept in memory for too long
             del km
-        dill.dump(offsets,
-                    open('outputs/kmers/offsets.pkl','wb'), protocol=4)
+        print("rule 'pangenome' found max_num_nodes to be {}".format(
+            gr.max_num_nodes))
         dill.dump(gr,
                     open('outputs/graphref.pkl','wb'), protocol=4)
+        if config['backend'] == 'lemongraph':
+            shutil.copy2(DB_PATH, output[1])
+        else:
+            sg.save(output[1])
 
-rule subgraphs:
-    input:
-        kmf='outputs/kmers/{sample}.pkl',
-        offsets='outputs/kmers/offsets.pkl'
-    output:
-        'outputs/subgraphs/{sample}.pkl'
-    run:
-        pathlib.Path('outputs/subgraphs/').mkdir(parents=True, exist_ok=True)
-        offsets = dill.load(open(input.offsets, 'rb'))
-        offset = offsets[input.kmf]
-        km = dill.load(open(input.kmf,'rb'))
-        sg = SubgraphRef(offset, km, NetworkXGraph())
-        dill.dump(sg, open(output[0],'wb'))
-
-rule graph:
-    input:
-        subgraphs=expand('outputs/subgraphs/{input}.pkl', input=INPUTS),
-        graphref='outputs/graphref.pkl'
-    output:
-        'outputs/KMERS_A.txt', 'outputs/graphref_final.pkl'
-    run:
-        gr = dill.load(open(input.graphref, 'rb'))
-        # Note that start=1 is only for the index, sgf still starts at
-        # position 0
-        for index, sgf in enumerate(input.subgraphs, start=1):
-            print("rule 'graph' on subgraph {} / {}".format(index,
-                                                            input.subgraphs))
-            sg = dill.load(open(sgf,'rb'))
-            gr.append(sg)
-        dill.dump(gr, open(output[1], 'wb'), protocol=4)
-        gr.close()
+        dill.dump(sizes, open('outputs/sizes.pkl', 'wb'))
 
 rule clean:
     shell:

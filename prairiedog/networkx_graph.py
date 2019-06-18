@@ -10,7 +10,7 @@ log = logging.getLogger("prairiedog")
 
 class NetworkXGraph(prairiedog.graph.Graph):
     def __init__(self):
-        self.g = nx.DiGraph()
+        self.g = nx.Graph()
 
     def upsert_node(self, node: str, labels: dict = None):
         if labels and isinstance(labels, dict):
@@ -18,8 +18,11 @@ class NetworkXGraph(prairiedog.graph.Graph):
         else:
             self.g.add_node(node)
 
-    def add_edge(self, node_a: str, node_b: str):
-        self.g.add_edge(node_a, node_b)
+    def add_edge(self, node_a: str, node_b: str, labels: dict = None):
+        if labels and isinstance(labels, dict):
+            self.g.add_edge(node_a, node_b, **labels)
+        else:
+            self.g.add_edge(node_a, node_b)
 
     def clear(self):
         self.g.clear()
@@ -36,10 +39,40 @@ class NetworkXGraph(prairiedog.graph.Graph):
         return dict(self.g.nodes[node])
 
     def save(self, f):
-        log.info("Writing graphs out with prefix {}".format(f))
-        nx.write_multiline_adjlist(self.g, f + '_multiline_adjlist.txt')
-        nx.write_edgelist(self.g, f + '_edgelist.txt')
+        log.info("Writing graph out with name {}".format(f))
+        nx.write_gpickle(self.g, f)
 
     @property
     def edgelist(self) -> typing.Generator:
         return nx.generate_edgelist(self.g, data=False)
+
+    def set_graph_labels(self, labels: dict):
+        for k, v in labels.items():
+            self.g.graph[k] = v
+
+    def _filter_degree(self, bottom_percentile=0.9):
+        # TODO: we should create a graph of this
+        max_degrees = max([
+            v
+            for _, v in self.g.degree()
+        ])
+        log.debug("Found max degrees to be {}".format(max_degrees))
+        bottom_degrees = int(bottom_percentile*max_degrees)
+        log.debug("Removing nodes with degree <= {}".format(
+            bottom_degrees))
+        remove = [
+            node
+            for node, degree in self.g.degree()
+            if degree <= bottom_degrees]
+        self.g.remove_nodes_from(remove)
+
+    def _filter_isolates(self):
+        log.debug("Filtering isolates")
+        self.g.remove_nodes_from(list(nx.isolates(self.g)))
+
+    def filter(self):
+        self._filter_degree()
+        self._filter_isolates()
+
+    def __len__(self):
+        return len(self.g)
