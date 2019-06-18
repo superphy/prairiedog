@@ -26,13 +26,13 @@ class Edge:
 
     def __str__(self):
         return "{}".format(vars(self))
-
-    def __eq__(self, other):
-        if not isinstance(other, Edge):
-            return False
-        else:
-            # We don't just test db_id because it might not be present unless
-            # queried from the database
-            return self.edge_type == other.edge_type \
-                   and self.edge_value == other.edge_value \
-                   and self.incr == other.incr
+    #
+    # def __eq__(self, other):
+    #     if not isinstance(other, Edge):
+    #         return False
+    #     else:
+    #         # We don't just test db_id because it might not be present unless
+    #         # queried from the database
+    #         return self.edge_type == other.edge_type \
+    #                and self.edge_value == other.edge_value \
+    #                and self.incr == other.incr
