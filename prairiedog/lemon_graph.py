@@ -139,6 +139,11 @@ class LGGraph(prairiedog.graph.Graph):
         self._ctx = None
         self._txn = None
 
+    def new_txn(self, write=True):
+        self.ctx.__exit__(None, None, None)
+        self._ctx = self.g.transaction(write=write)
+        self._txn = self.ctx.__enter__()
+
     @property
     def edgelist(self) -> typing.Generator:
         raise NotImplementedError
@@ -155,17 +160,25 @@ class LGGraph(prairiedog.graph.Graph):
 
     def connected(self, node_a: str, node_b: str) -> typing.Tuple[
                     bool, typing.Tuple]:
+        # Start a new transaction. Normally, we only have to do this after the
+        # first txn.query, but we do it here just in case.
+        self.new_txn(write=False)  # Don't need write access
         # Gather edges from these nodes and only return the edges
         edges_a = tuple(self.txn.query('@n(value="{}")->e()'.format(
             node_a)))
         if len(edges_a) == 0:
             log.warning("No nodes found with value {}".format(node_a))
             return False, ()
+        # Start a new transaction
+        self.new_txn(write=False)
         edges_b = tuple(self.txn.query('@n(value="{}")->e()'.format(
             node_b)))
         if len(edges_b) == 0:
             log.warning("No nodes found with value {}".format(node_b))
             return False, ()
+
+        # After queries, set a new writable-txn as default
+        self.new_txn(write=True)
 
         # Unravel theses edge tuples; this should return a tuple of
         # dictionaries
