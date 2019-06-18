@@ -224,13 +224,23 @@ class LGGraph(prairiedog.graph.Graph):
 
         chains = tuple(txn.query(query))
         log.debug("Got chains {}".format(chains))
-        raise GraphException(g=self)
+        # There should only be one chain per path
+        assert len(chains) == 1
+        # In the nested chain (a tuple), there should be at least 2 nodes
+        chain = chains[0]
+        assert len(chain) >= 2
 
-    def path(self, node_a: str, node_b: str) -> tuple:
+        # Convert the chain into a tuple of Nodes and return
+        nodes = tuple(self._parse_node(n) for n in chain)
+        return nodes
+
+    def path(self, node_a: str, node_b: str) -> typing.Tuple[
+                typing.Tuple[Node]]:
         connected, src_edges = self.connected(node_a, node_b)
         if not connected:
-            return ()
+            return tuple()
         # Iterate through the possible paths; can be 1 or more.
+        paths = []
         for src_edge in src_edges:
             log.info("Finding path between {} and {} with source edge {}"
                      "".format(node_a, node_b, src_edge))
@@ -252,4 +262,7 @@ class LGGraph(prairiedog.graph.Graph):
                 log.info("Checking for {} target edges".format(len(tgt_edges)))
                 for tgt_edge in tgt_edges:
                     log.info("Checking for target edge {}".format(tgt_edge))
-                    path = self._find_path(src_edge, tgt_edge, txn)
+                    path_nodes = self._find_path(src_edge, tgt_edge, txn)
+                    log.info("Got path {}".format(path_nodes))
+                    paths.append(path_nodes)
+        return tuple(paths)
