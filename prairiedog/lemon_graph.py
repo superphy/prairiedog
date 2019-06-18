@@ -9,6 +9,7 @@ import prairiedog.config
 from prairiedog.edge import Edge
 from prairiedog.node import Node
 
+
 log = logging.getLogger("prairiedog")
 
 DB_PATH = '{}/pangenome.lemongraph'.format(prairiedog.config.OUTPUT_DIRECTORY)
