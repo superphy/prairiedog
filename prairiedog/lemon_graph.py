@@ -241,7 +241,7 @@ class LGGraph(prairiedog.graph.Graph):
                 tgt_edges = tuple(txn.query(query))
                 log.debug("Got tgt_edges {}".format(tgt_edges))
                 # Unravel
-                tgt_edges = tuple(e[0] for e in tgt_edges)
+                tgt_edges = tuple(self._parse_edge(e[0]) for e in tgt_edges)
                 log.debug("tgt_edges after unraveling {}".format(tgt_edges))
 
                 # There should be at least one connection, but can be more
