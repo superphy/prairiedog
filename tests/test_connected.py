@@ -1,0 +1,136 @@
+import pytest
+import logging
+
+from prairiedog.lemon_graph import LGGraph
+from prairiedog.graph import Graph
+from prairiedog.node import Node
+from prairiedog.edge import Edge
+
+log = logging.getLogger("prairiedog")
+
+#####
+# Tests against a pre-created LemonGraph database
+#####
+
+
+def test_lemongraph_connected(lg: LGGraph):
+    connected, starting_edges = lg.connected('CCGGAAGAAAA', 'CGGAAGAAAAA')
+    assert connected
+    assert len(starting_edges) == 1
+    log.debug("Found starting_edges as {}".format(starting_edges[0]))
+
+
+def test_lemongraph_connected_distant(lg: LGGraph):
+    connected, starting_edges = lg.connected('ATACGACGCCA', 'CGTCCGGACGT')
+    assert connected
+    assert len(starting_edges) == 1
+    log.debug("Found starting_edges as {}".format(starting_edges[0]))
+
+
+def test_lemongraph_not_connected(lg: LGGraph):
+    connected, starting_edges = lg.connected('GCTGGATACGT', 'CGTCCGGACGT')
+    assert not connected
+    assert len(starting_edges) == 0
+
+#####
+# Tests against a fresh database
+#####
+
+
+def test_graph_connected(g: Graph):
+    n1 = Node(value="ABC")
+    n2 = Node(value="BCD")
+    g.upsert_node(n1)
+    g.upsert_node(n2)
+    e = Edge(src="ABC", tgt="BCD")
+    g.add_edge(e)
+
+    connected, starting_edges = g.connected('ABC', 'BCD')
+    assert connected
+    assert len(starting_edges) == 1
+    log.debug("Found starting_edges as {}".format(starting_edges[0]))
+
+
+def test_graph_not_connected(g: Graph):
+    n1 = Node(value="ABC")
+    n2 = Node(value="BCD")
+    g.upsert_node(n1)
+    g.upsert_node(n2)
+    connected, starting_edges = g.connected('ABC', 'BCD')
+    assert not connected
+    assert len(starting_edges) == 0
+
+
+def test_graph_connected_no_node(g: Graph):
+    n1 = Node(value="ABC")
+    g.upsert_node(n1)
+
+    connected, starting_edges = g.connected('ABC', 'BCD')
+    assert not connected
+    assert len(starting_edges) == 0
+
+
+def test_graph_connected_distant(g: Graph):
+    n1 = Node(value="ABC")
+    n2 = Node(value="BCD")
+    n3 = Node(value="CDE")
+    g.upsert_node(n1)
+    g.upsert_node(n2)
+    g.upsert_node(n3)
+    e1 = Edge(src="ABC", tgt="BCD")
+    g.add_edge(e1)
+    e2 = Edge(src="BCD", tgt="CDE")
+    g.add_edge(e2)
+
+    connected, starting_edges = g.connected('ABC', 'CDE')
+    assert connected
+    assert len(starting_edges) == 1
+    log.debug("Found starting_edges as {}".format(starting_edges[0]))
+
+
+def test_graph_connected_multiple(g: Graph):
+    n1 = Node(value="ABC")
+    n2 = Node(value="BCD")
+    n2_alt = Node(value="XYZ")
+    n3 = Node(value="CDE")
+    g.upsert_node(n1)
+    g.upsert_node(n2)
+    g.upsert_node(n3)
+    g.upsert_node(n2_alt)
+    e1 = Edge(src="ABC", tgt="BCD")
+    g.add_edge(e1)
+    e2 = Edge(src="BCD", tgt="CDE")
+    g.add_edge(e2)
+    e1_alt = Edge(src="ABC", tgt="XYZ")
+    g.add_edge(e1_alt)
+    e2_alt = Edge(src="XYZ", tgt="CDE")
+    g.add_edge(e2_alt)
+
+    connected, starting_edges = g.connected('ABC', 'CDE')
+    assert connected
+    assert len(starting_edges) == 2
+    log.debug("Found starting_edges as:")
+    for e in starting_edges:
+        log.debug(e)
+
+
+def test_graph_connected_shortcut(g: Graph):
+    n1 = Node(value="ABC")
+    n2 = Node(value="BCD")
+    n3 = Node(value="CDE")
+    g.upsert_node(n1)
+    g.upsert_node(n2)
+    g.upsert_node(n3)
+    e1 = Edge(src="ABC", tgt="BCD")
+    g.add_edge(e1)
+    e2 = Edge(src="BCD", tgt="CDE")
+    g.add_edge(e2)
+    e1_short = Edge(src="ABC", tgt="CDE")
+    g.add_edge(e1_short)
+
+    connected, starting_edges = g.connected('ABC', 'CDE')
+    assert connected
+    assert len(starting_edges) == 2
+    log.debug("Found starting_edges as:")
+    for e in starting_edges:
+        log.debug(e)
