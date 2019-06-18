@@ -98,14 +98,21 @@ class Graph(metaclass=abc.ABCMeta):
 
         list_edges = []
         for k, v in src_map.items():
-            # Check if there's a target edge with the same origin
-            if k in tgt_map and tgt_map[k] > v:
+            # Check if there's a target edge with the same origin.
+            # We accept the case where the value is the same in case its a
+            # direct edge to the target node.
+            if k in tgt_map and tgt_map[k] >= v:
+                # Select the Edge object from src_edges
                 for edge in src_edges:
+                    # If this edge is the one we're looking for, add it to ret.
                     if edge.origin == k and edge.incr == v:
                         list_edges.append(edge)
 
-        if len(list_edges):
-            log.warning("No connected edges found for src_map {} and tgt_map \
-            {}".format(src_map, tgt_map))
+        connected = True if len(list_edges) > 0 else False
 
-        return True if len(list_edges) > 0 else False, tuple(list_edges)
+        if not connected:
+            log.warning("No connected edges found for src_map {} and tgt_map\
+             {}".format(src_map, tgt_map))
+        else:
+            log.info("Found connecting edge(s) {} ".format(list_edges))
+        return connected, tuple(list_edges)

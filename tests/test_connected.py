@@ -9,6 +9,7 @@ from prairiedog.errors import GraphException
 
 log = logging.getLogger("prairiedog")
 
+
 #####
 # Tests against a pre-created LemonGraph database
 #####
@@ -42,6 +43,7 @@ def test_lemongraph_not_connected(lg: LGGraph):
         assert True
     assert len(starting_edges) == 0
 
+
 #####
 # Tests against a fresh database
 #####
@@ -52,7 +54,7 @@ def test_graph_connected(g: Graph):
     n2 = Node(value="BCD")
     g.upsert_node(n1)
     g.upsert_node(n2)
-    e = Edge(src="ABC", tgt="BCD")
+    e = Edge(src="ABC", tgt="BCD", incr=0)
     g.add_edge(e)
     g.save()
 
@@ -100,9 +102,9 @@ def test_graph_connected_distant(g: Graph):
     g.upsert_node(n1)
     g.upsert_node(n2)
     g.upsert_node(n3)
-    e1 = Edge(src="ABC", tgt="BCD")
+    e1 = Edge(src="ABC", tgt="BCD", incr=0)
     g.add_edge(e1)
-    e2 = Edge(src="BCD", tgt="CDE")
+    e2 = Edge(src="BCD", tgt="CDE", incr=1)
     g.add_edge(e2)
     g.save()
 
@@ -124,13 +126,17 @@ def test_graph_connected_multiple(g: Graph):
     g.upsert_node(n2)
     g.upsert_node(n3)
     g.upsert_node(n2_alt)
-    e1 = Edge(src="ABC", tgt="BCD")
+    e1 = Edge(src="ABC", tgt="BCD", edge_type="path", edge_value="path1",
+              incr=0)
     g.add_edge(e1)
-    e2 = Edge(src="BCD", tgt="CDE")
+    e2 = Edge(src="BCD", tgt="CDE", edge_type="path", edge_value="path1",
+              incr=1)
     g.add_edge(e2)
-    e1_alt = Edge(src="ABC", tgt="XYZ")
+    e1_alt = Edge(src="ABC", tgt="XYZ", edge_type="path", edge_value="path2",
+                  incr=0)
     g.add_edge(e1_alt)
-    e2_alt = Edge(src="XYZ", tgt="CDE")
+    e2_alt = Edge(src="XYZ", tgt="CDE", edge_type="path", edge_value="path2",
+                  incr=1)
     g.add_edge(e2_alt)
     g.save()
 
@@ -152,11 +158,14 @@ def test_graph_connected_shortcut(g: Graph):
     g.upsert_node(n1)
     g.upsert_node(n2)
     g.upsert_node(n3)
-    e1 = Edge(src="ABC", tgt="BCD")
+    e1 = Edge(src="ABC", tgt="BCD", edge_type="path", edge_value="path1",
+              incr=0)
     g.add_edge(e1)
-    e2 = Edge(src="BCD", tgt="CDE")
+    e2 = Edge(src="BCD", tgt="CDE", edge_type="path", edge_value="path1",
+              incr=1)
     g.add_edge(e2)
-    e1_short = Edge(src="ABC", tgt="CDE")
+    e1_short = Edge(src="ABC", tgt="CDE", edge_type="path", edge_value="path2",
+                    incr=0)
     g.add_edge(e1_short)
     g.save()
 
