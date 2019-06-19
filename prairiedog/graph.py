@@ -13,16 +13,18 @@ class Graph(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def upsert_node(self, node: Node) -> Node:
+    def upsert_node(self, node: Node, echo: bool = True) -> typing.Optional[
+            Node]:
         """
         Upsert nodes with labels.
+        :param echo:
         :param node:
         :return:
         """
         pass
 
     @abc.abstractmethod
-    def add_edge(self, edge: Edge) -> Edge:
+    def add_edge(self, edge: Edge, echo: bool = True) -> typing.Optional[Edge]:
         pass
 
     @abc.abstractmethod

@@ -59,7 +59,8 @@ class SubgraphRef(GRef):
                             edge_type=str(km),
                             edge_value=header2,
                             incr=edge_c
-                        )
+                        ),
+                        echo=False
                     )
                 except Exception as e:
                     log.fatal(

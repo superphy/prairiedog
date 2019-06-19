@@ -91,7 +91,8 @@ class LGGraph(prairiedog.graph.Graph):
                     edge_type=edge['type'], edge_value=edge['value'],
                     labels=labels, db_id=edge['ID'])
 
-    def upsert_node(self, node: Node) -> Node:
+    def upsert_node(self, node: Node, echo: bool = True) -> typing.Optional[
+                                                            Node]:
         # TODO: the db will error if you call upsert_node on the same node,
         #  then set the labels differently within the same transaction. Either
         #  we have to use a new txn (which is expensive for txn log) or figure
@@ -102,9 +103,11 @@ class LGGraph(prairiedog.graph.Graph):
         if node.labels is not None:
             for k, v in node.labels.items():
                 n[k] = v
-        return LGGraph._parse_node(n)
 
-    def add_edge(self, edge: Edge) -> Edge:
+        if echo:
+            return LGGraph._parse_node(n)
+
+    def add_edge(self, edge: Edge, echo: bool = True) -> typing.Optional[Edge]:
         na = self.txn.node(type='n', value=edge.src)
         nb = self.txn.node(type='n', value=edge.tgt)
 
@@ -119,7 +122,8 @@ class LGGraph(prairiedog.graph.Graph):
             for k, v in edge.labels.items():
                 e[k] = v
 
-        return LGGraph._parse_edge(e)
+        if echo:
+            return LGGraph._parse_edge(e)
 
     def clear(self):
         self.g.delete()
@@ -269,13 +273,15 @@ class LGGraph(prairiedog.graph.Graph):
                 if len(tgt_edges) == 0:
                     raise GraphException(g=self)
 
-                log.debug("Checking for {} target edges".format(len(tgt_edges)))
+                log.debug("Checking for {} target edges".format(
+                    len(tgt_edges)))
                 for tgt_edge in tgt_edges:
                     log.debug("Checking for target edge {}".format(tgt_edge))
                     path_nodes = self._find_path(src_edge, tgt_edge, txn)
                     if len(path_nodes) < 2:
                         raise GraphException(g=self)
-                    log.debug("Found path of length {}".format(len(path_nodes)))
+                    log.debug("Found path of length {}".format(
+                        len(path_nodes)))
                     log.debug("Got path {}".format(path_nodes))
 
                     # Append
