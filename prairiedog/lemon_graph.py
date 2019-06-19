@@ -236,12 +236,14 @@ class LGGraph(prairiedog.graph.Graph):
         return nodes
 
     def path(self, node_a: str, node_b: str) -> typing.Tuple[
-                typing.Tuple[Node]]:
+            typing.Tuple[typing.Tuple[Node], ...],
+            typing.Tuple[typing.Dict[str, typing.Any], ...]]:
         connected, src_edges = self.connected(node_a, node_b)
         if not connected:
             return tuple()
         # Iterate through the possible paths; can be 1 or more.
         paths = []
+        paths_meta = []
         for src_edge in src_edges:
             log.info("Finding path between {} and {} with source edge {}"
                      "".format(node_a, node_b, src_edge))
@@ -268,5 +270,12 @@ class LGGraph(prairiedog.graph.Graph):
                         raise GraphException(g=self)
                     log.info("Found path of length {}".format(len(path_nodes)))
                     log.debug("Got path {}".format(path_nodes))
+
+                    # Append
                     paths.append(path_nodes)
-        return tuple(paths)
+                    paths_meta.append(
+                        {
+                            'edge_type': src_edge.edge_type,
+                            'edge_value': src_edge.edge_value
+                        })
+        return tuple(paths), tuple(paths_meta)
