@@ -73,6 +73,15 @@ For querying an existing graph
     . venv/bin/activate
     prairiedog ATACGACGCCA CGTCCGGACGT
 
+You should get something like:
+
+::
+
+    prairiedog GGGCGTTAAGT GGCAGGTTGAA
+    prairiedog[21238] INFO Looking for all strings between GGGCGTTAAGT and GGCAGGTTGAA ...
+    prairiedog[21238] INFO Found {'string': 'GGGCGTTAAGTTGCAGGGTATAGACCCGAAACCCGGTGATCTAGCCATGGGCAGGTTGAA', 'edge_type': 'SRR3295769.fasta', 'edge_value': '>SRR3295769.fasta|NODE_75_length_556_cov_349.837_ID_5290_pilon'}
+    prairiedog[21238] INFO Found {'string': 'GGGCGTTAAGTTGCAGGGTATAGACCCGAAACCCGGTGATCTAGCCATGGGCAGGTTGAA', 'edge_type': 'SRR3665189.fasta', 'edge_value': '>SRR3665189.fasta|NODE_60_length_523_cov_287.621_ID_4672'}
+
 ==================
 Tests & Benchmarks
 ==================

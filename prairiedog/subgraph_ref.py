@@ -56,9 +56,8 @@ class SubgraphRef(GRef):
                         Edge(
                             src=node1_label,
                             tgt=node2_label,
-                            edge_type=str(km),
-                            edge_value=header2,
-                            incr=edge_c
+                            edge_type='{} in {}'.format(header2, str(km)),
+                            edge_value=edge_c
                         ),
                         echo=False
                     )

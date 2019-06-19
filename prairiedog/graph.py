@@ -85,10 +85,10 @@ class Graph(metaclass=abc.ABCMeta):
         for edge in edges:
             # We only keep the edges with the largest ids
             if edge.origin in d:
-                if d[edge.origin] < edge.incr:
-                    d[edge.origin] = edge.incr
+                if d[edge.origin] < edge.edge_value:
+                    d[edge.origin] = edge.edge_value
             else:
-                d[edge.origin] = edge.incr
+                d[edge.origin] = edge.edge_value
         return d
 
     @staticmethod
@@ -107,7 +107,7 @@ class Graph(metaclass=abc.ABCMeta):
                 # Select the Edge object from src_edges
                 for edge in src_edges:
                     # If this edge is the one we're looking for, add it to ret.
-                    if edge.origin == k and edge.incr == v:
+                    if edge.origin == k and edge.edge_value == v:
                         list_src_edges.append(edge)
 
         connected = True if len(list_src_edges) > 0 else False

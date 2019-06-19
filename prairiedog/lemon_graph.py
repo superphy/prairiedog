@@ -88,7 +88,7 @@ class LGGraph(prairiedog.graph.Graph):
                 labels[k] = v
         labels = None if not labels else labels
         return Edge(src=edge['srcID'], tgt=edge['tgtID'],
-                    edge_type=edge['type'], edge_value=edge['value'],
+                    edge_type=edge['type'], edge_value=int(edge['value']),
                     labels=labels, db_id=edge['ID'])
 
     def upsert_node(self, node: Node, echo: bool = True) -> typing.Optional[
@@ -114,9 +114,6 @@ class LGGraph(prairiedog.graph.Graph):
         # Add the edge
         e = self.txn.edge(src=na, tgt=nb, type=edge.edge_type,
                           value=edge.edge_value)
-
-        if edge.incr is not None:
-            e['incr'] = edge.incr
 
         if edge.labels is not None:
             for k, v in edge.labels.items():
@@ -193,23 +190,11 @@ class LGGraph(prairiedog.graph.Graph):
 
             # Convert these to Edge objects
             edges_a = (
-                Edge(
-                    src=e['srcID'],
-                    tgt=e['tgtID'],
-                    edge_type=e['type'],
-                    edge_value=e['value'],
-                    incr=e['incr']
-                )
+                self._parse_edge(e)
                 for e in edges_a
             )
             edges_b = (
-                Edge(
-                    src=e['srcID'],
-                    tgt=e['tgtID'],
-                    edge_type=e['type'],
-                    edge_value=e['value'],
-                    incr=e['incr']
-                )
+                self._parse_edge(e)
                 for e in edges_b
             )
 
@@ -220,16 +205,19 @@ class LGGraph(prairiedog.graph.Graph):
             if matched is not True:
                 return False, ()
             else:
+                log.info("Found {} connections between {} and {}".format(
+                    len(src_edges), node_a, node_b
+                ))
                 return True, src_edges
 
     def _find_path(self, edge_a: Edge, edge_b: Edge, txn) -> typing.Tuple[
             Node]:
         query = 'n()'
-        i = edge_a.incr
+        i = edge_a.edge_value
         # This will only add 1 edge if edge_a.incr == edge_b.incr
-        while i <= edge_b.incr:
-            query += '->@e(type="{}",value="{}",incr="{}")->n()'.format(
-                edge_a.edge_type, edge_a.edge_value, i
+        while i <= edge_b.edge_value:
+            query += '->@e(type="{}",value="{}")->n()'.format(
+                edge_a.edge_type, i
             )
             i += 1
         log.debug("Using query {}".format(query))
@@ -288,7 +276,6 @@ class LGGraph(prairiedog.graph.Graph):
                     paths.append(path_nodes)
                     paths_meta.append(
                         {
-                            'edge_type': src_edge.edge_type,
-                            'edge_value': src_edge.edge_value
+                            'edge_type': src_edge.edge_type
                         })
         return tuple(paths), tuple(paths_meta)
