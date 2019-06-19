@@ -18,7 +18,7 @@ class Prairiedog:
             src, dst))
         paths, paths_meta = self.g.path(src, dst)
         list_hits = []
-        for i in range(paths):
+        for i in range(len(paths)):
             path = paths[i]
             meta = paths_meta[i]
             string = concat_values(path)
