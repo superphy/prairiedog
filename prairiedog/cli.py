@@ -3,8 +3,12 @@
 """Console script for prairiedog."""
 import click
 
+from prairiedog.logger import setup_logging
 from prairiedog.prairiedog import Prairiedog
 from prairiedog.lemon_graph import LGGraph
+
+# If cli is imported, re-setup logging to level INFO
+setup_logging("INFO")
 
 pdg = Prairiedog(g=LGGraph())
 

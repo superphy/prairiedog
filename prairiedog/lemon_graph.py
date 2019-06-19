@@ -245,8 +245,8 @@ class LGGraph(prairiedog.graph.Graph):
         paths = []
         paths_meta = []
         for src_edge in src_edges:
-            log.info("Finding path between {} and {} with source edge {}"
-                     "".format(node_a, node_b, src_edge))
+            log.debug("Finding path between {} and {} with source edge {}"
+                      "".format(node_a, node_b, src_edge))
             with self.g.transaction(write=False) as txn:
                 # Find the last edge we're looking for.
                 query = 'e(type="{}",value="{}")->@n(value="{}")'.format(
@@ -262,13 +262,13 @@ class LGGraph(prairiedog.graph.Graph):
                 if len(tgt_edges) == 0:
                     raise GraphException(g=self)
 
-                log.info("Checking for {} target edges".format(len(tgt_edges)))
+                log.debug("Checking for {} target edges".format(len(tgt_edges)))
                 for tgt_edge in tgt_edges:
-                    log.info("Checking for target edge {}".format(tgt_edge))
+                    log.debug("Checking for target edge {}".format(tgt_edge))
                     path_nodes = self._find_path(src_edge, tgt_edge, txn)
                     if len(path_nodes) < 2:
                         raise GraphException(g=self)
-                    log.info("Found path of length {}".format(len(path_nodes)))
+                    log.debug("Found path of length {}".format(len(path_nodes)))
                     log.debug("Got path {}".format(path_nodes))
 
                     # Append
