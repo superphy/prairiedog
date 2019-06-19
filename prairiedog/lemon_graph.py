@@ -13,7 +13,9 @@ from prairiedog.errors import GraphException
 
 log = logging.getLogger("prairiedog")
 
-DB_PATH = '{}/pangenome.lemongraph'.format(prairiedog.config.OUTPUT_DIRECTORY)
+DB_PATH = os.path.join(
+    prairiedog.config.OUTPUT_DIRECTORY,
+    'pangenome.lemongraph')
 
 
 class LGGraph(prairiedog.graph.Graph):
