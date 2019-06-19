@@ -74,7 +74,10 @@ def test_graph_connected(g: Graph):
 def test_graph_connected_path(g: Graph):
     _setup_connected(g)
     paths = g.path("ABC", "BCD")
-    if paths[0].value != "ABC" or paths[1].value != "BCD":
+    # There should be 1 path in paths
+    assert len(paths) == 1
+    path = paths[0]
+    if path[0].value != "ABC" or path[1].value != "BCD":
         raise GraphException(g=g)
     else:
         assert True
