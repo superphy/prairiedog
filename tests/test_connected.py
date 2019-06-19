@@ -102,6 +102,13 @@ def test_graph_not_connected(g: Graph):
     assert len(starting_edges) == 0
 
 
+def test_graph_not_connected_path(g: Graph):
+    _setup_not_connected(g)
+
+    paths = g.path('ABC', 'BCD')
+    assert len(paths) == 0
+
+
 def _setup_connected_no_node(g: Graph):
     n1 = Node(value="ABC")
     g.upsert_node(n1)
@@ -117,6 +124,13 @@ def test_graph_connected_no_node(g: Graph):
     else:
         assert True
     assert len(starting_edges) == 0
+
+
+def test_graph_connected_no_node_path(g: Graph):
+    _setup_connected_no_node(g)
+
+    paths = g.path('ABC', 'BCD')
+    assert len(paths) == 0
 
 
 def _setup_connected_distant(g: Graph):
@@ -143,6 +157,19 @@ def test_graph_connected_distant(g: Graph):
         assert True
     assert len(starting_edges) == 1
     log.debug("Found starting_edges as {}".format(starting_edges[0]))
+
+
+def test_graph_connected_distant_path(g: Graph):
+    _setup_connected_distant(g)
+
+    paths = g.path('ABC', 'CDE')
+    assert len(paths) == 1
+
+    path = paths[0]
+    assert len(path) == 2
+    assert path[0].value == "ABC"
+    assert path[1].value == "BCD"
+    assert path[2].value == "CDE"
 
 
 def _setup_connected_multiple(g: Graph):
@@ -183,6 +210,27 @@ def test_graph_connected_multiple(g: Graph):
         log.debug(e)
 
 
+def test_graph_connected_multiple_path(g: Graph):
+    _setup_connected_multiple(g)
+
+    paths = g.connected('ABC', 'CDE')
+    assert len(paths) == 2
+    flagged_bcd = False
+    flagged_xyz = False
+    for path in paths:
+        assert path[0].value == "ABC"
+        assert path[2].value == "CDE"
+        # flagged to prevent reuse of same value
+        if path[1].value == "BCD" and not flagged_bcd:
+            flagged_bcd = True
+            assert True
+        elif path[1].value == "XYZ" and not flagged_xyz:
+            flagged_xyz = True
+            assert True
+        else:
+            raise GraphException(g)
+
+
 def _setup_connected_shortcut(g: Graph):
     n1 = Node(value="ABC")
     n2 = Node(value="BCD")
@@ -214,3 +262,25 @@ def test_graph_connected_shortcut(g: Graph):
     log.debug("Found starting_edges as:")
     for e in starting_edges:
         log.debug(e)
+
+
+def test_graph_connected_shortcut_path(g: Graph):
+    _setup_connected_shortcut(g)
+
+    paths = g.path('ABC', 'CDE')
+    assert len(paths) == 2
+
+    flagged_shortcut = False
+    flagged_regular = False
+    for path in paths:
+        assert path[0].value == "ABC"
+        assert path[-1].value == "CDE"
+        if len(path) == 2 and not flagged_shortcut:
+            # This is the shortcut
+            flagged_shortcut = True
+            assert True
+        elif len(path) == 3 and not flagged_regular:
+            flagged_regular = True
+            assert path[1].value == "BCD"
+        else:
+            raise GraphException(g)
