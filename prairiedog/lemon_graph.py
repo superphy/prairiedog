@@ -8,6 +8,7 @@ import prairiedog.graph
 import prairiedog.config
 from prairiedog.edge import Edge
 from prairiedog.node import Node
+from prairiedog.errors import GraphException
 
 
 log = logging.getLogger("prairiedog")
@@ -210,5 +211,62 @@ class LGGraph(prairiedog.graph.Graph):
             else:
                 return True, src_edges
 
-    def path(self, node_a: str, node_b: str) -> tuple:
-        pass
+    def _find_path(self, edge_a: Edge, edge_b: Edge, txn) -> typing.Tuple[
+            Node]:
+        query = 'n()'
+        i = edge_a.incr
+        # This will only add 1 edge if edge_a.incr == edge_b.incr
+        while i <= edge_b.incr:
+            query += '->@e(type="{}",value="{}",incr="{}")->n()'.format(
+                edge_a.edge_type, edge_a.edge_value, i
+            )
+            i += 1
+        log.debug("Using query {}".format(query))
+
+        chains = tuple(txn.query(query))
+        log.debug("Got chains {}".format(chains))
+        # There should only be one chain per path
+        assert len(chains) == 1
+        # In the nested chain (a tuple), there should be at least 2 nodes
+        chain = chains[0]
+        assert len(chain) >= 2
+
+        # Convert the chain into a tuple of Nodes and return
+        nodes = tuple(self._parse_node(n) for n in chain)
+        return nodes
+
+    def path(self, node_a: str, node_b: str) -> typing.Tuple[
+                typing.Tuple[Node]]:
+        connected, src_edges = self.connected(node_a, node_b)
+        if not connected:
+            return tuple()
+        # Iterate through the possible paths; can be 1 or more.
+        paths = []
+        for src_edge in src_edges:
+            log.info("Finding path between {} and {} with source edge {}"
+                     "".format(node_a, node_b, src_edge))
+            with self.g.transaction(write=False) as txn:
+                # Find the last edge we're looking for.
+                query = 'e(type="{}",value="{}")->@n(value="{}")'.format(
+                    src_edge.edge_type, src_edge.edge_value, node_b)
+                tgt_edges = tuple(txn.query(query))
+                log.debug("Got tgt_edges {}".format(tgt_edges))
+                # Unravel
+                tgt_edges = tuple(self._parse_edge(e[0]) for e in tgt_edges)
+                log.debug("tgt_edges after unraveling {}".format(tgt_edges))
+
+                # There should be at least one connection, but can be more
+                # if there are repeats.
+                if len(tgt_edges) == 0:
+                    raise GraphException(g=self)
+
+                log.info("Checking for {} target edges".format(len(tgt_edges)))
+                for tgt_edge in tgt_edges:
+                    log.info("Checking for target edge {}".format(tgt_edge))
+                    path_nodes = self._find_path(src_edge, tgt_edge, txn)
+                    if len(path_nodes) < 2:
+                        raise GraphException(g=self)
+                    log.info("Found path of length {}".format(len(path_nodes)))
+                    log.debug("Got path {}".format(path_nodes))
+                    paths.append(path_nodes)
+        return tuple(paths)
