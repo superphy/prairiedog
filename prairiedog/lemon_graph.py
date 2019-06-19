@@ -240,7 +240,7 @@ class LGGraph(prairiedog.graph.Graph):
             typing.Tuple[typing.Dict[str, typing.Any], ...]]:
         connected, src_edges = self.connected(node_a, node_b)
         if not connected:
-            return tuple()
+            return tuple(), tuple()
         # Iterate through the possible paths; can be 1 or more.
         paths = []
         paths_meta = []
