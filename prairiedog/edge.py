@@ -16,7 +16,7 @@ class Edge:
         else:
             self.edge_value = edge_value
         if not isinstance(self.edge_value, int):
-            self.incr = int(self.edge_value)
+            self.edge_value = int(self.edge_value)
         self.labels = labels
         self.db_id = db_id
 
