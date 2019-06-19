@@ -3,7 +3,7 @@ import logging
 
 from prairiedog.lemon_graph import LGGraph
 from prairiedog.graph import Graph
-from prairiedog.node import Node
+from prairiedog.node import Node, concat_values
 from prairiedog.edge import Edge
 from prairiedog.errors import GraphException
 
@@ -25,6 +25,18 @@ def test_lemongraph_connected(lg: LGGraph):
     log.debug("Found starting_edges as {}".format(starting_edges[0]))
 
 
+def test_lemongraph_connected_path(lg: LGGraph):
+    paths = lg.path('CCGGAAGAAAA', 'CGGAAGAAAAA')
+    assert len(paths) == 1
+
+    path = paths[0]
+    assert path[0].value == 'CCGGAAGAAAA'
+    assert path[1].value == 'CGGAAGAAAAA'
+
+    kmer = concat_values(path)
+    assert kmer == 'CCGGAAGAAAAA'
+
+
 def test_lemongraph_connected_distant(lg: LGGraph):
     connected, starting_edges = lg.connected('ATACGACGCCA', 'CGTCCGGACGT')
     if not connected:
@@ -35,6 +47,18 @@ def test_lemongraph_connected_distant(lg: LGGraph):
     log.debug("Found starting_edges as {}".format(starting_edges[0]))
 
 
+def test_lemongraph_connected_distant_path(lg: LGGraph):
+    paths = lg.path('ATACGACGCCA', 'CGTCCGGACGT')
+    assert len(paths) == 1
+
+    path = paths[0]
+    assert path[0].value == 'ATACGACGCCA'
+    assert path[1].value == 'CGTCCGGACGT'
+
+    kmer = concat_values(path)
+    assert kmer == 'ATACGACGCCAGCGAACGTCCGGACGT'
+
+
 def test_lemongraph_not_connected(lg: LGGraph):
     connected, starting_edges = lg.connected('GCTGGATACGT', 'CGTCCGGACGT')
     if connected:
@@ -42,6 +66,11 @@ def test_lemongraph_not_connected(lg: LGGraph):
     else:
         assert True
     assert len(starting_edges) == 0
+
+
+def test_lemongraph_not_connected_path(lg: LGGraph):
+    paths = lg.path('GCTGGATACGT', 'CGTCCGGACGT')
+    assert len(paths) == 0
 
 
 #####
@@ -81,6 +110,9 @@ def test_graph_connected_path(g: Graph):
         raise GraphException(g=g)
     else:
         assert True
+
+    joined = concat_values(path)
+    assert joined == "ABCD"
 
 
 def _setup_not_connected(g: Graph):
@@ -170,6 +202,9 @@ def test_graph_connected_distant_path(g: Graph):
     assert path[0].value == "ABC"
     assert path[1].value == "BCD"
     assert path[2].value == "CDE"
+
+    joined = concat_values(path)
+    assert joined == "ABCDE"
 
 
 def _setup_connected_multiple(g: Graph):
