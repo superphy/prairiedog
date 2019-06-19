@@ -10,21 +10,36 @@ prairiedog
 .. image:: https://codecov.io/gh/superphy/prairiedog/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/superphy/prairiedog
 
-Supports Python3.5+
+Supports Python3.5+ on Linux
 
 ============
 Installation
 ============
 
-We recommend you follow both installation steps, unless you are computing the
-graph in one place, and querying it in another.
+We recommend you follow both the installation step for graph creation
+and for querying the graph, unless you are computing the graph in one
+place, and querying it in another.
+
+Both steps require you to first install lemongraph.
+
+Clone prairiedog and install lemongraph
+---------------------------------------
+
+::
+
+    git clone --recursive https://github.com/superphy/prairiedog.git
+    cd prairiedog/
+    python3 -m venv venv
+    . venv/bin/activate
+    cd lemongraph/
+    apt-get install libffi-dev zlib1g-dev python-dev python-cffi
+    python setup.py install
 
 For creating a graph
 --------------------
 
 ::
 
-    python3 -m venv venv
     . venv/bin/activate
     pip install -r requirements.txt
     pip install git+https://github.com/pytries/datrie.git
@@ -35,7 +50,6 @@ For querying an existing graph
 
 ::
 
-    python3 -m venv venv
     . venv/bin/activate
     python setup.py install
 
@@ -56,6 +70,7 @@ For querying an existing graph
 
 ::
 
+    . venv/bin/activate
     prairiedog ATACGACGCCA CGTCCGGACGT
 
 ==================
