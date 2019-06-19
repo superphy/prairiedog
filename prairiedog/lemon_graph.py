@@ -211,7 +211,8 @@ class LGGraph(prairiedog.graph.Graph):
             else:
                 return True, src_edges
 
-    def _find_path(self, edge_a: Edge, edge_b: Edge, txn) -> typing.Tuple[Node]:
+    def _find_path(self, edge_a: Edge, edge_b: Edge, txn) -> typing.Tuple[
+            Node]:
         query = 'n()'
         i = edge_a.incr
         # This will only add 1 edge if edge_a.incr == edge_b.incr

@@ -70,7 +70,7 @@ class Graph(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def connected(self, node_a: str, node_b: str) -> typing.Tuple[
-        bool, typing.Tuple]:
+            bool, typing.Tuple]:
         pass
 
     @abc.abstractmethod
