@@ -26,7 +26,7 @@ def test_lemongraph_connected(lg: LGGraph):
 
 
 def test_lemongraph_connected_path(lg: LGGraph):
-    paths = lg.path('CCGGAAGAAAA', 'CGGAAGAAAAA')
+    paths, _ = lg.path('CCGGAAGAAAA', 'CGGAAGAAAAA')
     assert len(paths) == 1
 
     path = paths[0]
@@ -48,7 +48,7 @@ def test_lemongraph_connected_distant(lg: LGGraph):
 
 
 def test_lemongraph_connected_distant_path(lg: LGGraph):
-    paths = lg.path('ATACGACGCCA', 'CGTCCGGACGT')
+    paths, _ = lg.path('ATACGACGCCA', 'CGTCCGGACGT')
     assert len(paths) == 1
 
     path = paths[0]
@@ -69,7 +69,7 @@ def test_lemongraph_not_connected(lg: LGGraph):
 
 
 def test_lemongraph_not_connected_path(lg: LGGraph):
-    paths = lg.path('GCTGGATACGT', 'CGTCCGGACGT')
+    paths, _ = lg.path('GCTGGATACGT', 'CGTCCGGACGT')
     assert len(paths) == 0
 
 
@@ -102,7 +102,7 @@ def test_graph_connected(g: Graph):
 
 def test_graph_connected_path(g: Graph):
     _setup_connected(g)
-    paths = g.path("ABC", "BCD")
+    paths, _ = g.path("ABC", "BCD")
     # There should be 1 path in paths
     assert len(paths) == 1
     path = paths[0]
@@ -137,7 +137,7 @@ def test_graph_not_connected(g: Graph):
 def test_graph_not_connected_path(g: Graph):
     _setup_not_connected(g)
 
-    paths = g.path('ABC', 'BCD')
+    paths, _ = g.path('ABC', 'BCD')
     assert len(paths) == 0
 
 
@@ -161,7 +161,7 @@ def test_graph_connected_no_node(g: Graph):
 def test_graph_connected_no_node_path(g: Graph):
     _setup_connected_no_node(g)
 
-    paths = g.path('ABC', 'BCD')
+    paths, _ = g.path('ABC', 'BCD')
     assert len(paths) == 0
 
 
@@ -194,7 +194,7 @@ def test_graph_connected_distant(g: Graph):
 def test_graph_connected_distant_path(g: Graph):
     _setup_connected_distant(g)
 
-    paths = g.path('ABC', 'CDE')
+    paths, _ = g.path('ABC', 'CDE')
     assert len(paths) == 1
 
     path = paths[0]
@@ -248,7 +248,7 @@ def test_graph_connected_multiple(g: Graph):
 def test_graph_connected_multiple_path(g: Graph):
     _setup_connected_multiple(g)
 
-    paths = g.path('ABC', 'CDE')
+    paths, _= g.path('ABC', 'CDE')
     assert len(paths) == 2
     flagged_bcd = False
     flagged_xyz = False
@@ -302,7 +302,7 @@ def test_graph_connected_shortcut(g: Graph):
 def test_graph_connected_shortcut_path(g: Graph):
     _setup_connected_shortcut(g)
 
-    paths = g.path('ABC', 'CDE')
+    paths, _ = g.path('ABC', 'CDE')
     assert len(paths) == 2
 
     flagged_shortcut = False

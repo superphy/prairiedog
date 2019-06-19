@@ -13,16 +13,18 @@ class Graph(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def upsert_node(self, node: Node) -> Node:
+    def upsert_node(self, node: Node, echo: bool = True) -> typing.Optional[
+            Node]:
         """
         Upsert nodes with labels.
+        :param echo:
         :param node:
         :return:
         """
         pass
 
     @abc.abstractmethod
-    def add_edge(self, edge: Edge) -> Edge:
+    def add_edge(self, edge: Edge, echo: bool = True) -> typing.Optional[Edge]:
         pass
 
     @abc.abstractmethod
@@ -114,5 +116,5 @@ class Graph(metaclass=abc.ABCMeta):
             log.warning("No connected edges found for src_map {} and tgt_map"
                         "{}".format(src_map, tgt_map))
         else:
-            log.info("Found connecting edge(s) {} ".format(list_src_edges))
+            log.debug("Found connecting edge(s) {} ".format(list_src_edges))
         return connected, tuple(list_src_edges)

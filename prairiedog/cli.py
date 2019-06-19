@@ -1,39 +1,20 @@
 # -*- coding: utf-8 -*-
 
 """Console script for prairiedog."""
-import sys
-import os
-import logging
-
 import click
 
-import prairiedog.config as config
+from prairiedog.logger import setup_logging
 from prairiedog.prairiedog import Prairiedog
+from prairiedog.lemon_graph import LGGraph
 
-log = logging.getLogger("prairiedog")
+# If cli is imported, re-setup logging to level INFO
+setup_logging("INFO")
+
+pdg = Prairiedog(g=LGGraph())
 
 
 @click.command()
-@click.option('-k', default=11, help='K-mer size.')
-@click.option('-i', default='samples/',
-              help='Folder of file to input')
-def main(k, i):
-    """Console script for prairiedog."""
-    # Setup config
-    config.K = k
-    if os.path.isdir(i):
-        config.INPUT_DIRECTORY = i
-    else:
-        config.INPUT_FILES = [i]
-    # Main call
-    if len(config.INPUT_FILES) == 0:
-        log.critical("No input files found in folder {}, exiting...".format(
-            config.INPUT_DIRECTORY))
-        return
-    else:
-        Prairiedog()
-    return 0
-
-
-if __name__ == "__main__":
-    sys.exit(main())  # pragma: no cover
+@click.argument('src', nargs=1)
+@click.argument('dst', nargs=1)
+def query(src: str, dst: str):
+    pdg.query(src, dst)
