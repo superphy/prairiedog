@@ -53,7 +53,7 @@ def test_lemongraph_connected_distant_path(lg: LGGraph):
 
     path = paths[0]
     assert path[0].value == 'ATACGACGCCA'
-    assert path[1].value == 'CGTCCGGACGT'
+    assert path[-1].value == 'CGTCCGGACGT'
 
     kmer = concat_values(path)
     assert kmer == 'ATACGACGCCAGCGAACGTCCGGACGT'
