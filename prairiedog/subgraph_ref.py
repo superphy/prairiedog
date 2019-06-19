@@ -8,6 +8,7 @@ from prairiedog.graph import Graph
 from prairiedog.graph_ref import GraphRef
 from prairiedog.edge import Edge
 from prairiedog.node import Node
+from prairiedog.lemon_graph import LGGraph
 
 log = logging.getLogger("prairiedog")
 
@@ -35,8 +36,9 @@ class SubgraphRef(GRef):
             header1, kmer1 = km.next()
             # Create the first node
             node1_label = gr.node_label(kmer1) if encode else kmer1
-            self.graph.upsert_node(
-                Node(value=node1_label))
+            if not isinstance(self.graph, LGGraph):
+                self.graph.upsert_node(
+                    Node(value=node1_label))
             c += 1
             # Used to incrementally encode the edges
             edge_c = 0
@@ -45,8 +47,9 @@ class SubgraphRef(GRef):
                 header2, kmer2 = km.next()
                 # Create the second node
                 node2_label = gr.node_label(kmer2) if encode else kmer2
-                self.graph.upsert_node(
-                    Node(node2_label))
+                if not isinstance(self.graph, LGGraph):
+                    self.graph.upsert_node(
+                        Node(node2_label))
                 # Create an edge
                 try:
                     self.graph.add_edge(
