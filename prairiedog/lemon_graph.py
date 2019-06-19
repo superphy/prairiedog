@@ -216,7 +216,7 @@ class LGGraph(prairiedog.graph.Graph):
         i = edge_a.edge_value
         # This will only add 1 edge if edge_a.incr == edge_b.incr
         while i <= edge_b.edge_value:
-            query += '->@e(type="{}",value={})->n()'.format(
+            query += '->@e(type="{}",value="{}")->n()'.format(
                 edge_a.edge_type, i
             )
             i += 1
@@ -248,8 +248,9 @@ class LGGraph(prairiedog.graph.Graph):
                       "".format(node_a, node_b, src_edge))
             with self.g.transaction(write=False) as txn:
                 # Find the last edge we're looking for.
-                query = 'e(type="{}",value={})->@n(value="{}")'.format(
+                query = 'e(type="{}",value="{}")->@n(value="{}")'.format(
                     src_edge.edge_type, src_edge.edge_value, node_b)
+                log.debug("Using query {}".format(query))
                 tgt_edges = tuple(txn.query(query))
                 log.debug("Got tgt_edges {}".format(tgt_edges))
                 # Unravel
