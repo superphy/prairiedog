@@ -208,6 +208,7 @@ class LGGraph(prairiedog.graph.Graph):
                 log.info("Found {} connections between {} and {}".format(
                     len(src_edges), node_a, node_b
                 ))
+                log.debug("src_edges are {}".format(src_edges))
                 return True, src_edges
 
     def _find_path(self, edge_a: Edge, edge_b: Edge, txn) -> typing.Tuple[
