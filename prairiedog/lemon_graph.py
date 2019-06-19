@@ -92,6 +92,11 @@ class LGGraph(prairiedog.graph.Graph):
                     labels=labels, db_id=edge['ID'])
 
     def upsert_node(self, node: Node) -> Node:
+        # TODO: the db will error if you call upsert_node on the same node,
+        #  then set the labels differently within the same transaction. Either
+        #  we have to use a new txn (which is expensive for txn log) or figure
+        #  another work around. Currently, we only add nodes via add_edge()
+        #  which works fine for our use case, and upsert_node isn't called.
         n = self.txn.node(type=node.node_type, value=node.value)
 
         if node.labels is not None:
