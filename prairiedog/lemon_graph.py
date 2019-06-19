@@ -130,6 +130,7 @@ class LGGraph(prairiedog.graph.Graph):
         nodes = set(self.txn.nodes())
         r_nodes = []
         for node in nodes:
+            log.debug("raw node: {}".format(node))
             r_nodes.append(LGGraph._parse_node(node))
         return set(r_nodes)
 
@@ -138,6 +139,7 @@ class LGGraph(prairiedog.graph.Graph):
         edges = set(self.txn.edges())
         r_edges = []
         for edge in edges:
+            log.debug("raw edge: {}".format(edge))
             r_edges.append(LGGraph._parse_edge(edge))
         return set(r_edges)
 
