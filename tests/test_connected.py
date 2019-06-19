@@ -166,7 +166,7 @@ def test_graph_connected_distant_path(g: Graph):
     assert len(paths) == 1
 
     path = paths[0]
-    assert len(path) == 2
+    assert len(path) == 3
     assert path[0].value == "ABC"
     assert path[1].value == "BCD"
     assert path[2].value == "CDE"
@@ -213,7 +213,7 @@ def test_graph_connected_multiple(g: Graph):
 def test_graph_connected_multiple_path(g: Graph):
     _setup_connected_multiple(g)
 
-    paths = g.connected('ABC', 'CDE')
+    paths = g.path('ABC', 'CDE')
     assert len(paths) == 2
     flagged_bcd = False
     flagged_xyz = False
