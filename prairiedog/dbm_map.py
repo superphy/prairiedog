@@ -21,7 +21,7 @@ def upsert(key: str) -> int:
             else:
                 mx = int(db['mx'])
             mx += 1
-            db[key] = int(mx)
+            db[key] = str(mx)
             db['mx'] = str(mx)
             return mx
         else:
