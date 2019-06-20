@@ -1,3 +1,6 @@
+from prairiedog.dbm_map import upsert
+
+
 class Edge:
     """
     Defines a set structure for creating edges
@@ -21,8 +24,9 @@ class Edge:
         self.db_id = db_id
 
     @property
-    def origin(self):
-        return "{}".format(self.edge_type)
+    def origin(self) -> str:
+        ident = upsert(self.edge_type)
+        return str(ident)
 
     def __str__(self):
         return "prairiedog.edge.Edge with vars {}".format(vars(self))
