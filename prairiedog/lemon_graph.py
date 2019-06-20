@@ -32,6 +32,8 @@ class LGGraph(prairiedog.graph.Graph):
         log.debug("Creating LemonGraph with backing file {}".format(
             self.db_path))
         self.g = LemonGraph.Graph(self.db_path)
+        ret = LemonGraph.lib.graph_set_mapsize(g._graph, (1 << 30) * 10)
+        assert (0 == ret)
         self._ctx = None
         self._txn = None
         self.delete_on_exit = delete_on_exit

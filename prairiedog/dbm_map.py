@@ -15,8 +15,8 @@ log.info("Initializing DBMMap with backing file {}".format(DBM_LOCATION))
 def _upsert(db, key: str) -> int:
     if key not in db:
         if 'mx' not in db:
-            db['mx'] = str(-1)
             mx = -1
+            db['mx'] = str(mx)
         else:
             mx = int(db['mx'])
         mx += 1
