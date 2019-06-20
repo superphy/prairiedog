@@ -12,7 +12,13 @@ class Edge:
         self.tgt = tgt
         # Note: LemonGraph uses the type + value as str when adding, but
         # returns ordinal IDs when called
-        self.edge_type = edge_type
+        try:
+            # Check if this is some pre-converted int from the database
+            int(edge_type)
+            self.edge_type = edge_type
+        except ValueError:
+            # We were passed an actual string, so index it and convert
+            self.edge_type = str(upsert(edge_type))
         if edge_value == -1 and labels is not None and 'incr' in labels:
             self.edge_value = labels['incr']
             labels.pop('incr')
@@ -25,8 +31,7 @@ class Edge:
 
     @property
     def origin(self) -> str:
-        ident = upsert(self.edge_type)
-        return str(ident)
+        return self.edge_type
 
     def __str__(self):
         return "prairiedog.edge.Edge with vars {}".format(vars(self))
