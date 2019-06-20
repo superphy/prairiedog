@@ -251,8 +251,8 @@ class LGGraph(prairiedog.graph.Graph):
                       "".format(node_a, node_b, src_edge))
             with self.g.transaction(write=False) as txn:
                 # Find the last edge we're looking for.
-                query = 'e(type="{}",value="{}")->@n(value="{}")'.format(
-                    src_edge.edge_type, src_edge.edge_value, node_b)
+                query = 'e(type="{}")->@n(value="{}")'.format(
+                    src_edge.edge_type, node_b)
                 log.debug("Using query {}".format(query))
                 tgt_edges = tuple(txn.query(query))
                 log.debug("Got tgt_edges {}".format(tgt_edges))
