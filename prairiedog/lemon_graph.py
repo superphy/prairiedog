@@ -113,7 +113,7 @@ class LGGraph(prairiedog.graph.Graph):
 
         # Add the edge
         e = self.txn.edge(src=na, tgt=nb, type=edge.edge_type,
-                          value=edge.edge_value)
+                          value=str(edge.edge_value))
 
         if edge.labels is not None:
             for k, v in edge.labels.items():

@@ -116,5 +116,7 @@ class Graph(metaclass=abc.ABCMeta):
             log.warning("No connected edges found for src_map {} and tgt_map"
                         "{}".format(src_map, tgt_map))
         else:
-            log.debug("Found connecting edge(s) {} ".format(list_src_edges))
+            log.debug("Found connecting edge(s):")
+            for src_edge in list_src_edges:
+                log.debug(src_edge)
         return connected, tuple(list_src_edges)
