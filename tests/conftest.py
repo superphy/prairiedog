@@ -63,6 +63,12 @@ def km(request):
     return kmers.Kmers(request.param)
 
 
+def _lgr():
+    fd, path = tempfile.mkstemp()
+    os.close(fd)
+    return LGGraph(path, delete_on_exit=True)
+
+
 # TODO: use params to test against multiple backing stores
 @pytest.fixture(scope="function", params=["lemongraph"])
 def g(request):
@@ -70,9 +76,12 @@ def g(request):
         return NetworkXGraph()
     elif request.param == "lemongraph":
         # Create a new LemonGraph instance with its own database file
-        fd, path = tempfile.mkstemp()
-        os.close(fd)
-        return LGGraph(path, delete_on_exit=True)
+        return _lgr()
+
+
+@pytest.fixture(scope="function")
+def lgr():
+    return _lgr()
 
 
 @pytest.fixture

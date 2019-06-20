@@ -13,16 +13,18 @@ class Graph(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def upsert_node(self, node: Node) -> Node:
+    def upsert_node(self, node: Node, echo: bool = True) -> typing.Optional[
+            Node]:
         """
         Upsert nodes with labels.
+        :param echo:
         :param node:
         :return:
         """
         pass
 
     @abc.abstractmethod
-    def add_edge(self, edge: Edge) -> Edge:
+    def add_edge(self, edge: Edge, echo: bool = True) -> typing.Optional[Edge]:
         pass
 
     @abc.abstractmethod
@@ -83,10 +85,10 @@ class Graph(metaclass=abc.ABCMeta):
         for edge in edges:
             # We only keep the edges with the largest ids
             if edge.origin in d:
-                if d[edge.origin] < edge.incr:
-                    d[edge.origin] = edge.incr
+                if d[edge.origin] < edge.edge_value:
+                    d[edge.origin] = edge.edge_value
             else:
-                d[edge.origin] = edge.incr
+                d[edge.origin] = edge.edge_value
         return d
 
     @staticmethod
@@ -105,7 +107,7 @@ class Graph(metaclass=abc.ABCMeta):
                 # Select the Edge object from src_edges
                 for edge in src_edges:
                     # If this edge is the one we're looking for, add it to ret.
-                    if edge.origin == k and edge.incr == v:
+                    if edge.origin == k and edge.edge_value == v:
                         list_src_edges.append(edge)
 
         connected = True if len(list_src_edges) > 0 else False
@@ -114,5 +116,7 @@ class Graph(metaclass=abc.ABCMeta):
             log.warning("No connected edges found for src_map {} and tgt_map"
                         "{}".format(src_map, tgt_map))
         else:
-            log.info("Found connecting edge(s) {} ".format(list_src_edges))
+            log.debug("Found connecting edge(s):")
+            for src_edge in list_src_edges:
+                log.debug(src_edge)
         return connected, tuple(list_src_edges)

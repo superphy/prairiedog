@@ -7,6 +7,8 @@ from prairiedog.kmers import Kmers
 from prairiedog.graph import Graph
 from prairiedog.graph_ref import GraphRef
 from prairiedog.edge import Edge
+from prairiedog.node import Node
+from prairiedog.lemon_graph import LGGraph
 
 log = logging.getLogger("prairiedog")
 
@@ -34,7 +36,9 @@ class SubgraphRef(GRef):
             header1, kmer1 = km.next()
             # Create the first node
             node1_label = gr.node_label(kmer1) if encode else kmer1
-            self.graph.upsert_node(node1_label)
+            if not isinstance(self.graph, LGGraph):
+                self.graph.upsert_node(
+                    Node(value=node1_label))
             c += 1
             # Used to incrementally encode the edges
             edge_c = 0
@@ -43,17 +47,19 @@ class SubgraphRef(GRef):
                 header2, kmer2 = km.next()
                 # Create the second node
                 node2_label = gr.node_label(kmer2) if encode else kmer2
-                self.graph.upsert_node(node2_label)
+                if not isinstance(self.graph, LGGraph):
+                    self.graph.upsert_node(
+                        Node(node2_label))
                 # Create an edge
                 try:
                     self.graph.add_edge(
                         Edge(
                             src=node1_label,
                             tgt=node2_label,
-                            edge_type=str(km),
-                            edge_value=header2,
-                            incr=edge_c
-                        )
+                            edge_type='{} in {}'.format(header2, str(km)),
+                            edge_value=edge_c
+                        ),
+                        echo=False
                     )
                 except Exception as e:
                     log.fatal(
@@ -65,7 +71,8 @@ class SubgraphRef(GRef):
                 c += 1
                 edge_c += 1
                 if c % 100000 == 0:
-                    log.debug("{}/{}".format(c, len(km)))
+                    log.debug("{}/{}, {}%".format(
+                        c, len(km), int(c/len(km)*100)))
             # At this point, we're out of kmers on that contig
             # The loop will check if there's still kmers, and reset kmer1
         en = time.time()

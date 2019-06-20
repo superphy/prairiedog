@@ -13,7 +13,9 @@ from prairiedog.errors import GraphException
 
 log = logging.getLogger("prairiedog")
 
-DB_PATH = '{}/pangenome.lemongraph'.format(prairiedog.config.OUTPUT_DIRECTORY)
+DB_PATH = os.path.join(
+    prairiedog.config.OUTPUT_DIRECTORY,
+    'pangenome.lemongraph')
 
 
 class LGGraph(prairiedog.graph.Graph):
@@ -86,33 +88,39 @@ class LGGraph(prairiedog.graph.Graph):
                 labels[k] = v
         labels = None if not labels else labels
         return Edge(src=edge['srcID'], tgt=edge['tgtID'],
-                    edge_type=edge['type'], edge_value=edge['value'],
+                    edge_type=edge['type'], edge_value=int(edge['value']),
                     labels=labels, db_id=edge['ID'])
 
-    def upsert_node(self, node: Node) -> Node:
+    def upsert_node(self, node: Node, echo: bool = True) -> typing.Optional[
+                                                            Node]:
+        # TODO: the db will error if you call upsert_node on the same node,
+        #  then set the labels differently within the same transaction. Either
+        #  we have to use a new txn (which is expensive for txn log) or figure
+        #  another work around. Currently, we only add nodes via add_edge()
+        #  which works fine for our use case, and upsert_node isn't called.
         n = self.txn.node(type=node.node_type, value=node.value)
 
         if node.labels is not None:
             for k, v in node.labels.items():
                 n[k] = v
-        return LGGraph._parse_node(n)
 
-    def add_edge(self, edge: Edge) -> Edge:
+        if echo:
+            return LGGraph._parse_node(n)
+
+    def add_edge(self, edge: Edge, echo: bool = True) -> typing.Optional[Edge]:
         na = self.txn.node(type='n', value=edge.src)
         nb = self.txn.node(type='n', value=edge.tgt)
 
         # Add the edge
         e = self.txn.edge(src=na, tgt=nb, type=edge.edge_type,
-                          value=edge.edge_value)
-
-        if edge.incr is not None:
-            e['incr'] = edge.incr
+                          value=str(edge.edge_value))
 
         if edge.labels is not None:
             for k, v in edge.labels.items():
                 e[k] = v
 
-        return LGGraph._parse_edge(e)
+        if echo:
+            return LGGraph._parse_edge(e)
 
     def clear(self):
         self.g.delete()
@@ -122,6 +130,7 @@ class LGGraph(prairiedog.graph.Graph):
         nodes = set(self.txn.nodes())
         r_nodes = []
         for node in nodes:
+            log.debug("raw node: {}".format(node))
             r_nodes.append(LGGraph._parse_node(node))
         return set(r_nodes)
 
@@ -130,6 +139,7 @@ class LGGraph(prairiedog.graph.Graph):
         edges = set(self.txn.edges())
         r_edges = []
         for edge in edges:
+            log.debug("raw edge: {}".format(edge))
             r_edges.append(LGGraph._parse_edge(edge))
         return set(r_edges)
 
@@ -182,23 +192,11 @@ class LGGraph(prairiedog.graph.Graph):
 
             # Convert these to Edge objects
             edges_a = (
-                Edge(
-                    src=e['srcID'],
-                    tgt=e['tgtID'],
-                    edge_type=e['type'],
-                    edge_value=e['value'],
-                    incr=e['incr']
-                )
+                LGGraph._parse_edge(e)
                 for e in edges_a
             )
             edges_b = (
-                Edge(
-                    src=e['srcID'],
-                    tgt=e['tgtID'],
-                    edge_type=e['type'],
-                    edge_value=e['value'],
-                    incr=e['incr']
-                )
+                LGGraph._parse_edge(e)
                 for e in edges_b
             )
 
@@ -209,16 +207,20 @@ class LGGraph(prairiedog.graph.Graph):
             if matched is not True:
                 return False, ()
             else:
+                log.info("Found {} connections between {} and {}".format(
+                    len(src_edges), node_a, node_b
+                ))
+                log.debug("src_edges are {}".format(src_edges))
                 return True, src_edges
 
     def _find_path(self, edge_a: Edge, edge_b: Edge, txn) -> typing.Tuple[
             Node]:
         query = 'n()'
-        i = edge_a.incr
+        i = edge_a.edge_value
         # This will only add 1 edge if edge_a.incr == edge_b.incr
-        while i <= edge_b.incr:
-            query += '->@e(type="{}",value="{}",incr="{}")->n()'.format(
-                edge_a.edge_type, edge_a.edge_value, i
+        while i <= edge_b.edge_value:
+            query += '->@e(type="{}",value="{}")->n()'.format(
+                edge_a.edge_type, i
             )
             i += 1
         log.debug("Using query {}".format(query))
@@ -236,23 +238,26 @@ class LGGraph(prairiedog.graph.Graph):
         return nodes
 
     def path(self, node_a: str, node_b: str) -> typing.Tuple[
-                typing.Tuple[Node]]:
+            typing.Tuple[typing.Tuple[Node], ...],
+            typing.Tuple[typing.Dict[str, typing.Any], ...]]:
         connected, src_edges = self.connected(node_a, node_b)
         if not connected:
-            return tuple()
+            return tuple(), tuple()
         # Iterate through the possible paths; can be 1 or more.
         paths = []
+        paths_meta = []
         for src_edge in src_edges:
-            log.info("Finding path between {} and {} with source edge {}"
-                     "".format(node_a, node_b, src_edge))
+            log.debug("Finding path between {} and {} with source edge {}"
+                      "".format(node_a, node_b, src_edge))
             with self.g.transaction(write=False) as txn:
                 # Find the last edge we're looking for.
-                query = 'e(type="{}",value="{}")->@n(value="{}")'.format(
-                    src_edge.edge_type, src_edge.edge_value, node_b)
+                query = 'e(type="{}")->@n(value="{}")'.format(
+                    src_edge.edge_type, node_b)
+                log.debug("Using query {}".format(query))
                 tgt_edges = tuple(txn.query(query))
                 log.debug("Got tgt_edges {}".format(tgt_edges))
                 # Unravel
-                tgt_edges = tuple(self._parse_edge(e[0]) for e in tgt_edges)
+                tgt_edges = tuple(LGGraph._parse_edge(e[0]) for e in tgt_edges)
                 log.debug("tgt_edges after unraveling {}".format(tgt_edges))
 
                 # There should be at least one connection, but can be more
@@ -260,13 +265,21 @@ class LGGraph(prairiedog.graph.Graph):
                 if len(tgt_edges) == 0:
                     raise GraphException(g=self)
 
-                log.info("Checking for {} target edges".format(len(tgt_edges)))
+                log.debug("Checking for {} target edges".format(
+                    len(tgt_edges)))
                 for tgt_edge in tgt_edges:
-                    log.info("Checking for target edge {}".format(tgt_edge))
+                    log.debug("Checking for target edge {}".format(tgt_edge))
                     path_nodes = self._find_path(src_edge, tgt_edge, txn)
                     if len(path_nodes) < 2:
                         raise GraphException(g=self)
-                    log.info("Found path of length {}".format(len(path_nodes)))
+                    log.debug("Found path of length {}".format(
+                        len(path_nodes)))
                     log.debug("Got path {}".format(path_nodes))
+
+                    # Append
                     paths.append(path_nodes)
-        return tuple(paths)
+                    paths_meta.append(
+                        {
+                            'edge_type': src_edge.edge_type
+                        })
+        return tuple(paths), tuple(paths_meta)
