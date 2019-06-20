@@ -18,7 +18,7 @@ class Edge:
             self.edge_type = edge_type
         except ValueError:
             # We were passed an actual string, so index it and convert
-            self.edge_type = str(upsert(edge_type))
+            self.edge_type = str(upsert(edge_type, backing='dict'))
         if edge_value == -1 and labels is not None and 'incr' in labels:
             self.edge_value = labels['incr']
             labels.pop('incr')
