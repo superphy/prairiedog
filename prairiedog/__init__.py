@@ -4,7 +4,7 @@
 
 __author__ = """Kevin Le"""
 __email__ = 'kevin.kent.le@gmail.com'
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 
 from prairiedog.logger import setup_logging
 
