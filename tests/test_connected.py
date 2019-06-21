@@ -311,3 +311,116 @@ def test_graph_connected_shortcut_path(g: Graph):
             assert path[1].value == "BCD"
         else:
             raise GraphException(g)
+
+
+def test_graph_connected_repeats_full_path(g: Graph):
+    n1 = Node(value="ABC")
+    n2 = Node(value="BCD")
+    n3 = Node(value="CDE")
+    g.upsert_node(n1)
+    g.upsert_node(n2)
+    g.upsert_node(n3)
+    e1 = Edge(src="ABC", tgt="BCD", edge_value=0)
+    g.add_edge(e1)
+    e2 = Edge(src="BCD", tgt="CDE", edge_value=1)
+    g.add_edge(e2)
+    e3 = Edge(src="CDE", tgt="ABC", edge_value=2)
+    g.add_edge(e3)
+    e4 = Edge(src="ABC", tgt="BCD", edge_value=3)
+    g.add_edge(e4)
+    e5 = Edge(src="BCD", tgt="CDE", edge_value=4)
+    g.add_edge(e5)
+    g.save()
+
+    try:
+        paths, _ = g.path('ABC', 'CDE')
+    except:
+        raise GraphException(g)
+
+    assert len(paths) == 3
+
+
+def test_graph_connected_repeats_end_path(g: Graph):
+    n1 = Node(value="ABC")
+    n2 = Node(value="BCD")
+    n3 = Node(value="CDE")
+    g.upsert_node(n1)
+    g.upsert_node(n2)
+    g.upsert_node(n3)
+    e1 = Edge(src="ABC", tgt="BCD", edge_value=0)
+    g.add_edge(e1)
+    e2 = Edge(src="BCD", tgt="CDE", edge_value=1)
+    g.add_edge(e2)
+    e3 = Edge(src="CDE", tgt="BCD", edge_value=2)
+    g.add_edge(e3)
+    e4 = Edge(src="BCD", tgt="CDE", edge_value=3)
+    g.add_edge(e4)
+    g.save()
+
+    paths, _ = g.path('ABC', 'CDE')
+    assert len(paths) == 2
+
+
+def test_graph_connected_repeats_start_path(g: Graph):
+    n1 = Node(value="ABC")
+    n2 = Node(value="BCD")
+    n3 = Node(value="CDE")
+    g.upsert_node(n1)
+    g.upsert_node(n2)
+    g.upsert_node(n3)
+    e1 = Edge(src="ABC", tgt="BCD", edge_value=0)
+    g.add_edge(e1)
+    e2 = Edge(src="BCD", tgt="ABC", edge_value=1)
+    g.add_edge(e2)
+    e3 = Edge(src="ABC", tgt="BCD", edge_value=2)
+    g.add_edge(e3)
+    e4 = Edge(src="BCD", tgt="CDE", edge_value=3)
+    g.add_edge(e4)
+    g.save()
+
+    paths, _ = g.path('ABC', 'CDE')
+    assert len(paths) == 2
+
+
+def test_graph_connected_repeats_one_middle_path(g: Graph):
+    n1 = Node(value="ABC")
+    n2 = Node(value="BCD")
+    n3 = Node(value="CDE")
+    g.upsert_node(n1)
+    g.upsert_node(n2)
+    g.upsert_node(n3)
+    e1 = Edge(src="ABC", tgt="BCD", edge_value=0)
+    g.add_edge(e1)
+    e2 = Edge(src="BCD", tgt="BCD", edge_value=1)
+    g.add_edge(e2)
+    e3 = Edge(src="BCD", tgt="CDE", edge_value=2)
+    g.add_edge(e3)
+    g.save()
+
+    paths, _ = g.path('ABC', 'CDE')
+    assert len(paths) == 1
+
+
+def test_graph_connected_repeats_one_long_path(g: Graph):
+    n1 = Node(value="ABC")
+    n2 = Node(value="BCD")
+    n3 = Node(value="CDE")
+    n4 = Node(value="DEF")
+    g.upsert_node(n1)
+    g.upsert_node(n2)
+    g.upsert_node(n3)
+    g.upsert_node(n4)
+    e1 = Edge(src="ABC", tgt="BCD", edge_value=0)
+    g.add_edge(e1)
+    e2 = Edge(src="BCD", tgt="CDE", edge_value=1)
+    g.add_edge(e2)
+    e3 = Edge(src="CDE", tgt="BCD", edge_value=2)
+    g.add_edge(e3)
+    e4 = Edge(src="BCD", tgt="CDE", edge_value=3)
+    g.add_edge(e4)
+    e4 = Edge(src="CDE", tgt="DEF", edge_value=4)
+    g.add_edge(e4)
+    g.save()
+
+    paths, _ = g.path('ABC', 'DEF')
+    assert len(paths) == 1

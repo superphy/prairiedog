@@ -217,11 +217,11 @@ class LGGraph(prairiedog.graph.Graph):
 
     def _find_path(self, edge_a: Edge, edge_b: Edge, txn) -> typing.Tuple[
             Node]:
-        query = 'n()'
+        query = 'N()'
         i = edge_a.edge_value
         # This will only add 1 edge if edge_a.incr == edge_b.incr
         while i <= edge_b.edge_value:
-            query += '->@e(type="{}",value="{}")->n()'.format(
+            query += '->@e(type="{}",value="{}")->N()'.format(
                 edge_a.edge_type, i
             )
             i += 1
@@ -267,10 +267,15 @@ class LGGraph(prairiedog.graph.Graph):
                 if len(tgt_edges) == 0:
                     raise GraphException(g=self)
 
-                log.debug("Checking for {} target edges".format(
-                    len(tgt_edges)))
+                log.debug("Checking source edge {} for {} target edges".format(
+                    src_edge, len(tgt_edges)))
                 for tgt_edge in tgt_edges:
                     log.debug("Checking for target edge {}".format(tgt_edge))
+                    if src_edge.edge_value > tgt_edge.edge_value:
+                        log.debug("Skipping target edge {}".format(tgt_edge) +
+                                  " with value {} because".format(src_edge) +
+                                  "source edge has greater incr tag")
+                        continue
                     path_nodes = self._find_path(src_edge, tgt_edge, txn)
                     if len(path_nodes) < 2:
                         raise GraphException(g=self)
