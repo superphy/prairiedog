@@ -80,43 +80,28 @@ class Graph(metaclass=abc.ABCMeta):
         pass
 
     @staticmethod
-    def _edge_map(edges: typing.Tuple[Edge]) -> dict:
-        d = {}
-        for edge in edges:
-            # We only keep the edges with the largest ids
-            if edge.origin in d:
-                if d[edge.origin] < edge.edge_value:
-                    d[edge.origin] = edge.edge_value
-            else:
-                d[edge.origin] = edge.edge_value
-        return d
-
-    @staticmethod
     def matching_edges(src_edges: typing.Tuple[Edge],
                        tgt_edges: typing.Tuple[Edge]) -> typing.Tuple[
             bool, typing.Tuple[Edge]]:
-        src_map = Graph._edge_map(src_edges)
-        tgt_map = Graph._edge_map(tgt_edges)
 
-        list_src_edges = []
-        for k, v in src_map.items():
-            # Check if there's a target edge with the same origin.
-            # We accept the case where the value is the same in case its a
-            # direct edge to the target node.
-            if k in tgt_map and tgt_map[k] >= v:
-                # Select the Edge object from src_edges
-                for edge in src_edges:
-                    # If this edge is the one we're looking for, add it to ret.
-                    if edge.origin == k and edge.edge_value == v:
-                        list_src_edges.append(edge)
+        # Set of src edges from which you can find a target edge
+        st = set()
 
-        connected = True if len(list_src_edges) > 0 else False
+        for src_edge in src_edges:
+            for tgt_edge in tgt_edges:
+                # Check if these are on the same contig
+                if src_edge.edge_type == tgt_edge.edge_type:
+                    # Check if the tgt_edge is upstream (or the same) as the
+                    # src edge
+                    if src_edge.edge_value <= tgt_edge.edge_value:
+                        st.add(src_edge)
+
+        connected = True if len(st) > 0 else False
 
         if not connected:
-            log.warning("No connected edges found for src_map {} and tgt_map"
-                        "{}".format(src_map, tgt_map))
+            log.warning("No connected edges found")
         else:
             log.debug("Found connecting edge(s):")
-            for src_edge in list_src_edges:
+            for src_edge in st:
                 log.debug(src_edge)
-        return connected, tuple(list_src_edges)
+        return connected, tuple(st)
