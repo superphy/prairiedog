@@ -1,6 +1,7 @@
 import os
 import logging
 import typing
+import sys
 
 import LemonGraph
 
@@ -219,8 +220,21 @@ class LGGraph(prairiedog.graph.Graph):
             Node]:
         query = 'N()'
         i = edge_a.edge_value
-        log.info("Edge along {} has len {}".format(
-            edge_a.edge_type, edge_b.edge_value - edge_a.edge_value))
+        ln = edge_b.edge_value - edge_a.edge_value
+        log.info("Edge along {} has len {}".format(edge_a.edge_type, ln))
+
+        # LemonGraph uses a recursive function to parse edges
+        rdepth = sys.getrecursionlimit()
+        n_rdepth = None
+        if ln > rdepth:
+            log.warning("Length {} of edge {}".format(ln, edge_a.edge_type) +
+                        "is greater than recursion depth {} ".format(rdepth))
+            n_rdepth = int(ln*1.15)
+            log.warning("Temporarily setting recursiond depth to {}".format(
+                n_rdepth
+            ))
+            sys.setrecursionlimit(n_rdepth)
+
         # This will only add 1 edge if edge_a.incr == edge_b.incr
         while i <= edge_b.edge_value:
             query += '->@e(type="{}",value="{}")->N()'.format(
@@ -239,6 +253,14 @@ class LGGraph(prairiedog.graph.Graph):
 
         # Convert the chain into a tuple of Nodes and return
         nodes = tuple(self._parse_node(n) for n in chain)
+
+        # Reset recursion depth
+        if n_rdepth is not None:
+            log.warning("Resetting recursion depth to default of {}".format(
+                rdepth
+            ))
+            sys.setrecursionlimit(rdepth)
+
         return nodes
 
     def path(self, node_a: str, node_b: str) -> typing.Tuple[
