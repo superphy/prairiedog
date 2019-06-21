@@ -332,7 +332,11 @@ def test_graph_connected_repeats_full_path(g: Graph):
     g.add_edge(e5)
     g.save()
 
-    paths, _ = g.path('ABC', 'CDE')
+    try:
+        paths, _ = g.path('ABC', 'CDE')
+    except:
+        raise GraphException(g)
+
     assert len(paths) == 2
 
 
