@@ -217,11 +217,11 @@ class LGGraph(prairiedog.graph.Graph):
 
     def _find_path(self, edge_a: Edge, edge_b: Edge, txn) -> typing.Tuple[
             Node]:
-        query = 'n()'
+        query = 'N()'
         i = edge_a.edge_value
         # This will only add 1 edge if edge_a.incr == edge_b.incr
         while i <= edge_b.edge_value:
-            query += '->@e(type="{}",value="{}")->n()'.format(
+            query += '->@e(type="{}",value="{}")->N()'.format(
                 edge_a.edge_type, i
             )
             i += 1
