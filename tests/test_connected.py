@@ -337,7 +337,7 @@ def test_graph_connected_repeats_full_path(g: Graph):
     except:
         raise GraphException(g)
 
-    assert len(paths) == 2
+    assert len(paths) == 3
 
 
 def test_graph_connected_repeats_end_path(g: Graph):
