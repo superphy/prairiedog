@@ -318,9 +318,15 @@ class LGGraph(prairiedog.graph.Graph):
 
                     # Append
                     paths.append(path_nodes)
-                    paths_meta.append(
-                        {
-                            'edge_type': src_edge.edge_type,
-                            **src_edge.labels
-                        })
+                    if src_edge.labels is not None:
+                        paths_meta.append(
+                            {
+                                'edge_type': src_edge.edge_type,
+                                **src_edge.labels
+                            })
+                    else:
+                        paths_meta.append(
+                            {
+                                'edge_type': src_edge.edge_type
+                            })
         return tuple(paths), tuple(paths_meta)
