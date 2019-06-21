@@ -229,6 +229,9 @@ class LGGraph(prairiedog.graph.Graph):
         if ln > rdepth:
             log.warning("Length {} of edge {}".format(ln, edge_a.edge_type) +
                         " is greater than recursion depth {} ".format(rdepth))
+            # TODO: fix this
+            log.warning("Skipping...")
+            return -1
             n_rdepth = int(ln*1.15)
             log.warning("Temporarily setting recursion depth to {}".format(
                 n_rdepth
@@ -305,6 +308,8 @@ class LGGraph(prairiedog.graph.Graph):
                                   "source edge has greater incr tag")
                         continue
                     path_nodes = self._find_path(src_edge, tgt_edge, txn)
+                    if path_nodes == -1:
+                        continue
                     if len(path_nodes) < 2:
                         raise GraphException(g=self)
                     log.debug("Found path of length {}".format(
