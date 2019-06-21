@@ -12,13 +12,14 @@ class Edge:
         self.tgt = tgt
         # Note: LemonGraph uses the type + value as str when adding, but
         # returns ordinal IDs when called
-        try:
-            # Check if this is some pre-converted int from the database
-            int(edge_type)
-            self.edge_type = edge_type
-        except ValueError:
-            # We were passed an actual string, so index it and convert
-            self.edge_type = str(upsert(edge_type, backing='dict'))
+        # try:
+        #     # Check if this is some pre-converted int from the database
+        #     int(edge_type)
+        #     self.edge_type = edge_type
+        # except ValueError:
+        #     # We were passed an actual string, so index it and convert
+        #     self.edge_type = str(upsert(edge_type, backing='dict'))
+        self.edge_type = edge_type
         if edge_value == -1 and labels is not None and 'incr' in labels:
             self.edge_value = labels['incr']
             labels.pop('incr')
