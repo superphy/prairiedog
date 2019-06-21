@@ -219,6 +219,8 @@ class LGGraph(prairiedog.graph.Graph):
             Node]:
         query = 'N()'
         i = edge_a.edge_value
+        log.info("Edge along {} has len {}".format(
+            edge_a.edge_type, edge_b.edge_value - edge_a.edge_value))
         # This will only add 1 edge if edge_a.incr == edge_b.incr
         while i <= edge_b.edge_value:
             query += '->@e(type="{}",value="{}")->N()'.format(
