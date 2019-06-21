@@ -21,18 +21,8 @@ class Edge:
         self.db_id = db_id
 
     @property
-    def origin(self):
-        return "{}".format(self.edge_type)
+    def origin(self) -> str:
+        return self.edge_type
 
     def __str__(self):
         return "prairiedog.edge.Edge with vars {}".format(vars(self))
-    #
-    # def __eq__(self, other):
-    #     if not isinstance(other, Edge):
-    #         return False
-    #     else:
-    #         # We don't just test db_id because it might not be present unless
-    #         # queried from the database
-    #         return self.edge_type == other.edge_type \
-    #                and self.edge_value == other.edge_value \
-    #                and self.incr == other.incr
