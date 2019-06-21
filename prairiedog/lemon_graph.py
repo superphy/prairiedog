@@ -228,9 +228,9 @@ class LGGraph(prairiedog.graph.Graph):
         n_rdepth = None
         if ln > rdepth:
             log.warning("Length {} of edge {}".format(ln, edge_a.edge_type) +
-                        "is greater than recursion depth {} ".format(rdepth))
+                        " is greater than recursion depth {} ".format(rdepth))
             n_rdepth = int(ln*1.15)
-            log.warning("Temporarily setting recursiond depth to {}".format(
+            log.warning("Temporarily setting recursion depth to {}".format(
                 n_rdepth
             ))
             sys.setrecursionlimit(n_rdepth)
@@ -246,7 +246,11 @@ class LGGraph(prairiedog.graph.Graph):
         chains = tuple(txn.query(query))
         log.debug("Got chains {}".format(chains))
         # There should only be one chain per path
-        assert len(chains) == 1
+        try:
+            assert len(chains) == 1
+        except AssertionError as e:
+            log.fatal("Length of chains is {} != 1".format(len(chains)))
+            raise e
         # In the nested chain (a tuple), there should be at least 2 nodes
         chain = chains[0]
         assert len(chain) >= 2
