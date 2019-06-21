@@ -1,6 +1,7 @@
 import os
 import logging
 import typing
+import sys
 
 import LemonGraph
 
@@ -219,6 +220,24 @@ class LGGraph(prairiedog.graph.Graph):
             Node]:
         query = 'N()'
         i = edge_a.edge_value
+        ln = edge_b.edge_value - edge_a.edge_value
+        log.info("Edge along {} has len {}".format(edge_a.edge_type, ln))
+
+        # LemonGraph uses a recursive function to parse edges
+        rdepth = sys.getrecursionlimit()
+        n_rdepth = None
+        if ln > rdepth:
+            log.warning("Length {} of edge {}".format(ln, edge_a.edge_type) +
+                        " is greater than recursion depth {} ".format(rdepth))
+            # TODO: fix this
+            log.warning("Skipping...")
+            return -1
+            n_rdepth = int(ln*1.15)
+            log.warning("Temporarily setting recursion depth to {}".format(
+                n_rdepth
+            ))
+            sys.setrecursionlimit(n_rdepth)
+
         # This will only add 1 edge if edge_a.incr == edge_b.incr
         while i <= edge_b.edge_value:
             query += '->@e(type="{}",value="{}")->N()'.format(
@@ -230,13 +249,25 @@ class LGGraph(prairiedog.graph.Graph):
         chains = tuple(txn.query(query))
         log.debug("Got chains {}".format(chains))
         # There should only be one chain per path
-        assert len(chains) == 1
+        try:
+            assert len(chains) == 1
+        except AssertionError as e:
+            log.fatal("Length of chains is {} != 1".format(len(chains)))
+            raise e
         # In the nested chain (a tuple), there should be at least 2 nodes
         chain = chains[0]
         assert len(chain) >= 2
 
         # Convert the chain into a tuple of Nodes and return
         nodes = tuple(self._parse_node(n) for n in chain)
+
+        # Reset recursion depth
+        if n_rdepth is not None:
+            log.warning("Resetting recursion depth to default of {}".format(
+                rdepth
+            ))
+            sys.setrecursionlimit(rdepth)
+
         return nodes
 
     def path(self, node_a: str, node_b: str) -> typing.Tuple[
@@ -277,6 +308,8 @@ class LGGraph(prairiedog.graph.Graph):
                                   "source edge has greater incr tag")
                         continue
                     path_nodes = self._find_path(src_edge, tgt_edge, txn)
+                    if path_nodes == -1:
+                        continue
                     if len(path_nodes) < 2:
                         raise GraphException(g=self)
                     log.debug("Found path of length {}".format(
@@ -285,8 +318,15 @@ class LGGraph(prairiedog.graph.Graph):
 
                     # Append
                     paths.append(path_nodes)
-                    paths_meta.append(
-                        {
-                            'edge_type': src_edge.edge_type
-                        })
+                    if src_edge.labels is not None:
+                        paths_meta.append(
+                            {
+                                'edge_type': src_edge.edge_type,
+                                **src_edge.labels
+                            })
+                    else:
+                        paths_meta.append(
+                            {
+                                'edge_type': src_edge.edge_type
+                            })
         return tuple(paths), tuple(paths_meta)
