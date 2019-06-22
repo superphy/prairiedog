@@ -51,11 +51,14 @@ rule pangenome:
         'outputs/graphref.pkl',
         'outputs/pangenome.g'
     run:
+        # Remove old memory usage logs
+        sizes = []
         try:
             os.remove('outputs/sizes.txt')
         except:
             pass
-        sizes = []
+
+        # Setup graph backend
         gr = GraphRef(MIC_CSV)
         if config['backend'] == 'networkx':
             print("Using NetworkX as graph backend")
@@ -69,7 +72,14 @@ rule pangenome:
                 n_labels=len(input),
                 n_nodes=4**K + 20 # We have some odd contigs that use N
             ))
-        pathlib.Path('outputs/subgraphs/').mkdir(parents=True, exist_ok=True)
+
+        # Setup pyinstrument profiler
+        if config['pyinstrument'] == "True":
+            profiler = Profiler()
+            profiler.start()
+        else:
+            profiler = None
+
         # Note that start=1 is only for the index, sgf still starts at
         # position 0
         for index, kmf in enumerate(input, start=1):
@@ -92,6 +102,12 @@ rule pangenome:
 
             # It seems the km object is being kept in memory for too long
             del km
+
+        # Stop pyinstrument profiler
+        if config['pyinstrument'] == "True":
+            profiler.stop()
+            print(profiler.output_text(unicode=True, color=True))
+
         print("rule 'pangenome' found max_num_nodes to be {}".format(
             gr.max_num_nodes))
         dill.dump(gr,

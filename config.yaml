@@ -7,3 +7,6 @@ graph_labels:
 
 backend:
     lemongraph
+
+pyinstrument:
+    False
