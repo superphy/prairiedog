@@ -1,5 +1,6 @@
 # Mostly from lemongraph/bench.py
 import logging
+import os
 from random import randint
 from time import time
 from concurrent.futures import Executor, ThreadPoolExecutor, as_completed
@@ -63,6 +64,7 @@ def _do_graphing(txn):
 
 
 def _do_basic_graphing(txn):
+    log.info("Doing graphing in pid {}".format(os.getpid()))
     a = txn.node(type='n', value='1')
     b = txn.node(type='n', value='2')
     c = txn.node(type='n', value='3')
@@ -88,7 +90,8 @@ def test_no_concurrency_lemongraph_task(lgr: LGGraph):
 
 
 def _do_concurrency(lgr: LGGraph, workers: int, executor: Executor,
-                    timeout: int = 20):
+                    timeout: int = 10):
+    log.info("Spinning up concurrency tasks in pid {}".format(os.getpid()))
     g = lgr.g
 
     ctxs = [g.transaction(write=True) for _ in range(workers)]
