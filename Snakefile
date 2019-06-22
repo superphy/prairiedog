@@ -106,7 +106,7 @@ rule pangenome:
             del km
 
         # Stop pyinstrument profiler
-        if config['pyinstrument'] == "True":
+        if config['pyinstrument'] is True:
             profiler.stop()
             print(profiler.output_text(unicode=True, color=True))
 
