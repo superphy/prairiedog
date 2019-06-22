@@ -94,13 +94,16 @@ def _do_concurrency(lgr: LGGraph, workers: int, executor: Executor,
     log.info("Spinning up concurrency tasks in pid {}".format(os.getpid()))
     g = lgr.g
 
+    log.info("Creating contexts and transactions...")
     ctxs = [g.transaction(write=True) for _ in range(workers)]
     txns = [ctxs[i].__enter__() for i in range(workers)]
+    log.info("Done creating contexts and transactions")
 
     futures = {
         executor.submit(_do_basic_graphing, txns[i]): ctxs[i]
         for i in range(len(txns))
     }
+    log.info("Submitted {} tasks to executor".format(len(futures)))
     for future in as_completed(futures, timeout=timeout):
         try:
             data = future.result()
