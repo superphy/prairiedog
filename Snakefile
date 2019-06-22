@@ -75,7 +75,8 @@ rule pangenome:
             ))
 
         # Setup pyinstrument profiler
-        if config['pyinstrument'] == "True":
+        if config['pyinstrument'] is True:
+            print("Setting up pyinstrument profiler...")
             profiler = Profiler()
             profiler.start()
         else:
