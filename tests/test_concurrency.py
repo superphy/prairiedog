@@ -2,7 +2,7 @@
 import logging
 from random import randint
 from time import time
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from prairiedog.lemon_graph import LGGraph
 
@@ -35,7 +35,7 @@ def _do_graphing(txn):
         if run == 1:
             elapsed = times[-1] - start
             print("total node insert time: %.3lf" % elapsed)
-            print("total node insert rate: %.3lf" % (1000000 // elapsed))
+            print("total node insert rate: %.3lf" % (1000000.0 / elapsed))
             txn.commit()
 
         start = times[-1]
@@ -45,7 +45,7 @@ def _do_graphing(txn):
         if run == 2:
             elapsed = times[-1] - start
             print("total prop insert time: %.3lf" % elapsed)
-            print("total prop insert rate: %.3lf" % (1000000 // elapsed))
+            print("total prop insert rate: %.3lf" % (1000000.0 / elapsed))
             txn.commit()
 
         start = times[-1]
@@ -56,7 +56,7 @@ def _do_graphing(txn):
         log.info("+1m edges")
         elapsed = times[-1] - start
         log.info("total edge insert time: %.3lf" % elapsed)
-        log.info("total edge insert rate: %.3lf" % (1000000 // elapsed))
+        log.info("total edge insert rate: %.3lf" % (1000000.0 / elapsed))
 
     assert True
 
@@ -71,17 +71,19 @@ def test_no_concurrency_lemongraph_task(lgr: LGGraph):
         _do_graphing(txn)
 
 
-def _spawn_txn(g):
-    ctx = g.transaction(write=True)
-    txn = ctx.__enter__()
-    yield txn
-    ctx.__exit__(None, None, None)
-
-
 def test_concurrency_lemongraph_txn_threads(lgr: LGGraph):
     g = lgr.g
     workers = 2
+
+    ctxs = [g.transaction(write=True) for _ in range(workers)]
+    txns = [ctxs[i].__enter__() for i in range(workers)]
+
     with ThreadPoolExecutor(max_workers=workers) as executor:
-        for _ in range(workers):
-            txn = _spawn_txn(g)
-            executor.submit(_do_graphing, txn)
+        futures = {
+            executor.submit(_do_graphing, txns[i]): ctxs[i]
+            for i in range(len(txns))
+        }
+        for future in as_completed(futures):
+            ctx = futures[future]
+            ctx.__exit__(None, None, None)
+
