@@ -21,6 +21,13 @@ GENOME_FILES = [
 ]
 
 
+GENOME_FILES_SHORTENED = [
+    "GCA_900015695.1_ED647_contigs_genomic_SHORTENED.fasta",
+    "SRR1060582_SHORTENED.fasta",
+    "SRR1106609_SHORTENED.fasta",
+]
+
+
 @pytest.fixture
 def genome_files():
     return GENOME_FILES
@@ -60,6 +67,11 @@ def all_genome_files(request):
 
 @pytest.fixture(scope="function", params=GENOME_FILES)
 def km(request):
+    return kmers.Kmers(request.param)
+
+
+@pytest.fixture(scope="function", params=GENOME_FILES_SHORTENED)
+def km_short(request):
     return kmers.Kmers(request.param)
 
 
