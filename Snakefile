@@ -8,6 +8,7 @@ import dill
 import pandas as pd
 import numpy as np
 from contextlib import contextmanager
+from pyinstrument import Profiler
 
 from prairiedog.kmers import Kmers
 from prairiedog.networkx_graph import NetworkXGraph
