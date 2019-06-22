@@ -33,7 +33,7 @@ class LGGraph(prairiedog.graph.Graph):
             self.db_path = DB_PATH
         log.debug("Creating LemonGraph with backing file {}".format(
             self.db_path))
-        self.g = LemonGraph.Graph(self.db_path, nosync=nosync,
+        self.g = LemonGraph.Graph(path=self.db_path, nosync=nosync,
                                   noreadahead=noreadahead, readonly=readonly)
         ret = LemonGraph.lib.graph_set_mapsize(self.g._graph, (4 << 30) * 10)
         assert (0 == ret)
@@ -46,7 +46,7 @@ class LGGraph(prairiedog.graph.Graph):
         Deletes the database file on garbage collection
         :return:
         """
-        if self.delete_on_exit:
+        if self.delete_on_exit is True:
             log.debug("Wiping LemonGraph with backing file {}".format(
                 self.db_path))
             self.clear()
