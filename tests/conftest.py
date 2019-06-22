@@ -21,6 +21,13 @@ GENOME_FILES = [
 ]
 
 
+GENOME_FILES_SHORTENED = [
+    "tests/GCA_900015695.1_ED647_contigs_genomic_SHORTENED.fasta",
+    "tests/SRR1060582_SHORTENED.fasta",
+    "tests/SRR1106609_SHORTENED.fasta",
+]
+
+
 @pytest.fixture
 def genome_files():
     return GENOME_FILES
@@ -63,6 +70,11 @@ def km(request):
     return kmers.Kmers(request.param)
 
 
+@pytest.fixture(scope="function", params=GENOME_FILES_SHORTENED)
+def km_short(request):
+    return kmers.Kmers(request.param)
+
+
 def _lgr():
     fd, path = tempfile.mkstemp()
     os.close(fd)
@@ -84,6 +96,7 @@ def lgr():
     return _lgr()
 
 
+# TODO: unused
 @pytest.fixture
 def memory_profiler():
     """
