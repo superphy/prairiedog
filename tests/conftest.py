@@ -22,9 +22,9 @@ GENOME_FILES = [
 
 
 GENOME_FILES_SHORTENED = [
-    "GCA_900015695.1_ED647_contigs_genomic_SHORTENED.fasta",
-    "SRR1060582_SHORTENED.fasta",
-    "SRR1106609_SHORTENED.fasta",
+    "tests/GCA_900015695.1_ED647_contigs_genomic_SHORTENED.fasta",
+    "tests/SRR1060582_SHORTENED.fasta",
+    "tests/SRR1106609_SHORTENED.fasta",
 ]
 
 
