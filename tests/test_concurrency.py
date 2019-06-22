@@ -35,7 +35,7 @@ def _do_graphing(txn):
         if run == 1:
             elapsed = times[-1] - start
             print("total node insert time: %.3lf" % elapsed)
-            print("total node insert rate: %.3lf" % (1000000 / elapsed))
+            print("total node insert rate: %.3lf" % (1000000 // elapsed))
             txn.commit()
 
         start = times[-1]
@@ -45,7 +45,7 @@ def _do_graphing(txn):
         if run == 2:
             elapsed = times[-1] - start
             print("total prop insert time: %.3lf" % elapsed)
-            print("total prop insert rate: %.3lf" % (1000000 / elapsed))
+            print("total prop insert rate: %.3lf" % (1000000 // elapsed))
             txn.commit()
 
         start = times[-1]
@@ -56,7 +56,7 @@ def _do_graphing(txn):
         log.info("+1m edges")
         elapsed = times[-1] - start
         log.info("total edge insert time: %.3lf" % elapsed)
-        log.info("total edge insert rate: %.3lf" % (1000000 / elapsed))
+        log.info("total edge insert rate: %.3lf" % (1000000 // elapsed))
 
     assert True
 
@@ -80,4 +80,8 @@ def _spawn_txn(g):
 
 def test_concurrency_lemongraph_txn_threads(lgr: LGGraph):
     g = lgr.g
-    pass
+    workers = 2
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        for _ in range(workers):
+            txn = _spawn_txn(g)
+            executor.submit(_do_graphing, txn)
