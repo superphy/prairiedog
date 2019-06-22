@@ -10,7 +10,7 @@ from prairiedog.lemon_graph import LGGraph
 # If cli is imported, re-setup logging to level INFO
 setup_logging("INFO")
 
-pdg = Prairiedog(g=LGGraph())
+pdg = Prairiedog(g=LGGraph(readonly=True))
 
 
 @click.command()
