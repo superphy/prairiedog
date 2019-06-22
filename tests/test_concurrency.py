@@ -2,7 +2,7 @@
 import logging
 from random import randint
 from time import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import Executor, ThreadPoolExecutor, as_completed
 
 from prairiedog.lemon_graph import LGGraph
 
@@ -59,6 +59,22 @@ def _do_graphing(txn):
         log.info("total edge insert rate: %.3lf" % (1000000.0 / elapsed))
 
     assert True
+    return True
+
+
+def _do_basic_graphing(txn):
+    a = txn.node(type='n', value='1')
+    b = txn.node(type='n', value='2')
+    c = txn.node(type='n', value='3')
+
+    e1 = txn.edge(src=a, tgt=b, type='x', value='y')
+    e1['incr'] = 0
+
+    e2 = txn.edge(src=b, tgt=c, type='x', value='y')
+    e2['incr'] = 1
+
+    assert True
+    return True
 
 
 def test_no_concurrency_lemongraph_task(lgr: LGGraph):
@@ -68,22 +84,33 @@ def test_no_concurrency_lemongraph_task(lgr: LGGraph):
     """
     g = lgr.g
     with g.transaction(write=True) as txn:
-        _do_graphing(txn)
+        _do_basic_graphing(txn)
 
 
-def test_concurrency_lemongraph_txn_threads(lgr: LGGraph):
+def _do_concurrency(lgr: LGGraph, workers: int, executor: Executor):
     g = lgr.g
-    workers = 2
 
     ctxs = [g.transaction(write=True) for _ in range(workers)]
     txns = [ctxs[i].__enter__() for i in range(workers)]
 
-    with ThreadPoolExecutor(max_workers=workers) as executor:
-        futures = {
-            executor.submit(_do_graphing, txns[i]): ctxs[i]
-            for i in range(len(txns))
-        }
-        for future in as_completed(futures):
+    futures = {
+        executor.submit(_do_basic_graphing, txns[i]): ctxs[i]
+        for i in range(len(txns))
+    }
+    for future in as_completed(futures):
+        try:
+            data = future.result()
+            log.info(('Future result {}'.format(data)))
+        except Exception as exc:
+            log.fatal('Future generated an exception: %s' % exc)
+            raise exc
+        else:
             ctx = futures[future]
             ctx.__exit__(None, None, None)
+
+
+def test_concurrency_lemongraph_txn_threads(lgr: LGGraph):
+    workers = 2
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        _do_concurrency(lgr, workers, executor)
 
