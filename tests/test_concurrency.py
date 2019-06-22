@@ -2,6 +2,7 @@
 import logging
 from random import randint
 from time import time
+from concurrent.futures import ThreadPoolExecutor
 
 from prairiedog.lemon_graph import LGGraph
 
@@ -70,6 +71,13 @@ def test_no_concurrency_lemongraph_task(lgr: LGGraph):
         _do_graphing(txn)
 
 
-def test_concurrency_lemongraph(lgr: LGGraph):
+def _spawn_txn(g):
+    ctx = g.transaction(write=True)
+    txn = ctx.__enter__()
+    yield txn
+    ctx.__exit__(None, None, None)
+
+
+def test_concurrency_lemongraph_txn_threads(lgr: LGGraph):
     g = lgr.g
     pass

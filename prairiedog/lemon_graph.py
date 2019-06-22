@@ -24,13 +24,6 @@ class LGGraph(prairiedog.graph.Graph):
     LemonGraph defines directed edges.
     """
 
-    @staticmethod
-    def init_lemongraph(db_path: str):
-        g = LemonGraph.Graph(db_path)
-        ret = LemonGraph.lib.graph_set_mapsize(g._graph, (4 << 30) * 10)
-        assert (0 == ret)
-        return g
-
     def __init__(self, db_path: str = None, delete_on_exit=False):
         if db_path is not None:
             self.db_path = db_path
@@ -39,7 +32,9 @@ class LGGraph(prairiedog.graph.Graph):
             self.db_path = DB_PATH
         log.debug("Creating LemonGraph with backing file {}".format(
             self.db_path))
-        self.g = self.init_lemongraph(db_path)
+        self.g = LemonGraph.Graph(self.db_path)
+        ret = LemonGraph.lib.graph_set_mapsize(self.g._graph, (4 << 30) * 10)
+        assert (0 == ret)
         self._ctx = None
         self._txn = None
         self.delete_on_exit = delete_on_exit
