@@ -16,26 +16,13 @@ def test_snakefile_full(setup_snakefile):
     assert True
 
 
-def test_snakefile_full_pyinstrument_true(setup_snakefile):
+def test_snakefile_full_pyinstrument(setup_snakefile):
     # Set the config MIC csv to use our test one
     mic_csv = 'tests/public_mic_class_dataframe_test.csv'
 
     # Use Snakemake to drive graph creation for two files
     subprocess.run(
         'snakemake --config graph_labels={} --config pyinstrument=True'.format(
-            mic_csv),
-        check=True, shell=True)
-
-    assert True
-
-
-def test_snakefile_full_pyinstrument_false(setup_snakefile):
-    # Set the config MIC csv to use our test one
-    mic_csv = 'tests/public_mic_class_dataframe_test.csv'
-
-    # Use Snakemake to drive graph creation for two files
-    subprocess.run(
-        'snakemake --config graph_labels={} --config pyinstrument=False'.format(
             mic_csv),
         check=True, shell=True)
 
