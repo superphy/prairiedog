@@ -13,3 +13,5 @@ pytest-runner==4.2
 
 pytest-cov
 codecov
+
+pyinstrument

@@ -84,6 +84,7 @@ def lgr():
     return _lgr()
 
 
+# TODO: unused
 @pytest.fixture
 def memory_profiler():
     """
