@@ -339,6 +339,22 @@ def test_graph_connected_repeats_full_path(g: Graph):
 
     assert len(paths) == 3
 
+    c = 0
+    for path in paths:
+        assert path[0].value == "ABC"
+        assert path[-1].value == "CDE"
+        if len(path) == 3:
+            assert path[1].value == "BCD"
+            # There are 2 copies of this
+            c += 1
+        elif len(path) == 6:
+            assert path[1].value == "BCD"
+            assert path[2].value == "CDE"
+            assert path[3].value == "ABC"
+            assert path[4].value == "BCD"
+            assert path[5].value == "CDE"
+
+    assert c == 2
 
 def test_graph_connected_repeats_end_path(g: Graph):
     n1 = Node(value="ABC")
