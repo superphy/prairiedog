@@ -129,3 +129,8 @@ def lg() -> LGGraph:
     """
     g = LGGraph('tests/pangenome.lemongraph', delete_on_exit=False)
     return g
+
+
+@pytest.fixture(scope="function", params=[1, 2])
+def n_workers(request):
+    return request.param

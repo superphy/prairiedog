@@ -87,7 +87,8 @@ def test_no_concurrency_lemongraph_task(lgr: LGGraph):
         _do_basic_graphing(txn)
 
 
-def _do_concurrency(lgr: LGGraph, workers: int, executor: Executor):
+def _do_concurrency(lgr: LGGraph, workers: int, executor: Executor,
+                    timeout: int = 20):
     g = lgr.g
 
     ctxs = [g.transaction(write=True) for _ in range(workers)]
@@ -97,7 +98,7 @@ def _do_concurrency(lgr: LGGraph, workers: int, executor: Executor):
         executor.submit(_do_basic_graphing, txns[i]): ctxs[i]
         for i in range(len(txns))
     }
-    for future in as_completed(futures):
+    for future in as_completed(futures, timeout=timeout):
         try:
             data = future.result()
             log.info(('Future result {}'.format(data)))
@@ -109,8 +110,7 @@ def _do_concurrency(lgr: LGGraph, workers: int, executor: Executor):
             ctx.__exit__(None, None, None)
 
 
-def test_concurrency_lemongraph_txn_threads(lgr: LGGraph):
-    workers = 2
-    with ThreadPoolExecutor(max_workers=workers) as executor:
-        _do_concurrency(lgr, workers, executor)
+def test_concurrency_lemongraph_txn_threads(lgr: LGGraph, n_workers: int):
+    with ThreadPoolExecutor(max_workers=n_workers) as executor:
+        _do_concurrency(lgr, n_workers, executor)
 
