@@ -2,15 +2,21 @@
 
 """Console script for prairiedog."""
 import click
+import os
 
 from prairiedog.logger import setup_logging
 from prairiedog.prairiedog import Prairiedog
-from prairiedog.lemon_graph import LGGraph
+from prairiedog.lemon_graph import LGGraph, DB_PATH
 
 # If cli is imported, re-setup logging to level INFO
 setup_logging("INFO")
 
-pdg = Prairiedog(g=LGGraph())
+# If the path doesn't exist (ie. a tempfile for tests), LemonGraph will
+# error out if you set readonly
+if os.path.exists(DB_PATH):
+    pdg = Prairiedog(g=LGGraph(readonly=True))
+else:
+    pdg = Prairiedog(g=LGGraph(readonly=False))
 
 
 @click.command()
