@@ -35,7 +35,7 @@ class LGGraph(prairiedog.graph.Graph):
             self.db_path))
         self.g = LemonGraph.Graph(path=self.db_path, nosync=nosync,
                                   noreadahead=noreadahead, readonly=readonly)
-        ret = LemonGraph.lib.graph_set_mapsize(self.g._graph, (4 << 30) * 10)
+        ret = LemonGraph.lib.graph_set_mapsize(self.g._graph, (20 << 30) * 10)
         assert (0 == ret)
         self._ctx = None
         self._txn = None
