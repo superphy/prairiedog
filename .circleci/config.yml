@@ -51,7 +51,7 @@ jobs:
             - run:
                   name: install additional packages for pypy3
                   command: |
-                      apt-get install -y libblas-dev liblapack-dev
+                      apt-get install -y libatlas-base-dev libblas-dev liblapack-dev
 
 
             - save_cache:
