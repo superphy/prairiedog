@@ -49,11 +49,6 @@ jobs:
                       pip install --upgrade cffi
                       cd lemongraph && python setup.py install
 
-#            - run:
-#                  name: install additional packages for pypy3
-#                  command: |
-#                      apt-get update -y && apt-get install -y libatlas-base-dev
-
 #            - save_cache:
 #                  paths:
 #                      - ./venv
