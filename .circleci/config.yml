@@ -49,10 +49,15 @@ jobs:
                       pip install --upgrade cffi
                       cd lemongraph && python setup.py install
 
-#            - save_cache:
-#                  paths:
-#                      - ./venv
-#                  key: v1-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "requirements_dev.txt" }}
+#            - run:
+#                  name: install additional packages for pypy3
+#                  command: |
+#                      apt-get update -y && apt-get install -y libatlas-base-dev libblas-dev liblapack-dev
+
+            - save_cache:
+                  paths:
+                      - ./venv
+                  key: v1-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "requirements_dev.txt" }}
 
             # run tests!
             # this example uses Django's built-in test-runner
