@@ -73,7 +73,7 @@ jobs:
                       pypy3 -m pip install --upgrade pip
                       pypy3 -m pip -V
                       wget https://bitbucket.org/pypy/pypy/downloads/pypy3.5-v7.0.0-linux64.tar.bz2
-                      apt-get install -y pypy3.5-v7.0.0-linux64.tar.bz2
+                      apt-get install -y ./pypy3.5-v7.0.0-linux64.tar.bz2
                       tox -v
 
             - run:
