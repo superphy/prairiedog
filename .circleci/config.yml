@@ -67,8 +67,11 @@ jobs:
                   name: run tests
                   command: |
                       pip install --upgrade pip
+                      pypy3 -m ensurepip
+                      pypy3 -V
+                      pypy3 -m pip -V
                       tox -v
-                      
+
             - run:
                   name: codecov
                   command: |
