@@ -70,7 +70,7 @@ jobs:
                       pypy3 -m ensurepip
                       pypy3 -V
                       pypy3 -m pip -V
-                      pypy3 -m pip pip install --upgrade pip
+                      pypy3 -m pip install --upgrade pip
                       pypy3 -m pip -V
                       tox -v
 
