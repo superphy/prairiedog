@@ -48,10 +48,10 @@ jobs:
                       apt-get update -y && apt-get install -y libffi-dev zlib1g-dev python-dev python-cffi
                       cd lemongraph && python setup.py install
 
-#            - run:
-#                  name: install additional packages for pypy3
-#                  command: |
-#                      apt-get update -y && apt-get install -y libatlas-base-dev libblas-dev liblapack-dev
+            - run:
+                  name: install additional packages for pypy3
+                  command: |
+                      apt-get update -y && apt-get install -y libatlas-base-dev
 
             - save_cache:
                   paths:
