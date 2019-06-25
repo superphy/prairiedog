@@ -45,7 +45,7 @@ jobs:
                   name: install lemongraph
                   command: |
                       . venv/bin/activate
-                      apt-get update -y && apt-get install -y libffi-dev zlib1g-dev python-dev python-cffi libatlas-base-dev
+                      apt-get update -y && apt-get install -y libffi-dev zlib1g-dev python-dev python-cffi
                       cd lemongraph && python setup.py install
 
 #            - run:
