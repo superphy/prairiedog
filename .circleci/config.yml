@@ -45,7 +45,7 @@ jobs:
                   name: install lemongraph
                   command: |
                       . venv/bin/activate
-                      apt-get update -y && apt-get install -y libffi-dev zlib1g-dev python-dev python-cffi
+                      apt-get update -y && apt-get install -y libffi-dev zlib1g-dev python-dev python-cffi libatlas-base-dev
                       cd lemongraph && python setup.py install
 
 #            - run:
@@ -66,8 +66,9 @@ jobs:
             - run:
                   name: run tests
                   command: |
-                      . venv/bin/activate
-                      pip install tox
+#                      . venv/bin/activate
+#                      pip install tox
+                      pip install --upgrade pip
                       tox -v
             - run:
                   name: codecov
