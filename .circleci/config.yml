@@ -53,10 +53,10 @@ jobs:
 #                  command: |
 #                      apt-get update -y && apt-get install -y libatlas-base-dev
 
-            - save_cache:
-                  paths:
-                      - ./venv
-                  key: v1-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "requirements_dev.txt" }}
+#            - save_cache:
+#                  paths:
+#                      - ./venv
+#                  key: v1-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "requirements_dev.txt" }}
 
             # run tests!
             # this example uses Django's built-in test-runner
