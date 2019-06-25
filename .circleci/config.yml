@@ -66,10 +66,9 @@ jobs:
             - run:
                   name: run tests
                   command: |
-#                      . venv/bin/activate
-#                      pip install tox
                       pip install --upgrade pip
                       tox -v
+                      
             - run:
                   name: codecov
                   command: |
