@@ -1,7 +1,7 @@
 import pytest
 import logging
 
-from pyinstrument import Profiler
+from prairiedog.profiler import Profiler
 
 from prairiedog.subgraph_ref import SubgraphRef
 from prairiedog.graph_ref import GraphRef
