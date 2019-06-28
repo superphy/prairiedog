@@ -20,7 +20,7 @@ if platform.python_implementation() == 'PyPy':
             pass
 
         def output_text(self, unicode, color):
-            pass
+            return ""
 else:
     import pyinstrument
     Profiler = pyinstrument.Profiler
