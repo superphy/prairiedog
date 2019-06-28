@@ -31,7 +31,7 @@ class LGGraph(prairiedog.graph.Graph):
         else:
             os.makedirs(prairiedog.config.OUTPUT_DIRECTORY, exist_ok=True)
             self.db_path = DB_PATH
-        log.debug("Creating LemonGraph with backing file {}".format(
+        log.info("Initializing LemonGraph object with backing file {}".format(
             self.db_path))
         self.g = LemonGraph.Graph(path=self.db_path, nosync=nosync,
                                   noreadahead=noreadahead, readonly=readonly)
