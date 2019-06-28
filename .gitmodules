@@ -3,5 +3,5 @@
 	url = https://github.com/superphy/diffpool.git
 [submodule "lemongraph"]
 	path = lemongraph
-	url = https://github.com/NationalSecurityAgency/lemongraph.git
+	url = https://github.com/superphy/lemongraph.git
 	ignore = dirty
