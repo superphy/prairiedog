@@ -34,9 +34,10 @@
 
 \begin{abstract}
 
-Current methods for pan-genome creation, which offer a callable mapping of all genes within a sample population, are based on the identification of known core and accesory genes and produce one-off results which can not be updated as new samples are sequenced.
-The lack of an update option is because of compactation steps which reduce the final pangenome size, but prevents individual whole-genome sequence (WGS) samples from being reconstructed from a computed pan-genome.
-Here we present a method for pan-genome creation based on a directed multigraph that functions similarly to common pan-genomes, supports updating the pan-genome in linear time, and returns source attribution during variant calling.
+Current methods for pan-genome creation, which offer a callable mapping of all genes within a sample population, are based on the prior identification of known genes and produce one-off results which can not be updated as new samples are sequenced.
+Compactation steps, which reduce the final output size and are common in pan-genome creation software, prevent updating the pangome after creation and individual whole-genome sequence samples from being reconstructed from a computed pan-genome.
+Instead, an optimized graph structure could support traditional pan-genome queries even with a large output size.
+Here we present a method for pan-genome creation based on an uncompressed De-Bruijn graph with edge metadata that functions similarly to common pan-genomes, supports updating the pan-genome in linear time, and returns source attribution during variant calling.
 
 
 \end{abstract}
@@ -44,6 +45,21 @@ Here we present a method for pan-genome creation based on a directed multigraph 
 
 \section{Introduction}
 
+% Paragraph on pan-genomes
+Pan-genomes, the representation of all genes within a population, are important for distinguishing genetic components to observed phenotypes.
+Traditional phylogenetic trees used to distinguish different subtypes by branch points may be poor genetic determinants in some species \cite{vernikos2015ten} because of the high degree of genetic exchange \cite{medini2005microbial}.
+Instead, pan-genomes model a clade as based off \textit{core} conserved regions along with variable \textit{accesory} regions.
+
+% Paragraph on graph structures
+% text...
+
+% Paragraph on need to constantly update
+As new samples are sequenced however, the number of variants in accesory genes are expected to rise even if the core genes remain unchanged \cite{medini2005microbial}.
+This is particularly relevant for some species such as \textit{Escherichia coli.} where the core genome only represents a small percentage of the overall genome \cite{fukiya2004extensive}.
+Futhermore, for public health efforts and outbreak surveillance, pan-genomes data structures must be updatable in a reasonable timeframe.
+The update requirement precludes a full re-computation of the pan-genome as such an approach would not scale to an ever growing dataset of genome samples.
+
+% Paragraph for lead-in
 % text...
 
 % **************************************************************
@@ -52,17 +68,22 @@ Here we present a method for pan-genome creation based on a directed multigraph 
 \enlargethispage{-65.1pt}
 % **************************************************************
 
-\section{FUNCTIONALITY}
+\section{Related Work}
 
 
-\section{IMPLEMENTATION}
+% Panseq
+% PGAP ???
+% Roary
+% SplitMEM
 
-\section{RESULTS}
+\section{Implementation}
 
-\section{DISCUSSION}
+\section{Results}
+
+\section{Discussion}
 
 
-\section{CONCLUSIONS}
+\section{Conclusions}
 
 
 \textit{Conflict of interest}. None declared.
