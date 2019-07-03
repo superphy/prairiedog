@@ -36,7 +36,7 @@ class Dgraph(Graph):
         nquads = """
         _:{src} <km> "{src}" .
         _:{tgt} <km> "{tgt}" .
-        _:{src} <e> _:{tgt} (type={type}, value={value}) .
+        _:{src} <e> _:{tgt} (type="{type}", value={value}) .
         """.format(src=edge.src, tgt=edge.tgt, type=edge.edge_type,
                    value=edge.edge_value)
         self.txn.mutate(set_nquads=nquads)
