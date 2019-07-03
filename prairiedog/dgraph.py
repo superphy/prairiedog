@@ -19,6 +19,7 @@ class Dgraph(Graph):
         self.client_stub = pydgraph.DgraphClientStub(DGRAPH_URL)
         self.client = pydgraph.DgraphClient(self.client_stub)
         self._txn = None
+        self.nquads = ""
 
     @property
     def txn(self):
@@ -33,13 +34,12 @@ class Dgraph(Graph):
         pass
 
     def add_edge(self, edge: Edge, echo: bool = True) -> typing.Optional[Edge]:
-        nquads = """
+        self.nquads += """
         _:{src} <km> "{src}" .
         _:{tgt} <km> "{tgt}" .
         _:{src} <e> _:{tgt} (type="{type}", value={value}) .
         """.format(src=edge.src, tgt=edge.tgt, type=edge.edge_type,
                    value=edge.edge_value)
-        self.txn.mutate(set_nquads=nquads)
 
     def clear(self):
         op = pydgraph.Operation(drop_all=True)
@@ -57,8 +57,10 @@ class Dgraph(Graph):
         pass
 
     def save(self, f: str = None):
+        self.txn.mutate(set_nquads=self.nquads)
         self.txn.commit()
         self._txn = None
+        self.nquads = ''
 
     @property
     def edgelist(self) -> typing.Generator:
