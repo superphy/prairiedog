@@ -34,8 +34,8 @@ class Dgraph(Graph):
 
     def add_edge(self, edge: Edge, echo: bool = True) -> typing.Optional[Edge]:
         nquads = """
-        _:{src} <km> {src} .
-        _:{tgt} <km> {tgt} .
+        _:{src} <km> "{src}" .
+        _:{tgt} <km> "{tgt}" .
         _:{src} <e> _:{tgt} (type={type}, value={value}) .
         """.format(src=edge.src, tgt=edge.tgt, type=edge.edge_type,
                    value=edge.edge_value)
