@@ -20,6 +20,7 @@ class Dgraph(Graph):
         self.client = pydgraph.DgraphClient(self.client_stub)
         self._txn = None
         self.nquads = ""
+        log.debug("Done initializing Dgraph client")
 
     @property
     def txn(self):
