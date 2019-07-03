@@ -15,6 +15,7 @@ from prairiedog.networkx_graph import NetworkXGraph
 from prairiedog.graph_ref import GraphRef
 from prairiedog.subgraph_ref import SubgraphRef
 from prairiedog.lemon_graph import LGGraph, DB_PATH
+from prairiedog.dgraph import Dgraph
 
 configfile: "config.yaml"
 
@@ -66,6 +67,9 @@ rule pangenome:
         elif config['backend'] == 'lemongraph':
             print("Using LemonGraph as graph backend")
             sg = SubgraphRef(LGGraph())
+        elif config['backend'] == 'dgraph':
+            print("Using Dgraph as graph backend")
+            sg = SubgraphRef(Dgraph())
         else:
             raise Exception("No graph backend found")
 
@@ -85,7 +89,7 @@ rule pangenome:
             km = dill.load(open(kmf,'rb'))
             gr.index_kmers(km)
             sg.update_graph(km, gr)
-            if config['backend'] == 'lemongraph':
+            if config['backend'] in ('lemongraph', 'dgraph'):
                 sg.save(output[1])
 
             # Calculate rough memory usage
@@ -111,6 +115,8 @@ rule pangenome:
                     open('outputs/graphref.pkl','wb'), protocol=4)
         if config['backend'] == 'lemongraph':
             shutil.copy2(DB_PATH, output[1])
+        elif config['backend'] == 'dgraph':
+            open(output[1], 'w').close()
         else:
             sg.save(output[1])
 

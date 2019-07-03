@@ -10,3 +10,4 @@ dgl
 torch
 psutil
 pyinstrument
+pydgraph
