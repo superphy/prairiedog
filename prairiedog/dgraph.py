@@ -24,6 +24,7 @@ class Dgraph(Graph):
     def txn(self):
         if self._txn is None:
             self._txn = self.client.txn()
+            return self._txn
         else:
             return self._txn
 
