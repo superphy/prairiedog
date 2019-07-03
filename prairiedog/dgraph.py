@@ -25,8 +25,9 @@ class Dgraph(Graph):
     @property
     def txn(self):
         if self._txn is None:
+            log.debug("Creating new txn...")
             self._txn = self.client.txn()
-            log.debug("Creating new txm")
+            log.debug("Created new txn")
             return self._txn
         else:
             return self._txn
