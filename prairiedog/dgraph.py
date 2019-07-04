@@ -39,7 +39,7 @@ class Dgraph(Graph):
         for kmer in possible_kmers(k):
             nquads += ' _:{kmer} <km> "{kmer}" .'.format(kmer=kmer)
             c += 1
-            if c % 1000 == 0:
+            if c % 333 == 0:
                 self.mutate(nquads)
                 nquads = ""
         self.mutate(nquads)
