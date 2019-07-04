@@ -6,6 +6,7 @@ import pydgraph
 from prairiedog.edge import Edge
 from prairiedog.graph import Graph
 from prairiedog.node import Node
+from prairiedog.kmers import possible_kmers
 
 log = logging.getLogger("prairiedog")
 
@@ -32,14 +33,18 @@ class Dgraph(Graph):
         else:
             return self._txn
 
+    def preload(self, k: int = 11):
+        nquads = ""
+        for kmer in possible_kmers(k):
+            nquads += ' _:{kmer} <km> "{kmer}" .'.format(kmer=kmer)
+        self.mutate(nquads)
+
     def upsert_node(self, node: Node, echo: bool = True) -> typing.Optional[
             Node]:
         pass
 
     def add_edge(self, edge: Edge, echo: bool = True) -> typing.Optional[Edge]:
         self.nquads += """
-        _:{src} <km> "{src}" .
-        _:{tgt} <km> "{tgt}" .
         _:{src} <e> _:{tgt} (type="{type}", value={value}) .
         """.format(src=edge.src, tgt=edge.tgt, type=edge.edge_type,
                    value=edge.edge_value)
@@ -59,10 +64,13 @@ class Dgraph(Graph):
     def get_labels(self, node: str) -> dict:
         pass
 
-    def save(self, f: str = None):
-        self.txn.mutate(set_nquads=self.nquads)
+    def mutate(self, nquads: str):
+        self.txn.mutate(set_nquads=nquads)
         self.txn.commit()
         self._txn = None
+
+    def save(self, f: str = None):
+        self.mutate(self.nquads)
         self.nquads = ''
 
     @property

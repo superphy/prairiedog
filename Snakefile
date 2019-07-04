@@ -45,9 +45,19 @@ rule kmers:
         km = Kmers(input[0],K)
         dill.dump(km, open(output[0],'wb'))
 
+rule preload:
+    output:
+        'outputs/preloaded.txt'
+    run:
+        if config['backend'] == 'dgraph':
+            dg = Dgraph()
+            dg.preload(K)
+        open(output[0], 'w').close()
+
 rule pangenome:
     input:
-        'outputs/kmers/{input}.pkl'
+        'outputs/kmers/{input}.pkl',
+        'outputs/preloaded.txt'
     output:
         'outputs/pangenome_{input}.g'
     run:

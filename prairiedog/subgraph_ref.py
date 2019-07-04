@@ -58,13 +58,22 @@ class SubgraphRef(GRef):
                             tgt=node2_label,
                             edge_type='{} in {}'.format(header2, str(km)),
                             edge_value=edge_c,
-                            labels={
-                                'f': str(km),
-                                'hd': header2
-                            }
                         ),
                         echo=False
                     )
+                    # self.graph.add_edge(
+                    #     Edge(
+                    #         src=node1_label,
+                    #         tgt=node2_label,
+                    #         edge_type='{} in {}'.format(header2, str(km)),
+                    #         edge_value=edge_c,
+                    #         labels={
+                    #             'f': str(km),
+                    #             'hd': header2
+                    #         }
+                    #     ),
+                    #     echo=False
+                    # )
                 except Exception as e:
                     log.fatal(
                         "Failed to add edge between {} and {}".format(
