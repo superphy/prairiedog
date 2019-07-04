@@ -77,6 +77,7 @@ class SubgraphRef(GRef):
                 if c % 100000 == 0:
                     log.debug("{}/{}, {}%".format(
                         c, len(km), int(c/len(km)*100)))
+                    self.graph.save()
             # At this point, we're out of kmers on that contig
             # The loop will check if there's still kmers, and reset kmer1
         en = time.time()
