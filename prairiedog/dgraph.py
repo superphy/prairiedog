@@ -1,5 +1,6 @@
 import logging
 import typing
+import time
 
 import pydgraph
 
@@ -22,6 +23,9 @@ class Dgraph(Graph):
         self._txn = None
         self.nquads = ""
         log.debug("Done initializing Dgraph client")
+
+    def __del__(self):
+        self.client_stub.close()
 
     @property
     def txn(self):
@@ -69,10 +73,22 @@ class Dgraph(Graph):
     def get_labels(self, node: str) -> dict:
         pass
 
-    def mutate(self, nquads: str):
-        self.txn.mutate(set_nquads=nquads)
-        self.txn.commit()
-        self._txn = None
+    def mutate(self, nquads: str, depth: int = 1, max_depth: int = 3):
+        try:
+            self.txn.mutate(set_nquads=nquads)
+            self.txn.commit()
+            self._txn = None
+        except Exception as e:
+            if isinstance(e, pydgraph.AbortedError) and depth <= max_depth:
+                log.debug("Ran into exception {}, retrying {}/{}...".format(
+                    e, depth, max_depth
+                ))
+                time.sleep(1)
+                self.mutate(nquads=nquads, depth=depth+1)
+            else:
+                raise e
+        finally:
+            self.txn.discard()
 
     def save(self, f: str = None):
         self.mutate(self.nquads)
