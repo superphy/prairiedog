@@ -26,7 +26,7 @@ class SubgraphRef(GRef):
         return "SubgraphRef"
 
     def update_graph(self, km: Kmers, gr: GraphRef, encode: bool = False,
-                     buffer: int = 10000) -> int:
+                     buffer: int = 333) -> int:
         log.debug(
             "Starting to graph {} in pid {}".format(
                 km, os.getpid()))
@@ -75,7 +75,7 @@ class SubgraphRef(GRef):
                 c += 1
                 edge_c += 1
                 if c % buffer == 0:
-                    log.debug("Committing txn...")
+                    # log.debug("Committing txn...")
                     self.graph.save()
                 if c % 100000 == 0:
                     log.debug("{}/{}, {}%".format(
