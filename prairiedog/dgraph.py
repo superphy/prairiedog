@@ -89,6 +89,7 @@ class Dgraph(Graph):
                 raise e
         finally:
             self.txn.discard()
+            self._txn = None
 
     def save(self, f: str = None):
         self.mutate(self.nquads)
