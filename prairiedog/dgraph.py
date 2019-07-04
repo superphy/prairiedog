@@ -79,7 +79,7 @@ class Dgraph(Graph):
             self.txn.commit()
             self._txn = None
         except Exception as e:
-            if isinstance(e, pydgraph.AbortedError) and depth <= max_depth:
+            if depth <= max_depth:
                 log.debug("Ran into exception {}, retrying {}/{}...".format(
                     e, depth, max_depth
                 ))
