@@ -82,7 +82,7 @@ rule pangenome:
 
         # Note that start=1 is only for the index, sgf still starts at
         # position 0
-        for index, kmf in enumerate(input, start=1):
+        # for index, kmf in enumerate(input, start=1):
         # print("rule 'pangenome' on Kmer {} / {}".format(
         #     index, len(input)))
         km = dill.load(open(input[0],'rb'))
