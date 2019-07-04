@@ -3,6 +3,7 @@ import typing
 import time
 
 import pydgraph
+import grpc
 
 from prairiedog.edge import Edge
 from prairiedog.graph import Graph
@@ -73,29 +74,30 @@ class Dgraph(Graph):
     def get_labels(self, node: str) -> dict:
         pass
 
-    DEFAULT_DEPTH = 1
-    def mutate(self, nquads: str, depth: int = DEFAULT_DEPTH, max_depth: int = 3):
+    def mutate(self, nquads: str, depth: int = 1, max_depth: int = 3):
         try:
             self.txn.mutate(set_nquads=nquads)
             self.txn.commit()
             self._txn = None
-            if depth > Dgraph.DEFAULT_DEPTH:
+            if depth > 1:
                 log.debug("Attempt {}/{} completed successfully".format(
                     depth, max_depth
                 ))
-        except Exception as e:
+        except grpc.RpcError as rpc_error_call:
             if depth <= max_depth:
                 log.debug("Ran into exception {}, retrying {}/{}...".format(
-                    e, depth, max_depth
+                    rpc_error_call, depth, max_depth
                 ))
-                log.debug("Exception type was {}".format(type(e)))
                 time.sleep(1)
                 self.mutate(nquads=nquads, depth=depth+1)
-            else:
-                raise e
+        except Exception as e:
+            log.debug("Exception type was {}".format(type(e)))
+            raise e
         finally:
-            self.txn.discard()
-            self._txn = None
+            # Only discard at root
+            if depth == 1:
+                self.txn.discard()
+                self._txn = None
 
     def save(self, f: str = None):
         self.mutate(self.nquads)
