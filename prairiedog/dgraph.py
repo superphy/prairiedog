@@ -76,6 +76,9 @@ class Dgraph(Graph):
 
     def mutate(self, nquads: str, depth: int = 1, max_depth: int = 3):
         try:
+            if depth > 1:
+                log.debug("Trying mutation attempt {}/{}".format(depth,
+                                                                 max_depth))
             self.txn.mutate(set_nquads=nquads)
             self.txn.commit()
             self._txn = None
