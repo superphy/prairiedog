@@ -25,8 +25,8 @@ class SubgraphRef(GRef):
     def __str__(self):
         return "SubgraphRef"
 
-    def update_graph(self,
-                     km: Kmers, gr: GraphRef, encode: bool = False) -> int:
+    def update_graph(self, km: Kmers, gr: GraphRef, encode: bool = False,
+                     buffer: int = 10000) -> int:
         log.debug(
             "Starting to graph {} in pid {}".format(
                 km, os.getpid()))
@@ -74,10 +74,13 @@ class SubgraphRef(GRef):
                 node1_label = node2_label
                 c += 1
                 edge_c += 1
+                if c % buffer == 0:
+                    log.debug("Committing txn...")
+                    self.graph.save()
                 if c % 100000 == 0:
                     log.debug("{}/{}, {}%".format(
                         c, len(km), int(c/len(km)*100)))
-                    self.graph.save()
+
             # At this point, we're out of kmers on that contig
             # The loop will check if there's still kmers, and reset kmer1
         en = time.time()
