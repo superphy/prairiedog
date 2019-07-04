@@ -73,16 +73,22 @@ class Dgraph(Graph):
     def get_labels(self, node: str) -> dict:
         pass
 
-    def mutate(self, nquads: str, depth: int = 1, max_depth: int = 3):
+    DEFAULT_DEPTH = 1
+    def mutate(self, nquads: str, depth: int = DEFAULT_DEPTH, max_depth: int = 3):
         try:
             self.txn.mutate(set_nquads=nquads)
             self.txn.commit()
             self._txn = None
+            if depth > Dgraph.DEFAULT_DEPTH:
+                log.debug("Attempt {}/{} completed successfully".format(
+                    depth, max_depth
+                ))
         except Exception as e:
             if depth <= max_depth:
                 log.debug("Ran into exception {}, retrying {}/{}...".format(
                     e, depth, max_depth
                 ))
+                log.debug("Exception type was {}".format(type(e)))
                 time.sleep(1)
                 self.mutate(nquads=nquads, depth=depth+1)
             else:
