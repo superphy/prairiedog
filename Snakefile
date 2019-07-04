@@ -47,17 +47,16 @@ rule kmers:
 
 rule pangenome:
     input:
-        expand('outputs/kmers/{input}.pkl', input=INPUTS)
+        'outputs/kmers/{input}.pkl'
     output:
-        'outputs/graphref.pkl',
-        'outputs/pangenome.g'
+        'outputs/pangenome_{input}.g'
     run:
         # Remove old memory usage logs
-        sizes = []
-        try:
-            os.remove('outputs/sizes.txt')
-        except:
-            pass
+        # sizes = []
+        # try:
+        #     os.remove('outputs/sizes_{}.txt'.format(input[0]))
+        # except:
+        #     pass
 
         # Setup graph backend
         gr = GraphRef(MIC_CSV)
@@ -84,25 +83,25 @@ rule pangenome:
         # Note that start=1 is only for the index, sgf still starts at
         # position 0
         for index, kmf in enumerate(input, start=1):
-            print("rule 'pangenome' on Kmer {} / {}".format(
-                index, len(input)))
-            km = dill.load(open(kmf,'rb'))
-            gr.index_kmers(km)
-            sg.update_graph(km, gr)
-            if config['backend'] in ('lemongraph', 'dgraph'):
-                sg.save(output[1])
+        # print("rule 'pangenome' on Kmer {} / {}".format(
+        #     index, len(input)))
+        km = dill.load(open(input[0],'rb'))
+        gr.index_kmers(km)
+        sg.update_graph(km, gr)
+        if config['backend'] in ('lemongraph', 'dgraph'):
+            sg.save(output[1])
 
-            # Calculate rough memory usage
-            pid = os.getpid()
-            py = psutil.Process(pid)
-            sz = py.memory_info()[0]/2.**30
-            sizes.append(sz)
-            print("Current graph size is {} GB".format(sz))
-            with open('outputs/sizes.txt', 'a') as f:
-                f.write('{}\n'.format(sz))
+        # Calculate rough memory usage
+        pid = os.getpid()
+        py = psutil.Process(pid)
+        sz = py.memory_info()[0]/2.**30
+        # sizes.append(sz)
+        print("Current process memory usage is {} GB".format(sz))
+        # with open('outputs/sizes.txt', 'a') as f:
+        #     f.write('{}\n'.format(sz))
 
-            # It seems the km object is being kept in memory for too long
-            del km
+        # It seems the km object is being kept in memory for too long
+        del km
 
         # Stop pyinstrument profiler
         if config['pyinstrument'] is True:
@@ -114,13 +113,21 @@ rule pangenome:
         dill.dump(gr,
                     open('outputs/graphref.pkl','wb'), protocol=4)
         if config['backend'] == 'lemongraph':
-            shutil.copy2(DB_PATH, output[1])
+            shutil.copy2(DB_PATH, output[0])
         elif config['backend'] == 'dgraph':
-            open(output[1], 'w').close()
+            open(output[0], 'w').close()
         else:
-            sg.save(output[1])
+            sg.save(output[0])
 
-        dill.dump(sizes, open('outputs/sizes.pkl', 'wb'))
+        # dill.dump(sizes, open('outputs/sizes.pkl', 'wb'))
+
+rule done:
+    input:
+        expand('outputs/pangenome_{input}.g', input=INPUTS)
+    output:
+        'outputs/pangenome.g'
+    run:
+        open(output[0], 'w').close()
 
 rule clean:
     shell:
