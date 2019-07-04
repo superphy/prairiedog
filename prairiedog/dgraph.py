@@ -35,8 +35,13 @@ class Dgraph(Graph):
 
     def preload(self, k: int = 11):
         nquads = ""
+        c = 0
         for kmer in possible_kmers(k):
             nquads += ' _:{kmer} <km> "{kmer}" .'.format(kmer=kmer)
+            c += 1
+            if c % 1000 == 0:
+                self.mutate(nquads)
+                nquads = ""
         self.mutate(nquads)
 
     def upsert_node(self, node: Node, echo: bool = True) -> typing.Optional[
