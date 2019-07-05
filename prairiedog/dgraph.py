@@ -75,13 +75,14 @@ class Dgraph(Graph):
         pass
 
     def mutate(self, nquads: str, depth: int = 1, max_depth: int = 3):
+        txn = self.client.txn()
         try:
             if depth > 1:
                 log.debug("Trying mutation attempt {}/{}".format(depth,
                                                                  max_depth))
-            self.txn.mutate(set_nquads=nquads)
-            self.txn.commit()
-            self._txn = None
+            txn.mutate(set_nquads=nquads)
+            txn.commit()
+            # self._txn = None
             if depth > 1:
                 log.debug("Attempt {}/{} completed successfully".format(
                     depth, max_depth
@@ -91,16 +92,16 @@ class Dgraph(Graph):
                 log.debug("Ran into exception {}, retrying {}/{}...".format(
                     rpc_error_call, depth, max_depth
                 ))
-                time.sleep(1)
+                time.sleep(2**depth)
                 self.mutate(nquads=nquads, depth=depth+1)
         except Exception as e:
             log.debug("Exception type was {}".format(type(e)))
             raise e
         finally:
             # Only discard at root
-            if depth == 1:
-                self.txn.discard()
-                self._txn = None
+            # if depth == 1:
+            txn.discard()
+            # self._txn = None
 
     def save(self, f: str = None):
         self.mutate(self.nquads)
