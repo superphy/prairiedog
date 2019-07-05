@@ -21,22 +21,11 @@ class Dgraph(Graph):
     def __init__(self):
         self.client_stub = pydgraph.DgraphClientStub(DGRAPH_URL)
         self.client = pydgraph.DgraphClient(self.client_stub)
-        self._txn = None
         self.nquads = ""
         log.debug("Done initializing Dgraph client")
 
     def __del__(self):
         self.client_stub.close()
-
-    @property
-    def txn(self):
-        if self._txn is None:
-            # log.debug("Creating new txn...")
-            self._txn = self.client.txn()
-            # log.debug("Created new txn")
-            return self._txn
-        else:
-            return self._txn
 
     def preload(self, k: int = 11):
         nquads = ""

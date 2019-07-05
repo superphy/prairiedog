@@ -99,7 +99,7 @@ rule pangenome:
         gr.index_kmers(km)
         sg.update_graph(km, gr)
         if config['backend'] in ('lemongraph', 'dgraph'):
-            sg.save(output[1])
+            sg.save(output[0])
 
         # Calculate rough memory usage
         pid = os.getpid()
