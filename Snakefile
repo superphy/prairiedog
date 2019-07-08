@@ -49,9 +49,9 @@ rule preload:
     output:
         'outputs/preloaded.txt'
     run:
-        if config['backend'] == 'dgraph':
-            dg = Dgraph()
-            dg.preload(K)
+        # if config['backend'] == 'dgraph':
+        #     dg = Dgraph()
+        #     dg.preload(K)
         open(output[0], 'w').close()
 
 rule pangenome:
