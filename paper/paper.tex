@@ -70,16 +70,30 @@ The update requirement precludes a full re-computation of the pan-genome as such
 
 \section{Related Work}
 
+% Alginment based
 % Panseq
 % ???
-The earliest generation of pan-genomics software, such as Panseq \cite{} and ?? \cite{} focused on the identification of core and accessory gene regions, usually using alignment algorithmns.
+The earliest generation of pan-genomics software focused on the identification of core and accessory gene regions, with later software adding gene set enrichment analysis and gene annotation, amongst other features \cite{xiao2015brief}.
+Software such as Panseq \cite{laing2010pan} are based on alignment algorithmns, with core regions identified as coding genes with pair-wise sequence similarity above a certain cut-off.
+Subsequent packages such as PanOCT \cite{fouts2012panoct} and GET_HOMOLOGUES \cite{contreras2013get_homologues} use alignment approaches for accepting sequence similarity along with clustering approaches for core region determination.
+In all these cases the creation of a pan-genome follows a combinatorial increase in the number of comparisons with a larger sample size \cite{vernikos2015ten}, though the rate of new ortholog discovery decreases under Heap's law \cite{tettelin2008comparative}.
 
+,  , usually using alignment algorithmns.
+
+% Annotation based
 % PGAP ???
 % Roary
 Later software packages integrated functional annotation either post-graph creation \cite{zhao2011pgap} or as an integral part of graph creation \cite{page2015roary}.
 The Pan-Genomes Analysis Pipeline (PGAP) \cite{zhao2011pgap} reported pan-genome results for 11 samples, and an 
 
+% Data structure
 % SplitMEM
+
+
+% Coding vs non-coding
+The current spate of pan-genomics software have focused exclusively on coding regions of DNA.
+While useful for reducing the size of input data for comparisons, evidence \cite{} has pointed to the contribution of non-coding regions to species phenotypes.
+
 
 \section{Implementation}
 
