@@ -44,7 +44,7 @@ class Dgraph(Graph):
 
     def add_edge(self, edge: Edge, echo: bool = True) -> typing.Optional[Edge]:
         self.nquads += """
-        _:{src} <e> _:{tgt} (type="{type}", value={value}) .
+        _:{src} <fd> _:{tgt} (type="{type}", value={value}) .
         """.format(src=edge.src, tgt=edge.tgt, type=edge.edge_type,
                    value=edge.edge_value)
 
@@ -93,7 +93,10 @@ class Dgraph(Graph):
             # self._txn = None
 
     def save(self, f: str = None):
-        self.mutate(self.nquads)
+        # self.mutate(self.nquads)
+        with open(f, 'a') as out_file:
+            out_file.write(self.nquads)
+            out_file.write('\n')
         self.nquads = ''
 
     @property
