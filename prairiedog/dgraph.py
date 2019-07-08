@@ -25,7 +25,7 @@ class Dgraph(Graph):
         log.debug("Done initializing Dgraph client")
 
     def __del__(self):
-        self.client_stub.close()
+        # self.client_stub.close()
 
     def preload(self, k: int = 11):
         nquads = ""
