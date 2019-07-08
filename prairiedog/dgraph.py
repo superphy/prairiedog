@@ -19,8 +19,8 @@ SCHEME = ''
 class Dgraph(Graph):
 
     def __init__(self):
-        self.client_stub = pydgraph.DgraphClientStub(DGRAPH_URL)
-        self.client = pydgraph.DgraphClient(self.client_stub)
+        # self.client_stub = pydgraph.DgraphClientStub(DGRAPH_URL)
+        # self.client = pydgraph.DgraphClient(self.client_stub)
         self.nquads = ""
         log.debug("Done initializing Dgraph client")
 
