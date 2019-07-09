@@ -68,7 +68,6 @@ Moreover, as new samples are sequenced the number of variants in accesory genes 
 % Paragraph of what we're doing
 Here we present ....
 
-
 % Paragraph on need to constantly update
 Futhermore, for public health efforts and outbreak surveillance, pan-genomes data structures must be updatable in a reasonable timeframe.
 The update requirement precludes a full re-computation of the pan-genome as such an approach would not scale to an ever growing dataset of genome samples.
@@ -84,21 +83,20 @@ The update requirement precludes a full re-computation of the pan-genome as such
 % Alginment based
 % Panseq
 % ???
-The main focus of pan-genomics software is on the identification of core and accessory gene regions, with improvements trying to increase possible sample size or accomadating greater variation and differing reading frames.
-Early software such as Panseq \cite{laing2010pan} and PGAP \cite{zhao2011pgap} are based on alignment algorithmns, with core regions identified sequence alignment and similarity.
+A core focus of pan-genomics software is on the identification of core and accessory gene regions, with improvements trying to increase possible sample size or accomadating greater variation and differing reading frames.
+Early software such as Panseq \cite{laing2010pan} and PGAP \cite{zhao2011pgap} are based on alignment algorithmns, with core regions identified through sequence alignment and similarity.
 Subsequent packages such as PanOCT \cite{fouts2012panoct} and GET_HOMOLOGUES \cite{contreras2013get_homologues} use alignment approaches for accepting sequence similarity along with clustering approaches for core region determination.
+In all these cases the creation of a pan-genome follows a combinatorial increase in the number of comparisons with a larger sample size \cite{vernikos2015ten}.
 
-% Annotation based
-% PGAP ???
-% Roary
-Later software packages integrated functional annotation either post-graph creation \cite{zhao2011pgap} or as an integral part of graph creation \cite{page2015roary}.
-The Pan-Genomes Analysis Pipeline (PGAP) \cite{zhao2011pgap} reported pan-genome results for 11 samples, and an 
+Efforts to scale pan-genome creation software have focused on sampling strategies to try and fully characterise a species with a minimum number of samples.
+For example, PanGP \cite{zhao2014pangp} proposes a sampling algorithmn based on the genetic diversity of species.
+In contrast, Prairiedog takes cues from genome assembly software.
+In place of a sampling strategy, Prariedog focuses on maintaining high throughput, with graph connectivity metrics used to differentiate core and accessory regions.
 
 % Data structure
 % SplitMEM
 
 % Key problems and our approach
-In all these cases the creation of a pan-genome follows a combinatorial increase in the number of comparisons with a larger sample size \cite{vernikos2015ten}, though the rate of new ortholog discovery decreases under Heap's law \cite{tettelin2008comparative}.
 % Coding vs non-coding
 The current spate of pan-genomics software have focused exclusively on coding regions of DNA.
 While useful for reducing the size of input data for comparisons, evidence \cite{} has pointed to the contribution of non-coding regions to species phenotypes.
