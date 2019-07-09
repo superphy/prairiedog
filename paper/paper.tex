@@ -46,21 +46,32 @@ Here we present a method for pan-genome creation based on an uncompressed De-Bru
 \section{Introduction}
 
 % Paragraph on pan-genomes
-Pan-genomes, the representation of all genes within a population, are important for distinguishing genetic components to observed phenotypes.
-Traditional phylogenetic trees used to distinguish different subtypes by branch points may be poor genetic determinants in some species \cite{vernikos2015ten} because of the high degree of genetic exchange \cite{medini2005microbial}.
-Instead, pan-genomes model a clade as based off \textit{core} conserved regions along with variable \textit{accesory} regions.
-
+Pan-genomes, the representation of all genes and variants within a population, are important for distinguishing genetic components to observed phenotypes.
+In addition, bacterial pan-genomes have broad applications from estimating and characterizing the genetic diversity of a species \cite{medini2005microbial}, to pathogenic analysis \cite{tettelin2005genome, rasko2008pangenome} and drug targeting \cite{muzzi2007pan}.
+Bacteria present a unique challenge to pan-genome applications due to the high degree of genetic exchange within some species \cite{medini2005microbial}.
+Unlike a traditional phylogenetic tree structure, a pan-genome must be able to characterise a species based on a varying degree of shared genetic elements where as a phylogeny based on bifurcating trees might be based off a small amount of differing homologs as characterised by branch points \cite{vernikos2015ten}.
 % Paragraph on graph structures
 % text...
 
+As a result of this high degree of intra-species genetic diversity, early studies \cite{tettelin2005genome, tettelin2008comparative} focused on estimating the number of genomes that should be sequenced to represent a given species of bacteria.
+This led to the concept of open and closed genomes, where sequencing additional genomes lead to newly discovered genes in open genomes and not so in closed genomes \cite{tettelin2008comparative}.
+Yet, these bacterial species continue to evolve and we are increasingly concerned with the development of antimicrobial resistance.
+Since the term \textit{pan-genome} was originally coined, there has been an explosion in the number of complete genomes sequenced \cite{vernikos2015ten}.
+
+
+Pan-genomes may represent a novel avenue for monitoring resistance development \cite{tettelin2005genome} and drug targeting \cite{muzzi2007pan}.
+Currently, the term \textit{pan-genome} commonly refers to the collection of core regions which are shared within a species and accessory regions which differ within a species \cite{tettelin2005genome, vernikos2015ten}.
+Species with a high degree of genetic variation often have a small fraction of their genome within their core region \cite{rouli2015bacterial} and it is often the accesory region where antimicrobial resistance mechanisms reside \cite{muzzi2007pan}.
+Software methods for pangenome creation are inundated with the combinatorial number of comparisons that must be made as the number of samples increase.
+Moreover, as new samples are sequenced the number of variants in accesory genes are expected to rise even if the core genes remain unchanged \cite{medini2005microbial}.
+
+% Paragraph of what we're doing
+Here we present ....
+
+
 % Paragraph on need to constantly update
-As new samples are sequenced however, the number of variants in accesory genes are expected to rise even if the core genes remain unchanged \cite{medini2005microbial}.
-This is particularly relevant for some species such as \textit{Escherichia coli.} where the core genome only represents a small percentage of the overall genome \cite{fukiya2004extensive}.
 Futhermore, for public health efforts and outbreak surveillance, pan-genomes data structures must be updatable in a reasonable timeframe.
 The update requirement precludes a full re-computation of the pan-genome as such an approach would not scale to an ever growing dataset of genome samples.
-
-% Paragraph for lead-in
-% text...
 
 % **************************************************************
 % Keep this command to avoid text of first page running into the
@@ -74,7 +85,7 @@ The update requirement precludes a full re-computation of the pan-genome as such
 % Panseq
 % ???
 The main focus of pan-genomics software is on the identification of core and accessory gene regions, with improvements trying to increase possible sample size or accomadating greater variation and differing reading frames.
-Early software such as Panseq \cite{laing2010pan} and PGAP \cite{zhao2011pgap} are based on alignment algorithmns, with core regions identified as coding genes with pair-wise sequence similarity above a certain cut-off.
+Early software such as Panseq \cite{laing2010pan} and PGAP \cite{zhao2011pgap} are based on alignment algorithmns, with core regions identified sequence alignment and similarity.
 Subsequent packages such as PanOCT \cite{fouts2012panoct} and GET_HOMOLOGUES \cite{contreras2013get_homologues} use alignment approaches for accepting sequence similarity along with clustering approaches for core region determination.
 
 % Annotation based
