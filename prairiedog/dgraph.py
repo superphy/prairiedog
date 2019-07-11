@@ -98,7 +98,8 @@ class Dgraph(Graph):
         # self.mutate(self.nquads)
         p = pathlib.Path(f)
         # Make the subdirectories if required
-        pathlib.Path(p.parent).mkdir(parents=True, exist_ok=True)
+        # str cast if required for Py3.5
+        pathlib.Path(str(p.parent)).mkdir(parents=True, exist_ok=True)
         with open(p, 'a+') as out_file:
             out_file.write(self.nquads)
             if not self.nquads.endswith('\n'):
