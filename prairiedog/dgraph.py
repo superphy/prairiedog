@@ -1,6 +1,7 @@
 import logging
 import typing
 import time
+import pathlib
 
 import pydgraph
 import grpc
@@ -95,9 +96,13 @@ class Dgraph(Graph):
 
     def save(self, f: str = None):
         # self.mutate(self.nquads)
-        with open(f, 'a+') as out_file:
+        p = pathlib.Path(f)
+        # Make the subdirectories if required
+        pathlib.Path(p.parent).mkdir(parents=True, exist_ok=True)
+        with open(p, 'a+') as out_file:
             out_file.write(self.nquads)
-            out_file.write('\n')
+            if not self.nquads.endswith('\n'):
+                out_file.write('\n')
         self.nquads = ''
 
     @property
