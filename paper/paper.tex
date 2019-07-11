@@ -49,7 +49,7 @@ Here we present a method for pan-genome creation based on an uncompressed De-Bru
 Pan-genomes, the representation of all genes and variants within a population, are important for distinguishing genetic components to observed phenotypes.
 In addition, bacterial pan-genomes have broad applications from estimating and characterizing the genetic diversity of a species \cite{medini2005microbial}, to pathogenic analysis \cite{tettelin2005genome, rasko2008pangenome} and drug targeting \cite{muzzi2007pan}.
 Bacteria present a unique challenge to pan-genome applications due to the high degree of genetic exchange within some species \cite{medini2005microbial}.
-Unlike a traditional phylogenetic tree structure, a pan-genome must be able to characterise a species based on a varying degree of shared genetic elements where as a phylogeny based on bifurcating trees might be based off a small amount of differing homologs as characterised by branch points \cite{vernikos2015ten}.
+Unlike a traditional phylogenetic tree structure, a pan-genome must be able to characterise a species based on a varying degree of shared genetic elements where as a phylogeny based on bifurcating trees might only capture a small number of branch points \cite{vernikos2015ten}.
 % Paragraph on graph structures
 % text...
 
@@ -86,11 +86,11 @@ The update requirement precludes a full re-computation of the pan-genome as such
 A core focus of pan-genomics software is on the identification of core and accessory gene regions, with improvements trying to increase possible sample size or accomadating greater variation and differing reading frames.
 Early software such as Panseq \cite{laing2010pan} and PGAP \cite{zhao2011pgap} are based on alignment algorithmns, with core regions identified through sequence alignment and similarity.
 Subsequent packages such as PanOCT \cite{fouts2012panoct} and GET_HOMOLOGUES \cite{contreras2013get_homologues} use alignment approaches for accepting sequence similarity along with clustering approaches for core region determination.
-In all these cases the creation of a pan-genome follows a combinatorial increase in the number of comparisons with a larger sample size \cite{vernikos2015ten}.
+In all these cases, the creation of a pan-genome follows a combinatorial increase in the number of comparisons with a larger sample size \cite{vernikos2015ten}.
 
 Efforts to scale pan-genome creation software have focused on sampling strategies to try and fully characterise a species with a minimum number of samples.
 For example, PanGP \cite{zhao2014pangp} proposes a sampling algorithmn based on the genetic diversity of species.
-In place of a sampling strategy, Prariedog takes cues from genome assembly software and focuses on maintaining high throughput, with graph connectivity metrics used to differentiate core and accessory regions.
+In place of a sampling strategy, Prariedog takes cues from genome assembly software and focuses on maintaining high throughput, with graph connectivity metrics later used to differentiate core and accessory regions.
 
 % Data structure
 % SplitMEM
@@ -109,8 +109,8 @@ While useful for reducing the size of input data for comparisons, evidence \cite
 
 Pan-genomes have been widely used to characterise the genetic content of a species.
 Yet, whether bacteria exist as in the traditional definition of a \textit{species} has come under question due to the high rates of horizontal gene transfer and homologous recombination \cite{fraser2009bacterial}.
-Pan-genomics could instead present different species as overlaying graphs thereby allowing the sub-selection of a pan-genome for a particular species while encoding the shared genetic elements.
-This graph-subgraph approach could be further extended to metagenomic samples including ecological datum, and perhaps provide a framework for efforts \cite{caro2012bacterial} to delinate bacterial species based on natural populations.
+Pan-genomics software could instead present different species as overlaying graphs thereby allowing the sub-selection of a pan-genome for a particular species while encoding the shared genetic elements.
+This graph-subgraph approach could be extended to metagenomic samples including ecological datum, and perhaps provide a framework for efforts \cite{caro2012bacterial} to delinate bacterial species based on natural populations.
 
 % Paragraph on typing, MLST
 
