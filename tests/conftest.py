@@ -11,6 +11,7 @@ import pytest
 from prairiedog import kmers
 from prairiedog.networkx_graph import NetworkXGraph
 from prairiedog.lemon_graph import LGGraph
+from prairiedog.dgraph import Dgraph
 
 log = logging.getLogger('prairiedog')
 
@@ -81,20 +82,42 @@ def _lgr():
     return LGGraph(path, delete_on_exit=True)
 
 
+class DG(Dgraph):
+    """
+    Helper to setup and tear-down dgraph
+    """
+
+    @staticmethod
+    def init_dgraph():
+        subprocess.run("cd dgraph/ && docker-compose up -d", shell=True)
+
+    @staticmethod
+    def shutdown_dgraph():
+        subprocess.run("cd dgraph/ && docker-compose down -v", shell=True)
+
+    def __init__(self):
+        DG.init_dgraph()
+        super().__init__()
+
+    def __del__(self):
+        DG.shutdown_dgraph()
+        super().__del__()
+
 # TODO: use params to test against multiple backing stores
-@pytest.fixture(scope="function", params=["lemongraph"])
+@pytest.fixture(scope="function", params=["lemongraph", "dgraph"])
 def g(request):
     if request.param == "networkx":
         return NetworkXGraph()
     elif request.param == "lemongraph":
         # Create a new LemonGraph instance with its own database file
         return _lgr()
+    elif request.param == "dgraph":
+        return DG()
 
 
 @pytest.fixture(scope="function")
 def lgr():
     return _lgr()
-
 
 # TODO: unused
 @pytest.fixture

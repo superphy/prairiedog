@@ -2,6 +2,7 @@ import logging
 import typing
 import time
 import pathlib
+import subprocess
 
 import pydgraph
 import grpc
@@ -98,7 +99,7 @@ class Dgraph(Graph):
         # self.mutate(self.nquads)
         p = pathlib.Path(f)
         # Make the subdirectories if required
-        # str cast if required for Py3.5
+        # str() cast is required for Py3.5
         pathlib.Path(str(p.parent)).mkdir(parents=True, exist_ok=True)
         with open(p, 'a+') as out_file:
             out_file.write(self.nquads)
@@ -120,7 +121,7 @@ class Dgraph(Graph):
         pass
 
     def connected(self, node_a: str, node_b: str) -> typing.Tuple[
-        bool, typing.Tuple]:
+            bool, typing.Tuple]:
         pass
 
     def path(self, node_a: str, node_b: str) -> tuple:

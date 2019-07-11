@@ -26,6 +26,24 @@ jobs:
                     git submodule init
                     git submodule update --remote
 
+            - setup_remote_docker
+
+            - run:
+                name: Install Docker client
+                command: |
+                    set -x
+                    VER="18.06.0-ce"
+                    curl -L -o /tmp/docker-$VER.tgz https://get.docker.com/builds/Linux/x86_64/docker-$VER.tgz
+                    tar -xz -C /tmp -f /tmp/docker-$VER.tgz
+                    mv /tmp/docker/* /usr/bin
+
+            - run:
+                name: Install Docker Compose
+                command: |
+                    curl -L https://github.com/docker/compose/releases/download/1.24.0/docker-compose-`uname -s`-`uname -m` > ~/docker-compose
+                    chmod +x ~/docker-compose
+                    sudo mv ~/docker-compose /usr/local/bin/docker-compose
+
             # Download and cache dependencies
             - restore_cache:
                   keys:
