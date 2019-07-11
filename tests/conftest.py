@@ -28,6 +28,11 @@ GENOME_FILES_SHORTENED = [
     "tests/SRR1106609_SHORTENED.fasta",
 ]
 
+# Dgraph runs via Docker in a way which isn't possible in CircleCI
+if "CI" in os.environ:
+    BACKENDS = ['lemongraph']
+else:
+    BACKENDS = ['lemongraph', 'dgraph']
 
 @pytest.fixture
 def genome_files():
@@ -104,7 +109,7 @@ class DG(Dgraph):
         super().__del__()
 
 # TODO: use params to test against multiple backing stores
-@pytest.fixture(scope="function", params=["lemongraph", "dgraph"])
+@pytest.fixture(scope="function", params=BACKENDS)
 def g(request):
     if request.param == "networkx":
         return NetworkXGraph()
