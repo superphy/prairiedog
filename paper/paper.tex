@@ -101,6 +101,7 @@ An uncompressed structure allows us to easiler update the graph with new bacteri
 % SplitMEM
 For bacterial genomes, SplitMEM \cite{marcus2014splitmem} introduced an optimized method for creating a compressed de Bruijn graph along with some metadata from the original genome.
 SplitMEM reported 62 \textit{E.coli} genomes graphed in a little over 60 minues with a linear increase in time per number of genomes, and expanded pan-genome analysis to cover the whole genome instead of only gene sequences.
+The authors of PGAP also introduced and update, PGAP-X \cite{zhao2018pgap}, which can perform pan-genome analysis over the whole genome and includes a graphical user interface.
 DBGWAS \cite{jaillard2018fast} uses GATB \cite{drezen2014gatb}, which also underlies BCALM 2 \cite{chikhi2016compacting}, for pan-genome creation and adds a graph visualization layer for genome to phenotype correlations.
 Building on theses approaches, we aimed to build a pan-genome application which could scale to ??thousand+ genomes, as found in public health efforts, including sample and other metadata.
 
