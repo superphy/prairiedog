@@ -92,21 +92,19 @@ Efforts to scale pan-genome creation software have focused on sampling strategie
 For example, PanGP \cite{zhao2014pangp} proposes a sampling algorithmn based on the genetic diversity of species.
 In place of a sampling strategy, Prariedog takes cues from genome assembly software and focuses on maintaining high throughput, with graph connectivity metrics later used to differentiate core and accessory regions.
 
-% Data structure
-% SplitMEM
-
 % Relation to genome assembly and variant calling software
 Prairiedog's pan-genome creation approach shares greater similarity with genome assembly and read mapping software.
 During genome assembly, short reads often between 100-400 bp in length are aligned to form a draft genome.
 For example, BCALM 2 \cite{chikhi2016compacting} joins reads to form a compacted de Bruijn graph which are directed graphs where verticies represent k-mers and arcs represent overlaps.
-Sequence variation graphs, which map gene variants either against an initial linear reference \cite{eggertsson2017graphtyper} or reference index \cite{garrison2018variation}, also often use de Bruijn graphs as the underlying data structure.
+Sequence variation graphs, which map gene variants either against an initial linear reference \cite{eggertsson2017graphtyper} or reference index \cite{garrison2018variation}, also often use directed acylic graphs or de Bruijn graphs as the underlying data structure.
 Prariedog's data structure is similar to these approaches except we use an uncompressed de Bruijn graph such that all vertices are k-mers of the same initial length \textit{k}.
 While an uncompressed structure allows us to update the graph with new bacteria samples, such a large data structure would not be suitable for human sequence variants as in Graphtyper \cite{eggertsson2017graphtyper} or VG \cite{garrison2018variation}.
 
-% Key problems and our approach
-% Coding vs non-coding
-The current spate of pan-genomics software have focused exclusively on coding regions of DNA.
-While useful for reducing the size of input data for comparisons, evidence \cite{} has pointed to the contribution of non-coding regions to species phenotypes.
+% SplitMEM
+For bacterial genomes, SplitMEM \cite{marcus2014splitmem} introduces an optimized method for creating a compressed de Bruijn graph along with some metadata from the original genome.
+SplitMEM reported 62 \textit{E.coli} genomes graphed in a little over 60 minues with a linear increase in time with the number of genomes, and expanded pan-genome analysis to cover the whole genome instead of only gene sequences.
+DBGWAS \cite{jaillard2018fast} uses GATB \cite{drezen2014gatb}, which also underlies BCALM 2 \cite{chikhi2016compacting}, for pan-genome creation and adds a graph visualization layer for genome to phenotype correlations.
+Building on theses approaches, we aimed to build a pan-genome application which could scale to ??thousand+ genomes, as found in public health efforts, including sample and other metadata.
 
 \section{Implementation}
 
