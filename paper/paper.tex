@@ -95,11 +95,18 @@ In place of a sampling strategy, Prariedog takes cues from genome assembly softw
 % Data structure
 % SplitMEM
 
+% Relation to genome assembly and variant calling software
+Prairiedog's pan-genome creation approach shares greater similarity with genome assembly and read mapping software.
+During genome assembly, short reads often between 100-400 bp in length are aligned to form a draft genome.
+For example, BCALM 2 \cite{chikhi2016compacting} joins reads to form a compacted de Bruijn graph which are directed graphs where verticies represent k-mers and arcs represent overlaps.
+Sequence variation graphs, which map gene variants either against an initial linear reference \cite{eggertsson2017graphtyper} or reference index \cite{garrison2018variation}, also often use de Bruijn graphs as the underlying data structure.
+Prariedog's data structure is similar to these approaches except we use an uncompressed de Bruijn graph such that all vertices are k-mers of the same initial length \textit{k}.
+While an uncompressed structure allows us to update the graph with new bacteria samples, such a large data structure would not be suitable for human sequence variants as in Graphtyper \cite{eggertsson2017graphtyper} or VG \cite{garrison2018variation}.
+
 % Key problems and our approach
 % Coding vs non-coding
 The current spate of pan-genomics software have focused exclusively on coding regions of DNA.
 While useful for reducing the size of input data for comparisons, evidence \cite{} has pointed to the contribution of non-coding regions to species phenotypes.
-
 
 \section{Implementation}
 
