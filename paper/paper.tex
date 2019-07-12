@@ -38,7 +38,7 @@ Current methods for pan-genome creation, which offer a callable mapping of all g
 Compactation steps, which reduce the final output size and are common in pan-genome creation software, prevent updating the pangome after creation and individual whole-genome sequence samples from being reconstructed from a computed pan-genome.
 Instead, an optimized graph structure could support traditional pan-genome queries even with a large output size.
 Here we present a method for pan-genome creation based on an uncompressed De-Bruijn graph with edge metadata that functions similarly to common pan-genomes, supports updating the pan-genome in linear time, and returns source attribution during variant calling.
-
+Our application, Prairiedog, was tested with ???K+ bacterial genomes with a final runtime of ???.
 
 \end{abstract}
 
@@ -50,19 +50,16 @@ Pan-genomes, the representation of all genes and variants within a population, a
 In addition, bacterial pan-genomes have broad applications from estimating and characterizing the genetic diversity of a species \cite{medini2005microbial}, to pathogenic analysis \cite{tettelin2005genome, rasko2008pangenome} and drug targeting \cite{muzzi2007pan}.
 Bacteria present a unique challenge to pan-genome applications due to the high degree of genetic exchange within some species \cite{medini2005microbial}.
 Unlike a traditional phylogenetic tree structure, a pan-genome must be able to characterise a species based on a varying degree of shared genetic elements where as a phylogeny based on bifurcating trees might only capture a small number of branch points \cite{vernikos2015ten}.
-% Paragraph on graph structures
-% text...
 
 As a result of this high degree of intra-species genetic diversity, early studies \cite{tettelin2005genome, tettelin2008comparative} focused on estimating the number of genomes that should be sequenced to represent a given species of bacteria.
 This led to the concept of open and closed genomes, where sequencing additional genomes lead to newly discovered genes in open genomes and not so in closed genomes \cite{tettelin2008comparative}.
-Yet, these bacterial species continue to evolve and we are increasingly concerned with the development of antimicrobial resistance.
+Yet, these bacterial species continue to adapt and we are increasingly concerned with the spread of new genes, such as through mobile genetic elements which may confer antimicrobial resistance \cite{harbottle2006genetics}.
+
 Since the term \textit{pan-genome} was originally coined, there has been an explosion in the number of complete genomes sequenced \cite{vernikos2015ten}.
-
-
 Pan-genomes may represent a novel avenue for monitoring resistance development \cite{tettelin2005genome} and drug targeting \cite{muzzi2007pan}.
 Currently, the term \textit{pan-genome} commonly refers to the collection of core regions which are shared within a species and accessory regions which differ within a species \cite{tettelin2005genome, vernikos2015ten}.
 Species with a high degree of genetic variation often have a small fraction of their genome within their core region \cite{rouli2015bacterial} and it is often the accesory region where antimicrobial resistance mechanisms reside \cite{muzzi2007pan}.
-Software methods for pangenome creation are inundated with the combinatorial number of comparisons that must be made as the number of samples increase.
+Software methods for pangenome creation are must account for the combinatorial number of comparisons that to be made as the number of samples increase.
 Moreover, as new samples are sequenced the number of variants in accesory genes are expected to rise even if the core genes remain unchanged \cite{medini2005microbial}.
 
 % Paragraph of what we're doing
@@ -84,25 +81,26 @@ The update requirement precludes a full re-computation of the pan-genome as such
 % Panseq
 % ???
 A core focus of pan-genomics software is on the identification of core and accessory gene regions, with improvements trying to increase possible sample size or accomadating greater variation and differing reading frames.
-Early software such as Panseq \cite{laing2010pan} and PGAP \cite{zhao2011pgap} are based on alignment algorithmns, with core regions identified through sequence alignment and similarity.
-Subsequent packages such as PanOCT \cite{fouts2012panoct} and GET_HOMOLOGUES \cite{contreras2013get_homologues} use alignment approaches for accepting sequence similarity along with clustering approaches for core region determination.
+Early software such as Panseq \cite{laing2010pan} and PanCake \cite{ernst2013pancake} are based on alignment algorithmns, with core regions identified through sequence alignment and similarity.
+Other applications such as PGAP \cite{zhao2011pgap}, PanOCT \cite{fouts2012panoct} and GET_HOMOLOGUES \cite{contreras2013get_homologues} use alignment approaches for accepting sequence similarity along with clustering approaches for core region determination.
 In all these cases, the creation of a pan-genome follows a combinatorial increase in the number of comparisons with a larger sample size \cite{vernikos2015ten}.
 
 Efforts to scale pan-genome creation software have focused on sampling strategies to try and fully characterise a species with a minimum number of samples.
 For example, PanGP \cite{zhao2014pangp} proposes a sampling algorithmn based on the genetic diversity of species.
+PanCake also tries to minimise to resulting output size.
 In place of a sampling strategy, Prariedog takes cues from genome assembly software and focuses on maintaining high throughput, with graph connectivity metrics later used to differentiate core and accessory regions.
 
 % Relation to genome assembly and variant calling software
 Prairiedog's pan-genome creation approach shares greater similarity with genome assembly and read mapping software.
-During genome assembly, short reads often between 100-400 bp in length are aligned to form a draft genome.
+During genome assembly, short reads often between 100-400 bp in length, are aligned to form a draft genome.
 For example, BCALM 2 \cite{chikhi2016compacting} joins reads to form a compacted de Bruijn graph which are directed graphs where verticies represent k-mers and arcs represent overlaps.
-Sequence variation graphs, which map gene variants either against an initial linear reference \cite{eggertsson2017graphtyper} or reference index \cite{garrison2018variation}, also often use directed acylic graphs or de Bruijn graphs as the underlying data structure.
+Sequence variation graphs, which map gene variants either against an initial linear reference \cite{eggertsson2017graphtyper} or reference index \cite{garrison2018variation}, also often use de Bruijn graphs or directed acylic graphs as the underlying data structure.
 Prariedog's data structure is similar to these approaches except we use an uncompressed de Bruijn graph such that all vertices are k-mers of the same initial length \textit{k}.
-While an uncompressed structure allows us to update the graph with new bacteria samples, such a large data structure would not be suitable for human sequence variants as in Graphtyper \cite{eggertsson2017graphtyper} or VG \cite{garrison2018variation}.
+An uncompressed structure allows us to easiler update the graph with new bacteria samples, however such a large data structure would not be suitable for human sequence variants as in Graphtyper \cite{eggertsson2017graphtyper} or VG \cite{garrison2018variation}.
 
 % SplitMEM
-For bacterial genomes, SplitMEM \cite{marcus2014splitmem} introduces an optimized method for creating a compressed de Bruijn graph along with some metadata from the original genome.
-SplitMEM reported 62 \textit{E.coli} genomes graphed in a little over 60 minues with a linear increase in time with the number of genomes, and expanded pan-genome analysis to cover the whole genome instead of only gene sequences.
+For bacterial genomes, SplitMEM \cite{marcus2014splitmem} introduced an optimized method for creating a compressed de Bruijn graph along with some metadata from the original genome.
+SplitMEM reported 62 \textit{E.coli} genomes graphed in a little over 60 minues with a linear increase in time per number of genomes, and expanded pan-genome analysis to cover the whole genome instead of only gene sequences.
 DBGWAS \cite{jaillard2018fast} uses GATB \cite{drezen2014gatb}, which also underlies BCALM 2 \cite{chikhi2016compacting}, for pan-genome creation and adds a graph visualization layer for genome to phenotype correlations.
 Building on theses approaches, we aimed to build a pan-genome application which could scale to ??thousand+ genomes, as found in public health efforts, including sample and other metadata.
 
