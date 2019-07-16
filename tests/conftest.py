@@ -95,6 +95,7 @@ class DG(Dgraph):
 
     def init_dgraph(self):
         self._p_zero = subprocess.Popen(['dgraph', 'zero'])
+        time.sleep(2)
         self._p_alpha = subprocess.Popen(
             ['dgraph', 'alpha', '--lru_mb', '2048', '--zero',
              'localhost:5080'])

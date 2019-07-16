@@ -21,14 +21,26 @@ SCHEME = ''
 class Dgraph(Graph):
 
     def __init__(self):
-        # self.client_stub = pydgraph.DgraphClientStub(DGRAPH_URL)
-        # self.client = pydgraph.DgraphClient(self.client_stub)
+        self._client_stub = None
+        self._client = None
         self.nquads = ""
         log.debug("Done initializing Dgraph client")
 
+    @property
+    def client_stub(self):
+        if self._client_stub is None:
+            self._client_stub = pydgraph.DgraphClientStub(DGRAPH_URL)
+        return self._client_stub
+
+    @property
+    def client(self):
+        if self._client is None:
+            self._client = pydgraph.DgraphClient(self._client_stub)
+        return self._client
+
     def __del__(self):
-        # self.client_stub.close()
-        pass
+        if self._client_stub is not None:
+            self.client_stub.close()
 
     def preload(self, k: int = 11):
         nquads = ""
