@@ -35,7 +35,7 @@ class Dgraph(Graph):
     @property
     def client(self):
         if self._client is None:
-            self._client = pydgraph.DgraphClient(self._client_stub)
+            self._client = pydgraph.DgraphClient(self.client_stub)
         return self._client
 
     def __del__(self):
