@@ -116,6 +116,11 @@ class DG(Dgraph):
         self.shutdown_dgraph()
         super().__del__()
 
+
+@pytest.fixture
+def dg():
+    return DG()
+
 # TODO: use params to test against multiple backing stores
 @pytest.fixture(scope="function", params=BACKENDS)
 def g(request):
