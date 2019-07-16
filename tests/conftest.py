@@ -108,6 +108,7 @@ class DG(Dgraph):
 
     def __init__(self):
         self.tmp_dir = tempfile.mkdtemp()
+        log.info("Will setup Dgraph from folder {}".format(self.tmp_dir))
         self._p_zero = None
         self._p_alpha = None
         self.init_dgraph()
