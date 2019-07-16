@@ -94,11 +94,11 @@ class DG(Dgraph):
     """
 
     def init_dgraph(self):
-        self._p_zero = subprocess.Popen(['dgraph', 'zero'])
+        self._p_zero = subprocess.Popen(['dgraph', 'zero'], cwd=self.tmp_dir)
         time.sleep(2)
         self._p_alpha = subprocess.Popen(
             ['dgraph', 'alpha', '--lru_mb', '2048', '--zero',
-             'localhost:5080'])
+             'localhost:5080'], cwd=self.tmp_dir)
         time.sleep(2)
 
     def shutdown_dgraph(self):
@@ -107,6 +107,7 @@ class DG(Dgraph):
         time.sleep(2)
 
     def __init__(self):
+        self.tmp_dir = tempfile.mkdtemp()
         self._p_zero = None
         self._p_alpha = None
         self.init_dgraph()
@@ -115,6 +116,7 @@ class DG(Dgraph):
     def __del__(self):
         self.clear()
         self.shutdown_dgraph()
+        shutil.rmtree(self.tmp_dir)
         super().__del__()
 
 
