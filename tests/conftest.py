@@ -5,6 +5,7 @@ import logging
 import itertools
 import subprocess
 import tempfile
+import time
 
 import pytest
 
@@ -92,20 +93,27 @@ class DG(Dgraph):
     Helper to setup and tear-down dgraph
     """
 
-    @staticmethod
-    def init_dgraph():
-        subprocess.run("cd dgraph/ && docker-compose up -d", shell=True)
+    def init_dgraph(self):
+        self._p_zero = subprocess.Popen(['dgraph', 'zero'])
+        self._p_alpha = subprocess.Popen(
+            ['dgraph', 'alpha', '--lru_mb', '2048', '--zero',
+             'localhost:5080'])
+        time.sleep(2)
 
-    @staticmethod
-    def shutdown_dgraph():
-        subprocess.run("cd dgraph/ && docker-compose down -v", shell=True)
+    def shutdown_dgraph(self):
+        self._p_zero.terminate()
+        self._p_alpha.terminate()
+        time.sleep(2)
 
     def __init__(self):
-        DG.init_dgraph()
+        self._p_zero = None
+        self._p_alpha = None
+        self.init_dgraph()
         super().__init__()
 
     def __del__(self):
-        DG.shutdown_dgraph()
+        self.clear()
+        self.shutdown_dgraph()
         super().__del__()
 
 # TODO: use params to test against multiple backing stores
