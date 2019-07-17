@@ -6,14 +6,7 @@ version: 2
 jobs:
     build:
         docker:
-            # specify the version you desire here
-            # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
             - image: superphy/tox-base:latest
-
-            # Specify service dependencies here if necessary
-            # CircleCI maintains a library of pre-built images
-            # documented at https://circleci.com/docs/2.0/circleci-images/
-            # - image: circleci/postgres:9.4
 
         working_directory: ~/repo
 
@@ -25,13 +18,6 @@ jobs:
                 command: |
                     git submodule init
                     git submodule update --remote
-
-            # Download and cache dependencies
-#            - restore_cache:
-#                  keys:
-#                      - v1-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "requirements_dev.txt" }}
-#                      # fallback to using the latest cache if no exact match is found
-#                      - v1-dependencies-
 
             - run:
                   name: install dependencies
@@ -49,30 +35,17 @@ jobs:
                       pip install --upgrade cffi
                       cd lemongraph && python setup.py install
 
-#            - run:
-#                  name: install additional packages for pypy3
-#                  command: |
-#                      apt-get update -y && apt-get install -y libatlas-base-dev
-
-#            - save_cache:
-#                  paths:
-#                      - ./venv
-#                  key: v1-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "requirements_dev.txt" }}
-
-            # run tests!
-            # this example uses Django's built-in test-runner
-            # other common Python testing frameworks include pytest and nose
-            # https://pytest.org
-            # https://nose.readthedocs.io
             - run:
-                  name: run tests
+                  name: update pip
                   command: |
                       pip install --upgrade pip
                       pypy3 -m ensurepip
-                      pypy3 -V
-                      pypy3 -m pip -V
                       pypy3 -m pip install --upgrade pip
-                      pypy3 -m pip -V
+
+            # run tests!
+            - run:
+                  name: run tests
+                  command: |
                       tox -v
 
             - run:
