@@ -6,7 +6,7 @@ version: 2
 jobs:
     build:
         docker:
-            - image: superphy/tox-base:latest
+            - image: superphy/tox-base:d698931a52ddeef64dcf5918b32790bcef75af61
 
         working_directory: ~/repo
 
