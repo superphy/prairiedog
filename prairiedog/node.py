@@ -1,13 +1,15 @@
 import typing
 
+DEFAULT_TYPE = 'n'
+
 
 class Node:
     """
     Defines a set structure for creating nodes
     """
 
-    def __init__(self, value: str, node_type: str = 'n', db_id: int = None,
-                 labels: dict = None):
+    def __init__(self, value: str, node_type: str = DEFAULT_TYPE,
+                 db_id: int = None, labels: dict = None):
         self.value = value
         self.node_type = node_type
         self.db_id = db_id
