@@ -87,6 +87,10 @@ def _lgr():
     os.close(fd)
     return LGGraph(path, delete_on_exit=True)
 
+@pytest.fixture
+def dg():
+    return DG()
+
 # TODO: use params to test against multiple backing stores
 @pytest.fixture(scope="function", params=BACKENDS)
 def g(request):

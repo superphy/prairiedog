@@ -4,7 +4,6 @@ import shutil
 import logging
 import time
 
-import pytest
 import pydgraph
 
 from prairiedog.node import DEFAULT_TYPE
@@ -53,8 +52,3 @@ class DG(Dgraph):
         self.shutdown_dgraph()
         shutil.rmtree(self.tmp_dir)
         super().__del__()
-
-
-@pytest.fixture
-def dg():
-    return DG()
