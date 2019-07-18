@@ -65,7 +65,7 @@ class Dgraph(Graph):
         if type(res) is bytes:
             res = str(res)
         r = json.loads(res.json)
-        if len(r['eq'] == 0):
+        if len(r['q'] == 0):
             return False
         else:
             return True
