@@ -2,12 +2,12 @@ coloredlogs==10.0
 decorator==4.4.0
 humanfriendly==4.18
 networkx==2.3
+cython
+dateutils
 numpy
 pandas
 click>=6.0
 dill
-dgl
-torch
 psutil
 pyinstrument
 pydgraph
