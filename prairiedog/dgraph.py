@@ -54,7 +54,7 @@ class Dgraph(Graph):
         self.mutate(nquads)
 
     def exists_node(self, node: Node) -> bool:
-        query = """query eq({predicate}: {value}) {{
+        query = """query eq({predicate}, "{value}") {{
                     expand(_all_)
                     }}
                 """.format(predicate=node.node_type, value=node.value)
