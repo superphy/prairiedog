@@ -62,6 +62,8 @@ class Dgraph(Graph):
             """.format(predicate=node.node_type, value=node.value)
         log.debug("Using query: \n{}".format(query))
         res = self.client.txn(read_only=True).query(query)
+        if type(res) is bytes:
+            res = str(res)
         r = json.loads(res.json)
         if len(r['eq'] == 0):
             return False
