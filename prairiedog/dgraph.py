@@ -58,7 +58,7 @@ class Dgraph(Graph):
                     expand(_all_)
                     }}
                 """.format(predicate=node.node_type, value=node.value)
-        log.debug("Using query: {}".format(query))
+        log.debug("Using query: \n{}".format(query))
         res = self.client.txn(read_only=True).query(query)
         r = json.loads(res.json)
         if len(r['eq'] == 0):
