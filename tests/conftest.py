@@ -99,7 +99,7 @@ class DG(Dgraph):
         self._p_alpha = subprocess.Popen(
             ['dgraph', 'alpha', '--lru_mb', '2048', '--zero',
              'localhost:5080'], cwd=self.tmp_dir)
-        time.sleep(2)
+        time.sleep(4)
 
     def shutdown_dgraph(self):
         self._p_zero.terminate()
@@ -116,6 +116,7 @@ class DG(Dgraph):
 
     def __del__(self):
         self.clear()
+        time.sleep(2)
         self.shutdown_dgraph()
         shutil.rmtree(self.tmp_dir)
         super().__del__()
