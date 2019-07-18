@@ -2,6 +2,7 @@ import logging
 import typing
 import time
 import pathlib
+import json
 
 import pydgraph
 import grpc
@@ -52,9 +53,24 @@ class Dgraph(Graph):
                 nquads = ""
         self.mutate(nquads)
 
+    def exists_node(self, node: Node) -> bool:
+        query = """query eq({predicate}: {value}) {{
+                    expand(_all_)
+                    }}
+                """.format(predicate=node.node_type, value=node.value)
+        res = self.client.txn(read_only=True).query(query)
+        r = json.loads(res.json)
+        if len(r['eq'] == 0):
+            return False
+        else:
+            return True
+
     def upsert_node(self, node: Node, echo: bool = True) -> typing.Optional[
             Node]:
-        pass
+        if self.exists_node(node):
+            return
+        else:
+            pass
 
     def add_edge(self, edge: Edge, echo: bool = True) -> typing.Optional[Edge]:
         self.nquads += """

@@ -1,1 +1,1 @@
-kmer: string @index(term, exact) .
+km: string @index(exact) @upsert .

@@ -1,6 +1,8 @@
 import subprocess
 import logging
 
+from prairiedog.node import Node
+
 log = logging.getLogger('prairiedog')
 
 
@@ -13,3 +15,8 @@ def test_dgraph_install():
 
 def test_dgraph_conftest(dg):
     assert True
+
+
+def test_dgraph_exists_node(dg):
+    na = Node(node_type='n', value='a')
+    assert not dg.exists_node(na)
