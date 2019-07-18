@@ -54,10 +54,12 @@ class Dgraph(Graph):
         self.mutate(nquads)
 
     def exists_node(self, node: Node) -> bool:
-        query = """query eq({predicate}, "{value}") {{
+        query = """{{
+            q(func: eq({predicate}, "{value}")) {{
                     expand(_all_)
                     }}
-                """.format(predicate=node.node_type, value=node.value)
+            }}
+            """.format(predicate=node.node_type, value=node.value)
         log.debug("Using query: \n{}".format(query))
         res = self.client.txn(read_only=True).query(query)
         r = json.loads(res.json)
