@@ -63,8 +63,8 @@ class Dgraph(Graph):
         log.debug("Using query: \n{}".format(query))
         res = self.client.txn(read_only=True).query(query)
         log.debug("Got res: \n{}\n of type {}".format(res, type(res)))
-        if type(res) is not str:
-            res = str(res)
+        if type(res.json) is not str:
+            res = str(res.json)
         r = json.loads(res.json)
         if len(r['q'] == 0):
             return False
