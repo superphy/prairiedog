@@ -1,8 +1,20 @@
 import logging
 import time
 import os
+import itertools
+import typing
 
 log = logging.getLogger("prairiedog")
+
+
+def possible_kmers(k: int = 11) -> typing.Generator:
+    """
+    Utility function for generating all possible kmers of length k.
+    :param k:
+    :return:
+    """
+    kmers = (''.join(x) for x in itertools.product('ATCG', repeat=k))
+    return kmers
 
 
 class Kmers:

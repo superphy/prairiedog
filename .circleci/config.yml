@@ -36,6 +36,11 @@ jobs:
                       cd lemongraph && python setup.py install
 
             - run:
+                  name: install dgraph
+                  command: |
+                      curl https://get.dgraph.io -sSf | bash
+                      
+            - run:
                   name: update pip
                   command: |
                       pip install --upgrade pip
