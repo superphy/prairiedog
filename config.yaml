@@ -6,7 +6,7 @@ graph_labels:
     samples/public_mic_class_dataframe.csv
 
 backend:
-    dgraph
+    lemongraph
 
 pyinstrument:
     False
