@@ -64,7 +64,7 @@ class Dgraph(Graph):
     def exists_node(self, node: Node) -> typing.Tuple[bool, str]:
         query = """{{
             q(func: eq({predicate}, "{value}")) {{
-                    uid
+                    expand(_all_)
                     }}
             }}
             """.format(predicate=node.node_type, value=node.value)
