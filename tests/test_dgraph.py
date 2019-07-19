@@ -29,8 +29,8 @@ def test_dgraph_exists_node(dg):
 
 
 def test_dgraph_exists_edge(dg):
-    na = Node(value="ATCG")
-    nb = Node(value="ATCC")
     e = Edge(src="ATCG", tgt="ATCC")
     exists, _ = dg.exists_edge(e)
     assert not exists
+    exists, _ = dg.upsert_edge(e)
+    assert exists

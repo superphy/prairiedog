@@ -140,13 +140,21 @@ class Dgraph(Graph):
         if exists:
             return
         else:
-            pass
+            nquads = """
+            _:a <{node_type}> "{src}" .
+            _:b <{node_type}> "{tgt}" .
+            _:a <edge_predicate> _:b (type={edge_type}, value={edge_value}) .
+            """.format(node_type=node_type, src=edge.src, tgt=edge.tgt,
+                       edge_predicate=edge_predicate, edge_type=edge.edge_type,
+                       edge_value=edge.edge_value)
+            self.mutate(nquads)
 
     def add_edge(self, edge: Edge, echo: bool = True) -> typing.Optional[Edge]:
         self.nquads += """
         _:{src} <{edge_type}> _:{tgt} ({facet_label}={facet_value}) .
         """.format(src=edge.src, tgt=edge.tgt, facet_label=edge.edge_type,
-                   facet_value=edge.edge_value, edge_type=DEFAULT_EDGE_TYPE)
+                   facet_value=edge.edge_value,
+                   edge_type=DEFAULT_EDGE_PREDICATE)
 
     def clear(self):
         op = pydgraph.Operation(drop_all=True)
