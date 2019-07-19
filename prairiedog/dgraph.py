@@ -61,10 +61,10 @@ class Dgraph(Graph):
                 nquads = ""
         self.mutate(nquads)
 
-    def exists_node(self, node: Node) -> bool:
+    def exists_node(self, node: Node) -> typing.Tuple[bool, str]:
         query = """{{
             q(func: eq({predicate}, "{value}")) {{
-                    expand(_all_)
+                    uid
                     }}
             }}
             """.format(predicate=node.node_type, value=node.value)
@@ -73,7 +73,11 @@ class Dgraph(Graph):
         log.debug("Got res: \n{}\n of type {}".format(res, type(res)))
         r = decode(res.json)
         log.debug("Decoded as: \n{}".format(r))
-        return len(r['q']) != 0
+        if len(r['q']) != 0:
+            assert len(r['q']) == 0
+            return True, r['q'][0]
+        else:
+            return False, ""
 
     def upsert_node(self, node: Node, echo: bool = True) -> typing.Optional[
             Node]:
@@ -83,6 +87,9 @@ class Dgraph(Graph):
             nquads = '_:{value} <{type}> "{value}" .'.format(
                 value=node.value, type=node.node_type)
             self.mutate(nquads)
+
+    def upsert_edge(self, edge: Edge):
+        pass
 
     def add_edge(self, edge: Edge, echo: bool = True) -> typing.Optional[Edge]:
         self.nquads += """

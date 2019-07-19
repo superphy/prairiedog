@@ -19,6 +19,9 @@ def test_dgraph_conftest(dg):
 
 def test_dgraph_exists_node(dg):
     na = Node(node_type='n', value='a')
-    assert not dg.exists_node(na)
+    exists, _ = dg.exists_node(na)
+    assert not exists
     dg.upsert_node(na, echo=False)
-    assert dg.exists_node(na)
+    exists, uid = dg.exists_node(na)
+    assert exists
+    log.info("uid: {}".format(uid))
