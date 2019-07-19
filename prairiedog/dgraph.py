@@ -81,7 +81,8 @@ class Dgraph(Graph):
 
     def upsert_node(self, node: Node, echo: bool = True) -> typing.Optional[
             Node]:
-        if self.exists_node(node):
+        exists, _ = self.exists_node(node)
+        if exists:
             return
         else:
             nquads = '_:{value} <{type}> "{value}" .'.format(
