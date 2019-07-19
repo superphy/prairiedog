@@ -44,7 +44,6 @@ jobs:
                   name: update pip
                   command: |
                       pip install --upgrade pip
-                      pip install pyliblzma
                       pypy3 -m ensurepip
                       pypy3 -m pip install --upgrade pip
 
