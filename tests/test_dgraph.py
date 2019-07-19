@@ -1,5 +1,6 @@
 import subprocess
 import logging
+import time
 
 from prairiedog.node import Node
 
@@ -22,6 +23,7 @@ def test_dgraph_exists_node(dg):
     exists, _ = dg.exists_node(na)
     assert not exists
     dg.upsert_node(na, echo=False)
+    time.sleep(2)
     exists, uid = dg.exists_node(na)
     assert exists
     log.info("uid: {}".format(uid))
