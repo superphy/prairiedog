@@ -1,8 +1,8 @@
 import subprocess
 import logging
-import time
 
 from prairiedog.node import Node
+from prairiedog.edge import Edge
 
 log = logging.getLogger('prairiedog')
 
@@ -26,3 +26,11 @@ def test_dgraph_exists_node(dg):
     exists, uid = dg.exists_node(na)
     assert exists
     log.info("uid: {}".format(uid))
+
+
+def test_dgraph_exists_edge(dg):
+    na = Node(value="ATCG")
+    nb = Node(value="ATCC")
+    e = Edge(src="ATCG", tgt="ATCC")
+    exists, _ = dg.exists_edge(e)
+    assert not exists
