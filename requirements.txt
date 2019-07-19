@@ -11,4 +11,3 @@ dill
 psutil
 pyinstrument
 pydgraph
-pyliblzma
