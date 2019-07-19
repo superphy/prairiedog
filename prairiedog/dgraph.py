@@ -73,7 +73,7 @@ class Dgraph(Graph):
         log.debug("Got res: \n{}\n of type {}".format(res, type(res)))
         r = decode(res.json)
         log.debug("Decoded as: \n{}".format(r))
-        return len(r['q']) == 0
+        return len(r['q']) != 0
 
     def upsert_node(self, node: Node, echo: bool = True) -> typing.Optional[
             Node]:
