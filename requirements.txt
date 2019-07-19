@@ -5,9 +5,9 @@ networkx==2.3
 cython
 dateutils
 numpy
-pandas
+pandas<=0.24.2
 click>=6.0
 dill
-psutil
+psutil d
 pyinstrument
 pydgraph
