@@ -5,14 +5,13 @@ import logging
 import itertools
 import subprocess
 import tempfile
-import time
 
 import pytest
 
 from prairiedog import kmers
 from prairiedog.networkx_graph import NetworkXGraph
 from prairiedog.lemon_graph import LGGraph
-from prairiedog.dgraph import Dgraph
+from tests.dgraph import DG
 
 log = logging.getLogger('prairiedog')
 
@@ -34,6 +33,7 @@ if "CI" in os.environ:
     BACKENDS = ['lemongraph']
 else:
     BACKENDS = ['lemongraph', 'dgraph']
+
 
 @pytest.fixture
 def genome_files():
@@ -86,41 +86,6 @@ def _lgr():
     fd, path = tempfile.mkstemp()
     os.close(fd)
     return LGGraph(path, delete_on_exit=True)
-
-
-class DG(Dgraph):
-    """
-    Helper to setup and tear-down dgraph
-    """
-
-    def init_dgraph(self):
-        self._p_zero = subprocess.Popen(['dgraph', 'zero'], cwd=self.tmp_dir)
-        time.sleep(2)
-        self._p_alpha = subprocess.Popen(
-            ['dgraph', 'alpha', '--lru_mb', '2048', '--zero',
-             'localhost:5080'], cwd=self.tmp_dir)
-        time.sleep(4)
-
-    def shutdown_dgraph(self):
-        self._p_zero.terminate()
-        self._p_alpha.terminate()
-        time.sleep(2)
-
-    def __init__(self):
-        self.tmp_dir = tempfile.mkdtemp()
-        log.info("Will setup Dgraph from folder {}".format(self.tmp_dir))
-        self._p_zero = None
-        self._p_alpha = None
-        self.init_dgraph()
-        super().__init__()
-
-    def __del__(self):
-        self.clear()
-        time.sleep(2)
-        self.shutdown_dgraph()
-        shutil.rmtree(self.tmp_dir)
-        super().__del__()
-
 
 @pytest.fixture
 def dg():
