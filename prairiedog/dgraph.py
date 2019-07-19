@@ -3,6 +3,7 @@ import typing
 import time
 import pathlib
 import json
+import sys
 
 import pydgraph
 import grpc
@@ -16,6 +17,13 @@ log = logging.getLogger("prairiedog")
 
 DGRAPH_URL = 'localhost:9080'
 SCHEME = ''
+
+
+def decode(b: bytes):
+    if sys.version < (3, 6):
+        return json.loads(b.decode('utf-8'))
+    else:
+        return json.loads(b)
 
 
 class Dgraph(Graph):
@@ -62,16 +70,10 @@ class Dgraph(Graph):
             """.format(predicate=node.node_type, value=node.value)
         log.debug("Using query: \n{}".format(query))
         res = self.client.txn(read_only=True).query(query)
-        log.debug("Got res.json: \n{}\n of type {}".format(res.json, type(
-            res.json)))
-        if type(res.json) is not bytes:
-            r = json.loads(str(res.json))
-        else:
-            r = json.loads(res.json)
-        if len(r['q'] == 0):
-            return False
-        else:
-            return True
+        log.debug("Got res: \n{}\n of type {}".format(res, type(res)))
+        r = decode(res.json)
+        log.debug("Decoded as: \n{}".format(r))
+        return len(r['q']) == 0
 
     def upsert_node(self, node: Node, echo: bool = True) -> typing.Optional[
             Node]:
