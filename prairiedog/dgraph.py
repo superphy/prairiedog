@@ -74,7 +74,7 @@ class Dgraph(Graph):
         r = decode(res.json)
         log.debug("Decoded as: \n{}".format(r))
         if len(r['q']) != 0:
-            assert len(r['q']) == 0
+            assert len(r['q']) == 1
             return True, r['q'][0]
         else:
             return False, ""
