@@ -75,7 +75,7 @@ class Dgraph(Graph):
         log.debug("Decoded as: \n{}".format(r))
         if len(r['q']) != 0:
             assert len(r['q']) == 1
-            return True, r['q'][0]
+            return True, r['q'][0]['uid']
         else:
             return False, ""
 
