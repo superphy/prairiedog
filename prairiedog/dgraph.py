@@ -20,7 +20,7 @@ SCHEME = ''
 
 
 def decode(b: bytes):
-    if sys.version < (3, 6):
+    if sys.version_info < (3, 6):
         return json.loads(b.decode('utf-8'))
     else:
         return json.loads(b)
