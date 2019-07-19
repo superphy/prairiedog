@@ -20,3 +20,5 @@ def test_dgraph_conftest(dg):
 def test_dgraph_exists_node(dg):
     na = Node(node_type='n', value='a')
     assert not dg.exists_node(na)
+    dg.upsert_node(na, echo=False)
+    assert dg.exists_node(na)

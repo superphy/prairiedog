@@ -80,7 +80,9 @@ class Dgraph(Graph):
         if self.exists_node(node):
             return
         else:
-            pass
+            nquads = '_:{value} <{type}> "{value}" .'.format(
+                value=node.value, type=node.node_type)
+            self.mutate(nquads)
 
     def add_edge(self, edge: Edge, echo: bool = True) -> typing.Optional[Edge]:
         self.nquads += """
