@@ -117,7 +117,7 @@ class Dgraph(Graph):
         query = """{{
             q(func: eq({node_type}, "{src}")) {{
                 {edge_predicate} @facets(
-                    eq(type, {facet_type}) AND eq(value, {facet_value})
+                    eq(type, "{facet_type}") AND eq(value, {facet_value})
                 ) @filter(eq({node_type}, {tgt})) {{
                     uid
                 }}
@@ -143,7 +143,8 @@ class Dgraph(Graph):
             nquads = """
             _:a <{node_type}> "{src}" .
             _:b <{node_type}> "{tgt}" .
-            _:a <{edge_predicate}> _:b (type={edge_type}, value={edge_value}) .
+            _:a <{edge_predicate}> _:b (type="{edge_type}",
+                value={edge_value}) .
             """.format(node_type=node_type, src=edge.src, tgt=edge.tgt,
                        edge_predicate=edge_predicate, edge_type=edge.edge_type,
                        edge_value=edge.edge_value)
