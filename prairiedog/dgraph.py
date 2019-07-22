@@ -150,6 +150,7 @@ class Dgraph(Graph):
             """.format(node_type=node_type, src=edge.src, tgt=edge.tgt,
                        edge_predicate=edge_predicate, edge_type=edge.edge_type,
                        edge_value=edge.edge_value)
+            log.debug("Edge not found, adding nquad \n{}".format(nquads))
             self.mutate(nquads)
 
     def add_edge(self, edge: Edge, echo: bool = True) -> typing.Optional[Edge]:
