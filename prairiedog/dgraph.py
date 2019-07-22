@@ -73,7 +73,7 @@ class Dgraph(Graph):
         return r
 
     @staticmethod
-    def _exists(r) -> typing.Tuple[bool, str]:
+    def _exists_node(r) -> typing.Tuple[bool, str]:
         if len(r['q']) != 0:
             assert len(r['q']) == 1
             return True, r['q'][0]['uid']
@@ -88,7 +88,7 @@ class Dgraph(Graph):
             }}
             """.format(predicate=node.node_type, value=node.value)
         r = self.query(query)
-        return Dgraph._exists(r)
+        return Dgraph._exists_node(r)
 
     def upsert_node(self, node: Node, echo: bool = True) -> typing.Optional[
             Node]:
@@ -107,6 +107,14 @@ class Dgraph(Graph):
                 return self.upsert_node(node)
             else:
                 return
+
+    @staticmethod
+    def _exists_edge(r) -> typing.Tuple[bool, str]:
+        if len(r['q'][0]['fd']) != 0:
+            assert len(r['q']) == 1
+            return True, r['q'][0]['fd']['uid']
+        else:
+            return False, ""
 
     def exists_edge(self, edge: Edge, node_type: str = None,
                     edge_predicate: str = None) -> typing.Tuple[bool, str]:
@@ -128,7 +136,7 @@ class Dgraph(Graph):
                    edge_predicate=edge_predicate, facet_type=edge.edge_type,
                    facet_value=edge.edge_value, tgt=edge.tgt)
         r = self.query(query)
-        return Dgraph._exists(r)
+        return Dgraph._exists_edge(r)
 
     def upsert_edge(self, edge: Edge, node_type: str = None,
                     edge_predicate: str = None):
