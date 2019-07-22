@@ -32,5 +32,6 @@ def test_dgraph_exists_edge(dg):
     e = Edge(src="ATCG", tgt="ATCC", edge_value=1)
     exists, _ = dg.exists_edge(e)
     assert not exists
-    exists, _ = dg.upsert_edge(e)
+    dg.upsert_edge(e)
+    exists, _ = dg.exists_edge(e)
     assert exists
