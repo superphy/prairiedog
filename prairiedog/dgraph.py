@@ -119,7 +119,7 @@ class Dgraph(Graph):
             q(func: eq({node_type}, "{src}")) {{
                 {edge_predicate} @facets(
                     eq(type, "{facet_type}") AND eq(value, {facet_value})
-                ) @filter(eq({node_type}, {tgt})) {{
+                ) @filter(eq({node_type}, "{tgt}")) {{
                     uid
                 }}
             }}
