@@ -1,6 +1,6 @@
 import typing
 
-DEFAULT_TYPE = 'n'
+DEFAULT_NODE_TYPE = 'n'
 
 
 class Node:
@@ -8,7 +8,7 @@ class Node:
     Defines a set structure for creating nodes
     """
 
-    def __init__(self, value: str, node_type: str = DEFAULT_TYPE,
+    def __init__(self, value: str, node_type: str = DEFAULT_NODE_TYPE,
                  db_id: int = None, labels: dict = None):
         self.value = value
         self.node_type = node_type

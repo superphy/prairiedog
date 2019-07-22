@@ -10,13 +10,16 @@ import grpc
 
 from prairiedog.edge import Edge
 from prairiedog.graph import Graph
-from prairiedog.node import Node
+from prairiedog.node import Node, DEFAULT_NODE_TYPE
 from prairiedog.kmers import possible_kmers
 
 log = logging.getLogger("prairiedog")
 
 DGRAPH_URL = 'localhost:9080'
 SCHEME = ''
+
+# This is specific to Dgraph
+DEFAULT_EDGE_PREDICATE = 'fd'
 
 
 def decode(b: bytes):
@@ -61,32 +64,108 @@ class Dgraph(Graph):
                 nquads = ""
         self.mutate(nquads)
 
-    def exists_node(self, node: Node) -> bool:
-        query = """{{
-            q(func: eq({predicate}, "{value}")) {{
-                    expand(_all_)
-                    }}
-            }}
-            """.format(predicate=node.node_type, value=node.value)
-        log.debug("Using query: \n{}".format(query))
-        res = self.client.txn(read_only=True).query(query)
+    def query(self, q: str):
+        log.debug("Using query: \n{}".format(q))
+        res = self.client.txn(read_only=True).query(q)
         log.debug("Got res: \n{}\n of type {}".format(res, type(res)))
         r = decode(res.json)
         log.debug("Decoded as: \n{}".format(r))
-        return len(r['q']) != 0
+        return r
+
+    @staticmethod
+    def _exists_node(r) -> typing.Tuple[bool, str]:
+        if len(r['q']) != 0:
+            assert len(r['q']) == 1
+            return True, r['q'][0]['uid']
+        else:
+            return False, ""
+
+    def exists_node(self, node: Node) -> typing.Tuple[bool, str]:
+        query = """{{
+            q(func: eq({predicate}, "{value}")) {{
+                    uid
+                    }}
+            }}
+            """.format(predicate=node.node_type, value=node.value)
+        r = self.query(query)
+        return Dgraph._exists_node(r)
 
     def upsert_node(self, node: Node, echo: bool = True) -> typing.Optional[
             Node]:
-        if self.exists_node(node):
+        exists, uid = self.exists_node(node)
+        if exists:
+            if echo:
+                return Node(node_type=node.node_type, value=node.value,
+                            db_id=uid)
+            else:
+                return
+        else:
+            nquads = '_:{value} <{type}> "{value}" .'.format(
+                value=node.value, type=node.node_type)
+            self.mutate(nquads)
+            if echo:
+                return self.upsert_node(node)
+            else:
+                return
+
+    @staticmethod
+    def _exists_edge(r) -> typing.Tuple[bool, str]:
+        if len(r['q']) != 0:
+            assert len(r['q'][0]['fd']) == 1
+            return True, r['q'][0]['fd'][0]['uid']
+        else:
+            return False, ""
+
+    def exists_edge(self, edge: Edge, node_type: str = None,
+                    edge_predicate: str = None) -> typing.Tuple[bool, str]:
+        log.debug("Checking if edge exists...")
+        if node_type is None:
+            node_type = DEFAULT_NODE_TYPE
+        if edge_predicate is None:
+            edge_predicate = DEFAULT_EDGE_PREDICATE
+        query = """{{
+            q(func: eq({node_type}, "{src}")) {{
+                {edge_predicate} @facets(
+                    eq(type, "{facet_type}") AND eq(value, {facet_value})
+                ) @filter(eq({node_type}, "{tgt}")) {{
+                    uid
+                }}
+            }}
+        }}
+        """.format(node_type=node_type, src=edge.src,
+                   edge_predicate=edge_predicate, facet_type=edge.edge_type,
+                   facet_value=edge.edge_value, tgt=edge.tgt)
+        r = self.query(query)
+        return Dgraph._exists_edge(r)
+
+    def upsert_edge(self, edge: Edge, node_type: str = None,
+                    edge_predicate: str = None):
+        log.debug("Upserting edge...")
+        if node_type is None:
+            node_type = DEFAULT_NODE_TYPE
+        if edge_predicate is None:
+            edge_predicate = DEFAULT_EDGE_PREDICATE
+        exists, uid = self.exists_edge(edge, node_type=node_type,
+                                       edge_predicate=edge_predicate)
+        if exists:
             return
         else:
-            pass
+            nquads = """
+            _:a <{node_type}> "{src}" .
+            _:b <{node_type}> "{tgt}" .
+            _:a <{ep}> _:b (type="{edge_type}", value={edge_value}) .
+            """.format(node_type=node_type, src=edge.src, tgt=edge.tgt,
+                       ep=edge_predicate, edge_type=edge.edge_type,
+                       edge_value=edge.edge_value)
+            log.debug("Edge not found, adding nquad \n{}".format(nquads))
+            self.mutate(nquads)
 
     def add_edge(self, edge: Edge, echo: bool = True) -> typing.Optional[Edge]:
         self.nquads += """
-        _:{src} <fd> _:{tgt} (type="{type}", value={value}) .
-        """.format(src=edge.src, tgt=edge.tgt, type=edge.edge_type,
-                   value=edge.edge_value)
+        _:{src} <{edge_type}> _:{tgt} ({facet_label}={facet_value}) .
+        """.format(src=edge.src, tgt=edge.tgt, facet_label=edge.edge_type,
+                   facet_value=edge.edge_value,
+                   edge_type=DEFAULT_EDGE_PREDICATE)
 
     def clear(self):
         op = pydgraph.Operation(drop_all=True)

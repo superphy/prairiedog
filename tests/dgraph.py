@@ -6,7 +6,7 @@ import time
 
 import pydgraph
 
-from prairiedog.node import DEFAULT_TYPE
+from prairiedog.node import DEFAULT_NODE_TYPE
 from prairiedog.dgraph import Dgraph
 
 log = logging.getLogger('prairiedog')
@@ -19,7 +19,7 @@ class DG(Dgraph):
 
     SCHEMA = """
     {}: string @index(exact) @upsert .
-    """.format(DEFAULT_TYPE)
+    """.format(DEFAULT_NODE_TYPE)
 
     def init_dgraph(self):
         self._p_zero = subprocess.Popen(['dgraph', 'zero'], cwd=self.tmp_dir)
