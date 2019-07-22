@@ -110,6 +110,7 @@ class Dgraph(Graph):
 
     def exists_edge(self, edge: Edge, node_type: str = None,
                     edge_predicate: str = None) -> typing.Tuple[bool, str]:
+        log.debug("Checking if edge exists...")
         if node_type is None:
             node_type = DEFAULT_NODE_TYPE
         if edge_predicate is None:
@@ -131,6 +132,7 @@ class Dgraph(Graph):
 
     def upsert_edge(self, edge: Edge, node_type: str = None,
                     edge_predicate: str = None):
+        log.debug("Upserting edge...")
         if node_type is None:
             node_type = DEFAULT_NODE_TYPE
         if edge_predicate is None:
