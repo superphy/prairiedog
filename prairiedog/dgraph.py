@@ -110,7 +110,7 @@ class Dgraph(Graph):
 
     @staticmethod
     def _exists_edge(r) -> typing.Tuple[bool, str]:
-        if isinstance(r['q'][0], dict) and len(r['q'][0]['fd']) != 0:
+        if len(r['q']) != 0:
             assert len(r['q']) == 1
             return True, r['q'][0]['fd']['uid']
         else:
