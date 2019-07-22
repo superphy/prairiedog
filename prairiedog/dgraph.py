@@ -162,22 +162,83 @@ class Dgraph(Graph):
 
     def add_edge(self, edge: Edge, echo: bool = True) -> typing.Optional[Edge]:
         self.nquads += """
-        _:{src} <{edge_type}> _:{tgt} ({facet_label}={facet_value}) .
-        """.format(src=edge.src, tgt=edge.tgt, facet_label=edge.edge_type,
-                   facet_value=edge.edge_value,
-                   edge_type=DEFAULT_EDGE_PREDICATE)
+        _:{src} <{et}> _:{tgt} (type="{fl}", value={fv}) .
+        """.format(src=edge.src, tgt=edge.tgt, fl=edge.edge_type,
+                   fv=edge.edge_value, et=DEFAULT_EDGE_PREDICATE)
 
     def clear(self):
         op = pydgraph.Operation(drop_all=True)
         self.client.alter(op)
 
+    @staticmethod
+    def _parse_node(d: dict) -> Node:
+        n = Node(value="")
+        for k, v in d.items():
+            if k == DEFAULT_NODE_TYPE:
+                n.value = v
+            elif k == "uid":
+                n.db_id = v
+        return n
+
     @property
     def nodes(self) -> typing.Set[Node]:
-        pass
+        query = """
+        {{
+          q(func: has({type})){{
+                uid
+                expand(_all_)
+          }}
+        }}
+        """.format(type=DEFAULT_NODE_TYPE)
+        r = self.query(query)
+
+        if len(r['q']) == 0:
+            return set()
+
+        st = set()
+        for d in r['q']:
+            st.add(Dgraph._parse_node(d))
+        return st
+
+    @staticmethod
+    def _parse_edge(src, d):
+        e = Edge(src=src, tgt="")
+        for k, v in d.items():
+            if k == DEFAULT_NODE_TYPE:
+                e.tgt = v
+            elif "type" in k:
+                e.edge_type = v
+            elif "value" in k:
+                e.edge_value = v
+            elif k == "uid" :
+                e.db_id = v
+        return e
 
     @property
     def edges(self) -> typing.Set[Edge]:
-        pass
+        query = """
+        {{
+            q(func: has({nt})) @filter(has({et})) {{
+                expand(_all_) {{
+                    uid
+                    expand(_all_)
+                }}
+            }}
+        }}
+        """.format(nt=DEFAULT_NODE_TYPE, et=DEFAULT_EDGE_PREDICATE)
+        r = self.query(query)
+
+        if len(r['q']) == 0:
+            return set()
+
+        st = set()
+        for d in r['q']:
+            src = d[DEFAULT_NODE_TYPE]
+            edges = d[DEFAULT_EDGE_PREDICATE]
+            for ed in edges:
+                e = Dgraph._parse_edge(src, ed)
+                st.add(e)
+        return st
 
     def get_labels(self, node: str) -> dict:
         pass
@@ -196,7 +257,7 @@ class Dgraph(Graph):
                     depth, max_depth
                 ))
         except grpc.RpcError as rpc_error_call:
-            if depth <= max_depth:
+            if depth < max_depth:
                 log.debug("Ran into exception {}, retrying {}/{}...".format(
                     rpc_error_call, depth, max_depth
                 ))

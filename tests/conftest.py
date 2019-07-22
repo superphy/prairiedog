@@ -29,10 +29,12 @@ GENOME_FILES_SHORTENED = [
 ]
 
 # Dgraph runs via Docker in a way which isn't possible in CircleCI
-if "CI" in os.environ:
-    BACKENDS = ['lemongraph']
-else:
-    BACKENDS = ['lemongraph', 'dgraph']
+# TODO: delete commented-out code
+# if "CI" in os.environ:
+#     BACKENDS = ['lemongraph']
+# else:
+#     BACKENDS = ['lemongraph', 'dgraph']
+BACKENDS = ['lemongraph', 'dgraph']
 
 
 @pytest.fixture
