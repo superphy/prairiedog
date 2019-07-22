@@ -153,9 +153,9 @@ class Dgraph(Graph):
             nquads = """
             _:a <{node_type}> "{src}" .
             _:b <{node_type}> "{tgt}" .
-            _:a <{edge_predicate}> _:b (type="{edge_type}", value={edge_value}) .
+            _:a <{ep}> _:b (type="{edge_type}", value={edge_value}) .
             """.format(node_type=node_type, src=edge.src, tgt=edge.tgt,
-                       edge_predicate=edge_predicate, edge_type=edge.edge_type,
+                       ep=edge_predicate, edge_type=edge.edge_type,
                        edge_value=edge.edge_value)
             log.debug("Edge not found, adding nquad \n{}".format(nquads))
             self.mutate(nquads)
