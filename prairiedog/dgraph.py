@@ -41,6 +41,8 @@ class Dgraph(Graph):
     def __init__(self, port_offset: int = 0):
         self.dgraph_url = "{}:{}".format(
             DGRAPH_HOST, port("ALPHA", port_offset))
+        log.info("Will connect to Dgraph instance at {}".format(
+            self.dgraph_url))
         self._client_stub = None
         self._client = None
         self.nquads = ""
