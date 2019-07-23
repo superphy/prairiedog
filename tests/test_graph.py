@@ -33,8 +33,8 @@ def test_graph_basics_edges(g: Graph):
     g.add_edge(Edge(src=expected[0].value, tgt=expected[1].value))
     g.add_edge(Edge(src=expected[1].value, tgt=expected[2].value))
     assert {(e.src, e.tgt) for e in g.edges} == {
-        (nodes_with_ids[0].db_id, nodes_with_ids[1].db_id),
-        (nodes_with_ids[1].db_id, nodes_with_ids[2].db_id)}
+        (nodes_with_ids[0].value, nodes_with_ids[1].value),
+        (nodes_with_ids[1].value, nodes_with_ids[2].value)}
 
 
 def test_graph_node_labels(g: Graph):
