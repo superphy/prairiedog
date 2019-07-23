@@ -161,10 +161,7 @@ class Dgraph(Graph):
             self.mutate(nquads)
 
     def add_edge(self, edge: Edge, echo: bool = True) -> typing.Optional[Edge]:
-        self.nquads += """
-        _:{src} <{et}> _:{tgt} (type="{fl}", value={fv}) .
-        """.format(src=edge.src, tgt=edge.tgt, fl=edge.edge_type,
-                   fv=edge.edge_value, et=DEFAULT_EDGE_PREDICATE)
+        return self.upsert_edge(edge)
 
     def clear(self):
         op = pydgraph.Operation(drop_all=True)
@@ -273,6 +270,55 @@ class Dgraph(Graph):
             # self._txn = None
 
     def save(self, f: str = None):
+        pass
+
+    @property
+    def edgelist(self) -> typing.Generator:
+        pass
+
+    def set_graph_labels(self, labels: dict):
+        pass
+
+    def filter(self):
+        pass
+
+    def __len__(self):
+        pass
+
+    def connected(self, node_a: str, node_b: str) -> typing.Tuple[
+            bool, typing.Tuple]:
+        pass
+
+    def path(self, node_a: str, node_b: str) -> tuple:
+        pass
+
+
+class DgraphBulk(Graph):
+    def upsert_node(self, node: Node, echo: bool = True) -> typing.Optional[
+            Node]:
+        pass
+
+    def add_edge(self, edge: Edge, echo: bool = True) -> typing.Optional[Edge]:
+        self.nquads += """
+        _:{src} <{et}> _:{tgt} (type="{fl}", value={fv}) .
+        """.format(src=edge.src, tgt=edge.tgt, fl=edge.edge_type,
+                   fv=edge.edge_value, et=DEFAULT_EDGE_PREDICATE)
+
+    def clear(self):
+        pass
+
+    @property
+    def nodes(self) -> typing.Set[Node]:
+        pass
+
+    @property
+    def edges(self) -> typing.Set[Edge]:
+        pass
+
+    def get_labels(self, node: str) -> dict:
+        pass
+
+    def save(self, f: str = None):
         # self.mutate(self.nquads)
         p = pathlib.Path(f)
         # Make the subdirectories if required
@@ -298,7 +344,7 @@ class Dgraph(Graph):
         pass
 
     def connected(self, node_a: str, node_b: str) -> typing.Tuple[
-            bool, typing.Tuple]:
+        bool, typing.Tuple]:
         pass
 
     def path(self, node_a: str, node_b: str) -> tuple:
