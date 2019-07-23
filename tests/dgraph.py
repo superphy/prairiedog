@@ -26,12 +26,18 @@ class DG(Dgraph):
     def init_dgraph(self):
         log.info("Using global offset {}".format(offset))
         self._p_zero = subprocess.Popen(
-            ['dgraph', 'zero', '-o', str(offset)], cwd=self.tmp_dir)
+            ['dgraph', 'zero', '-o', str(offset)], cwd=self.tmp_dir,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
         time.sleep(2)
         self._p_alpha = subprocess.Popen(
             ['dgraph', 'alpha', '--lru_mb', '2048', '--zero',
              'localhost:{}'.format(port("ZERO", offset)),
-             '-o', str(offset)], cwd=self.tmp_dir)
+             '-o', str(offset)], cwd=self.tmp_dir,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
         time.sleep(4)
 
     def set_schema(self):
