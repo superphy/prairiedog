@@ -34,7 +34,7 @@ GENOME_FILES_SHORTENED = [
 #     BACKENDS = ['lemongraph']
 # else:
 #     BACKENDS = ['lemongraph', 'dgraph']
-BACKENDS = ['lemongraph', 'dgraph']
+BACKENDS = ['dgraph']
 
 
 @pytest.fixture
