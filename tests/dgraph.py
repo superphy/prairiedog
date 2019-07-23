@@ -38,8 +38,9 @@ class DG(Dgraph):
         self.client.alter(pydgraph.Operation(schema=DG.SCHEMA))
 
     def shutdown_dgraph(self):
-        self._p_zero.terminate()
         self._p_alpha.terminate()
+        time.sleep(2)
+        self._p_zero.terminate()
         time.sleep(2)
 
     def __init__(self):
