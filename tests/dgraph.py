@@ -7,9 +7,11 @@ import time
 import pydgraph
 
 from prairiedog.node import DEFAULT_NODE_TYPE
-from prairiedog.dgraph import Dgraph
+from prairiedog.dgraph import Dgraph, port
 
 log = logging.getLogger('prairiedog')
+
+offset = 0
 
 
 class DG(Dgraph):
@@ -22,11 +24,14 @@ class DG(Dgraph):
     """.format(DEFAULT_NODE_TYPE)
 
     def init_dgraph(self):
-        self._p_zero = subprocess.Popen(['dgraph', 'zero'], cwd=self.tmp_dir)
+        log.info("Using global offset {}".format(offset))
+        self._p_zero = subprocess.Popen(
+            ['dgraph', 'zero', '-o', offset], cwd=self.tmp_dir)
         time.sleep(2)
         self._p_alpha = subprocess.Popen(
             ['dgraph', 'alpha', '--lru_mb', '2048', '--zero',
-             'localhost:5080'], cwd=self.tmp_dir)
+             'localhost:{}'.format(port("ZERO", offset)),
+             '-o', offset], cwd=self.tmp_dir)
         time.sleep(4)
 
     def set_schema(self):
@@ -43,7 +48,10 @@ class DG(Dgraph):
         self._p_zero = None
         self._p_alpha = None
         self.init_dgraph()
-        super().__init__()
+        global offset
+        super().__init__(offset)
+        offset += 1
+        log.info("Set global offset to {}".format(offset))
         self.set_schema()
 
     def __del__(self):

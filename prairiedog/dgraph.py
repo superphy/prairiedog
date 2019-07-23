@@ -15,11 +15,18 @@ from prairiedog.kmers import possible_kmers
 
 log = logging.getLogger("prairiedog")
 
-DGRAPH_URL = 'localhost:9080'
+DGRAPH_HOST = 'localhost'
 SCHEME = ''
 
 # This is specific to Dgraph
 DEFAULT_EDGE_PREDICATE = 'fd'
+
+
+def port(component: str, offset: int = 0) -> int:
+    if component == "ZERO":
+        return 5080 + offset
+    elif component == "ALPHA":
+        return 9080 + offset
 
 
 def decode(b: bytes):
@@ -31,7 +38,9 @@ def decode(b: bytes):
 
 class Dgraph(Graph):
 
-    def __init__(self):
+    def __init__(self, port_offset: int = 0):
+        self.dgraph_url = "{}:{}".format(
+            DGRAPH_HOST, port("ALPHA", port_offset))
         self._client_stub = None
         self._client = None
         self.nquads = ""
@@ -40,7 +49,7 @@ class Dgraph(Graph):
     @property
     def client_stub(self):
         if self._client_stub is None:
-            self._client_stub = pydgraph.DgraphClientStub(DGRAPH_URL)
+            self._client_stub = pydgraph.DgraphClientStub(self.dgraph_url)
         return self._client_stub
 
     @property
