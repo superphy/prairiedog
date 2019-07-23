@@ -8,7 +8,7 @@ import pytest
 from prairiedog.graph import Graph
 from prairiedog.node import Node
 from prairiedog.edge import Edge
-
+from prairiedog.errors import GraphException
 
 def test_graph_basics_nodes(g: Graph):
     expected = ["ABC", "BCE", "CEF"]
@@ -32,9 +32,12 @@ def test_graph_basics_edges(g: Graph):
 
     g.add_edge(Edge(src=expected[0].value, tgt=expected[1].value))
     g.add_edge(Edge(src=expected[1].value, tgt=expected[2].value))
-    assert {(e.src, e.tgt) for e in g.edges} == {
-        (nodes_with_ids[0].value, nodes_with_ids[1].value),
-        (nodes_with_ids[1].value, nodes_with_ids[2].value)}
+    try:
+        assert {(e.src, e.tgt) for e in g.edges} == {
+            (nodes_with_ids[0].value, nodes_with_ids[1].value),
+            (nodes_with_ids[1].value, nodes_with_ids[2].value)}
+    except:
+        raise GraphException(g)
 
 
 def test_graph_node_labels(g: Graph):
