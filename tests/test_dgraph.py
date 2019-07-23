@@ -18,6 +18,11 @@ def test_dgraph_conftest(dg):
     assert True
 
 
+def test_dgraph_preload(dg):
+    dg.preload()
+    assert True
+    
+
 def test_dgraph_exists_node(dg):
     na = Node(node_type='n', value='a')
     exists, _ = dg.exists_node(na)
