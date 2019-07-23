@@ -12,6 +12,7 @@ from prairiedog.errors import GraphException
 from prairiedog.lemon_graph import LGGraph
 from prairiedog.dgraph import Dgraph
 
+
 def test_graph_basics_nodes(g: Graph):
     expected = ["ABC", "BCE", "CEF"]
     expected = set(Node(value=v) for v in expected)
@@ -26,23 +27,24 @@ def test_graph_basics_nodes(g: Graph):
 def test_graph_basics_edges_lemongraph(lg: LGGraph):
     g = lg
     expected = ["ABC", "BCE", "CEF"]
-        expected = [Node(value=v) for v in expected]
+    expected = [Node(value=v) for v in expected]
 
-        nodes_with_ids = []
-        for node in expected:
-            # Returned the node with db_id set, these are required to check edges
-            n = g.upsert_node(node)
-            nodes_with_ids.append(n)
+    nodes_with_ids = []
+    for node in expected:
+        # Returned the node with db_id set, these are required to check edges
+        n = g.upsert_node(node)
+        nodes_with_ids.append(n)
 
-        g.add_edge(Edge(src=expected[0].value, tgt=expected[1].value))
-        g.add_edge(Edge(src=expected[1].value, tgt=expected[2].value))
-        try:
-            # In lemongraph these are stored as numerical IDs
-            assert {(e.src, e.tgt) for e in g.edges} == {
-                (nodes_with_ids[0].db_id, nodes_with_ids[1].db_id),
-                (nodes_with_ids[1].db_id, nodes_with_ids[2].db_id)}
-        except:
-            raise GraphException(g)
+    g.add_edge(Edge(src=expected[0].value, tgt=expected[1].value))
+    g.add_edge(Edge(src=expected[1].value, tgt=expected[2].value))
+    try:
+        # In lemongraph these are stored as numerical IDs
+        assert {(e.src, e.tgt) for e in g.edges} == {
+            (nodes_with_ids[0].db_id, nodes_with_ids[1].db_id),
+            (nodes_with_ids[1].db_id, nodes_with_ids[2].db_id)}
+    except:
+        raise GraphException(g)
+
 
 def test_graph_basics_edges_dgraph(dg: Dgraph):
     g = dg
