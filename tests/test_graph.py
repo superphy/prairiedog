@@ -24,7 +24,7 @@ def test_graph_basics_nodes(g: Graph):
 
 
 # TODO: merge lemongraph and graph basic edges tests
-def test_graph_basics_edges_lemongraph(lg: LGGraph):
+def test_graph_basics_edges_lemongraph(lgr: LGGraph):
     g = lg
     expected = ["ABC", "BCE", "CEF"]
     expected = [Node(value=v) for v in expected]
