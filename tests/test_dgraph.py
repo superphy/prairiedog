@@ -17,10 +17,10 @@ def test_dgraph_install():
 def test_dgraph_conftest(dg):
     assert True
 
-
-def test_dgraph_preload(dg):
-    dg.preload()
-    assert True
+# TODO: this currently runs too slow for tests
+# def test_dgraph_preload(dg):
+#     dg.preload()
+#     assert True
 
 
 def test_dgraph_exists_node(dg):
