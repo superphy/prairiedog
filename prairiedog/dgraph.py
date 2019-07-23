@@ -300,8 +300,53 @@ class Dgraph(Graph):
             bool, typing.Tuple]:
         pass
 
+    @staticmethod
+    def _parse_types(l: list, ep: str) -> typing.Set[str]:
+        st = set()
+        for d in l:
+            t = d[ep][0]["{}|type".format(ep)]
+            st.add(t)
+        return st
+
+    def query_paths(self, uid_a: str, uid_b: str, t: str,
+                    n: int = 100) -> tuple:
+        query = """
+        {{
+            path as shortest(from: {uid_a}, to: {uid_b}, numpaths: {n}) {{
+                {ep} @facets(eq(type, {t}))
+            }}
+            path(func: uid(path)) {{
+                {nt}
+            }}
+        }}
+        """.format(nt=DEFAULT_NODE_TYPE, ep=DEFAULT_EDGE_PREDICATE,
+                   uid_a=uid_a, uid_b=uid_b, t=t, n=n)
+        r = self.query(query)
+
     def path(self, node_a: str, node_b: str) -> tuple:
-        pass
+        exists, uid_a = self.exists_node(Node(value=node_a))
+        if not exists:
+            return tuple()
+        exists, uid_b = self.exists_node(Node(value=node_b))
+        if not exists:
+            return tuple()
+        # We first have to find all "type"(s) of edges there are; these are the
+        # source genomes
+        query_et = """
+        {{
+            q(func: eq(km, "{src}")){{
+                {ep} @facets(type)
+            }}
+        }}
+        """.format(src=node_a, ep=DEFAULT_EDGE_PREDICATE)
+        r = self.query(query_et)
+        if len(r["q"]) == 0:
+            return tuple()
+        types = self._parse_types(r["q"], DEFAULT_EDGE_PREDICATE)
+        paths = tuple()
+        for t in types:
+            p = self.query_paths(uid_a, uid_b, t)
+            paths += p
 
 
 class DgraphBulk(Graph):
