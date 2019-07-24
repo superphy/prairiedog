@@ -13,6 +13,9 @@ log = logging.getLogger('prairiedog')
 
 offset = 0
 
+with open("dgraph/kmers.schema") as f:
+    KMERS_SCHEMA = ''.join(line.rstrip() for line in f)
+
 
 class DG(Dgraph):
     """
@@ -42,6 +45,7 @@ class DG(Dgraph):
 
     def set_schema(self):
         self.client.alter(pydgraph.Operation(schema=DG.SCHEMA))
+        self.client.alter(pydgraph.Operation(schema=KMERS_SCHEMA))
 
     def shutdown_dgraph(self):
         self._p_alpha.terminate()
