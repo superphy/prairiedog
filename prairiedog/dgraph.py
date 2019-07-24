@@ -388,11 +388,11 @@ class Dgraph(Graph):
         # source genomes
         query_et = """
         {{
-            q(func: eq(km, "{src}")){{
+            q(func: eq({nt}, "{src}")){{
                 {ep} @facets(type)
             }}
         }}
-        """.format(src=node_a, ep=DEFAULT_EDGE_PREDICATE)
+        """.format(src=node_a, nt=DEFAULT_NODE_TYPE, ep=DEFAULT_EDGE_PREDICATE)
         r = self.query(query_et)
         if len(r["q"]) == 0:
             log.info("No types found, returning...")
