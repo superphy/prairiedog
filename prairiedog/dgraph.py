@@ -308,19 +308,49 @@ class Dgraph(Graph):
             st.add(t)
         return st
 
-    def query_paths(self, uid_a: str, uid_b: str, t: str,
-                    n: int = 100) -> tuple:
+    def find_value(self, uid: str, t: str) -> int:
         query = """
         {{
-            path as shortest(from: {uid_a}, to: {uid_b}, numpaths: {n}) {{
-                {ep} @facets(eq(type, {t}))
+            q(func: uid({uid})) {{
+                {ep} @facets(eq(type, {et})) @facets(value)
+            }}
+        }}
+        """.format(uid=uid, ep=DEFAULT_EDGE_PREDICATE, et=t)
+        r = self.query(query)
+        if len(r["q"]) == 0:
+            return -1
+        return r["q"][0][DEFAULT_EDGE_PREDICATE][0][
+            "{}|value".format(DEFAULT_EDGE_PREDICATE)]
+
+    def find_depth(self, uid_a: str, uid_b: str, t: str) -> int:
+        """
+        Depth is used for prevent queries from getting stuck in a cycle.
+        :param uid_a:
+        :param uid_b:
+        :param t:
+        :return:
+        """
+        va = self.find_value(uid_a, t)
+        vb = self.find_value(uid_b, t)
+        depth = vb - va
+        # Depth is in number of hops, so +1
+        return depth+1
+
+    def query_paths(self, uid_a: str, uid_b: str, t: str,
+                    n: int = 100) -> tuple:
+        depth = self.find_depth(uid_a, uid_b, t)
+        query = """
+        {{
+            path as shortest(
+                from:{uid_a}, to:{uid_b}, numpaths:{n} depth:{d}) {{
+                    {ep} @facets(eq(type, {t}))
             }}
             path(func: uid(path)) {{
                 {nt}
             }}
         }}
         """.format(nt=DEFAULT_NODE_TYPE, ep=DEFAULT_EDGE_PREDICATE,
-                   uid_a=uid_a, uid_b=uid_b, t=t, n=n)
+                   uid_a=uid_a, uid_b=uid_b, t=t, n=n, d=depth)
         r = self.query(query)
 
     def path(self, node_a: str, node_b: str) -> tuple:

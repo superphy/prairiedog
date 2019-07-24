@@ -40,3 +40,36 @@ def test_dgraph_exists_edge(dg):
     dg.upsert_edge(e)
     exists, _ = dg.exists_edge(e)
     assert exists
+
+
+def test_dgraph_find_value(dg):
+    na = Node(value="ATCG")
+    nb = Node(value="ATCC")
+    dg.upsert_node(na)
+    dg.upsert_node(nb)
+    e = Edge(src="ATCG", tgt="ATCC", edge_type="genome_a", edge_value=0)
+    dg.upsert_edge(e)
+    _, uid = dg.exists_node(na)
+    v = dg.find_value(uid, "genome_a")
+    assert v == 0
+
+
+def test_dgraph_find_depth(dg):
+    na = Node(value="ATCG")
+    nb = Node(value="ATCC")
+    dg.upsert_node(na)
+    dg.upsert_node(nb)
+    e = Edge(src="ATCG", tgt="ATCC", edge_type="genome_a", edge_value=0)
+    dg.upsert_edge(e)
+    _, uid_a = dg.exists_node(na)
+    _, uid_b = dg.exists_node(nb)
+    d = dg.find_depth(uid_a, uid_b, "genome_a")
+    assert d == 1
+
+    nc = Node(value="ATGG")
+    dg.upsert_node(nc)
+    e2 = Edge(src="ATCC", tgt="ATGG", edge_type="genome_a", edge_value=1)
+    dg.upsert_edge(e2)
+    _, uid_c = dg.exists_node(nc)
+    d2 = dg.find_depth(uid_a, uid_c, "genome_a")
+    assert d2 == 2
