@@ -359,8 +359,9 @@ class Dgraph(Graph):
 
     def query_paths(self, uid_a: str, uid_b: str, t: str,
                     n: int = 100) -> tuple:
-        log.debug("Querying path between {} and {}".format(uid_a, uid_b))
+        log.info("Querying path between {} and {}".format(uid_a, uid_b))
         depth = self.find_depth(uid_a, uid_b, t)
+        log.info("Found depth of: {}".format(depth))
         query = """
         {{
             path as shortest(
