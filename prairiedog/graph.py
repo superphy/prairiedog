@@ -76,7 +76,7 @@ class Graph(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def path(self, node_a: str, node_b: str) -> tuple:
+    def path(self, node_a: str, node_b: str) -> typing.Tuple[tuple, tuple]:
         pass
 
     @staticmethod

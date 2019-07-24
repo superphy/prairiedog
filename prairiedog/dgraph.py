@@ -377,14 +377,14 @@ class Dgraph(Graph):
         r = self.query(query)
         log.info("query_paths() got {}".format(r))
 
-    def path(self, node_a: str, node_b: str) -> tuple:
+    def path(self, node_a: str, node_b: str) -> typing.Tuple[tuple, tuple]:
         log.info("Checking all paths between {} and {}".format(node_a, node_b))
         exists, uid_a = self.exists_node(Node(value=node_a))
         if not exists:
-            return tuple()
+            return tuple(), tuple()
         exists, uid_b = self.exists_node(Node(value=node_b))
         if not exists:
-            return tuple()
+            return tuple(), tuple()
         log.info("Both nodes exist, checking types...")
         # We first have to find all "type"(s) of edges there are; these are the
         # source genomes
@@ -398,7 +398,7 @@ class Dgraph(Graph):
         r = self.query(query_et)
         if len(r["q"]) == 0:
             log.info("No types found, returning...")
-            return tuple()
+            return tuple(), tuple()
         types = self._parse_types(r["q"], DEFAULT_EDGE_PREDICATE)
         log.info("Found types as: {}".format(types))
         paths = tuple()
