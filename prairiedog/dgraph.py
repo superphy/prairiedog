@@ -312,7 +312,7 @@ class Dgraph(Graph):
         query = """
         {{
             q(func: uid({uid})) {{
-                {ep} @facets(eq(type, {et})) @facets(value)
+                {ep} @facets(eq(type, "{et}")) @facets(value)
             }}
         }}
         """.format(uid=uid, ep=DEFAULT_EDGE_PREDICATE, et=t)
@@ -331,7 +331,11 @@ class Dgraph(Graph):
         :return:
         """
         va = self.find_value(uid_a, t)
+        if va == -1:
+            return -1
         vb = self.find_value(uid_b, t)
+        if vb == -1:
+            return -1
         depth = vb - va
         # Depth is in number of hops, so +1
         return depth+1
@@ -343,7 +347,7 @@ class Dgraph(Graph):
         {{
             path as shortest(
                 from:{uid_a}, to:{uid_b}, numpaths:{n} depth:{d}) {{
-                    {ep} @facets(eq(type, {t}))
+                    {ep} @facets(eq(type, "{t}"))
             }}
             path(func: uid(path)) {{
                 {nt}
