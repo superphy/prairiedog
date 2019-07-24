@@ -373,6 +373,7 @@ class Dgraph(Graph):
         """.format(nt=DEFAULT_NODE_TYPE, ep=DEFAULT_EDGE_PREDICATE,
                    uid_a=uid_a, uid_b=uid_b, t=t, n=n, d=depth)
         r = self.query(query)
+        log.info("query_paths() got {}".format(r))
 
     def path(self, node_a: str, node_b: str) -> tuple:
         exists, uid_a = self.exists_node(Node(value=node_a))
@@ -394,6 +395,7 @@ class Dgraph(Graph):
         if len(r["q"]) == 0:
             return tuple()
         types = self._parse_types(r["q"], DEFAULT_EDGE_PREDICATE)
+        log.info("Found types as {}".format(types))
         paths = tuple()
         for t in types:
             p = self.query_paths(uid_a, uid_b, t)
