@@ -376,6 +376,7 @@ class Dgraph(Graph):
         log.info("query_paths() got {}".format(r))
 
     def path(self, node_a: str, node_b: str) -> tuple:
+        log.info("Checking path between {} and {}".format(node_a, node_b))
         exists, uid_a = self.exists_node(Node(value=node_a))
         if not exists:
             return tuple()
