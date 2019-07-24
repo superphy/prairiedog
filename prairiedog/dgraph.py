@@ -161,8 +161,10 @@ class Dgraph(Graph):
         if exists:
             return
         else:
-            uid_a = self.upsert_node(Node(node_type=node_type, value=edge.src))
-            uid_b = self.upsert_node(Node(node_type=node_type, value=edge.tgt))
+            uid_a = self.upsert_node(
+                Node(node_type=node_type, value=edge.src), echo=True).db_id
+            uid_b = self.upsert_node(
+                Node(node_type=node_type, value=edge.tgt), echo=True).db_id
             nquads = """
             <{a}> <{ep}> <{b}> (type="{edge_type}", value={edge_value}) .
             """.format(a=uid_a, b=uid_b,
