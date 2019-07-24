@@ -161,11 +161,11 @@ class Dgraph(Graph):
         if exists:
             return
         else:
+            uid_a = self.upsert_node(Node(value=edge.src))
+            uid_b = self.upsert_node(Node(value=edge.tgt))
             nquads = """
-            _:a <{node_type}> "{src}" .
-            _:b <{node_type}> "{tgt}" .
-            _:a <{ep}> _:b (type="{edge_type}", value={edge_value}) .
-            """.format(node_type=node_type, src=edge.src, tgt=edge.tgt,
+            <{a}> <{ep}> <{b}> (type="{edge_type}", value={edge_value}) .
+            """.format(a=uid_a, b=uid_b,
                        ep=edge_predicate, edge_type=edge.edge_type,
                        edge_value=edge.edge_value)
             log.debug("Edge not found, adding nquad \n{}".format(nquads))

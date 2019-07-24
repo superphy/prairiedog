@@ -51,6 +51,7 @@ def test_dgraph_find_value(dg):
     dg.upsert_edge(e)
     _, uid = dg.exists_node(na)
     v = dg.find_value(uid, "genome_a")
+    log.info("Found value for {} as {}".format(uid, v))
     assert v == 0
 
 
@@ -64,6 +65,7 @@ def test_dgraph_find_depth(dg):
     _, uid_a = dg.exists_node(na)
     _, uid_b = dg.exists_node(nb)
     d = dg.find_depth(uid_a, uid_b, "genome_a")
+    log.info("Found depth for {} to {} as {}".format(uid_a, uid_b, d))
     assert d == 1
 
     nc = Node(value="ATGG")
@@ -72,4 +74,5 @@ def test_dgraph_find_depth(dg):
     dg.upsert_edge(e2)
     _, uid_c = dg.exists_node(nc)
     d2 = dg.find_depth(uid_a, uid_c, "genome_a")
+    log.info("Found depth for {} to {} as {}".format(uid_a, uid_c, d))
     assert d2 == 2
