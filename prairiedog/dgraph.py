@@ -383,6 +383,7 @@ class Dgraph(Graph):
         exists, uid_b = self.exists_node(Node(value=node_b))
         if not exists:
             return tuple()
+        log.info("Both nodes exist, checking types...")
         # We first have to find all "type"(s) of edges there are; these are the
         # source genomes
         query_et = """
@@ -394,6 +395,7 @@ class Dgraph(Graph):
         """.format(src=node_a, ep=DEFAULT_EDGE_PREDICATE)
         r = self.query(query_et)
         if len(r["q"]) == 0:
+            log.info("No types found, returning...")
             return tuple()
         types = self._parse_types(r["q"], DEFAULT_EDGE_PREDICATE)
         log.info("Found types as {}".format(types))
