@@ -359,6 +359,7 @@ class Dgraph(Graph):
 
     def query_paths(self, uid_a: str, uid_b: str, t: str,
                     n: int = 100) -> tuple:
+        log.debug("Querying path between {} and {}".format(uid_a, uid_b))
         depth = self.find_depth(uid_a, uid_b, t)
         query = """
         {{
@@ -376,7 +377,7 @@ class Dgraph(Graph):
         log.info("query_paths() got {}".format(r))
 
     def path(self, node_a: str, node_b: str) -> tuple:
-        log.info("Checking path between {} and {}".format(node_a, node_b))
+        log.info("Checking all paths between {} and {}".format(node_a, node_b))
         exists, uid_a = self.exists_node(Node(value=node_a))
         if not exists:
             return tuple()
@@ -398,9 +399,10 @@ class Dgraph(Graph):
             log.info("No types found, returning...")
             return tuple()
         types = self._parse_types(r["q"], DEFAULT_EDGE_PREDICATE)
-        log.info("Found types as {}".format(types))
+        log.info("Found types as: {}".format(types))
         paths = tuple()
         for t in types:
+            log.info("Checking path for type: {}".format(t))
             p = self.query_paths(uid_a, uid_b, t)
             paths += p
 
