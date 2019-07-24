@@ -365,7 +365,7 @@ class Dgraph(Graph):
         query = """
         {{
             path as shortest(
-                from:{uid_a}, to:{uid_b}, numpaths:{n} depth:{d}) {{
+                from:{uid_a}, to:{uid_b}, numpaths:{n}, depth:{d}) {{
                     {ep} @facets(eq(type, "{t}"))
             }}
             path(func: uid(path)) {{
