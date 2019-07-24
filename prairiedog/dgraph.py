@@ -324,6 +324,21 @@ class Dgraph(Graph):
         return r["q"][0][DEFAULT_EDGE_PREDICATE][0][
             "{}|value".format(DEFAULT_EDGE_PREDICATE)]
 
+    def find_value_reverse(self, uid: str, t: str) -> int:
+        query = """
+        {{
+            q(func: has({nt})) @filter(uid_in({ep}, {uid})) {{
+                {ep} @facets(eq(type, "{t}")) @facets(value)
+            }}  
+        }}
+        """.format(nt=DEFAULT_NODE_TYPE, ep=DEFAULT_EDGE_PREDICATE, uid=uid,
+                   t=t)
+        r = self.query(query)
+        if len(r["q"]) == 0:
+            return -1
+        return r["q"][0][DEFAULT_EDGE_PREDICATE][0][
+            "{}|value".format(DEFAULT_EDGE_PREDICATE)]
+
     def find_depth(self, uid_a: str, uid_b: str, t: str) -> int:
         """
         Depth is used for prevent queries from getting stuck in a cycle.
@@ -335,7 +350,7 @@ class Dgraph(Graph):
         va = self.find_value(uid_a, t)
         if va == -1:
             return -1
-        vb = self.find_value(uid_b, t)
+        vb = self.find_value_reverse(uid_b, t)
         if vb == -1:
             return -1
         depth = vb - va

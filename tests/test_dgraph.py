@@ -53,6 +53,9 @@ def test_dgraph_find_value(dg):
     v = dg.find_value(uid, "genome_a")
     log.info("Found value for {} as {}".format(uid, v))
     assert v == 0
+    _, uid_b = dg.exists_node(nb)
+    v2 = dg.find_value_reverse(uid_b, "genome_a")
+    assert v2 == 0
 
 
 def test_dgraph_find_depth(dg):
