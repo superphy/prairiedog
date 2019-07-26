@@ -102,7 +102,7 @@ class Dgraph(Graph):
         return Dgraph._exists_node(r)
 
     def upsert_node(self, node: Node, echo: bool = True) -> typing.Optional[
-            Node]:
+        Node]:
         exists, uid = self.exists_node(node)
         if exists:
             if echo:
@@ -220,7 +220,7 @@ class Dgraph(Graph):
                 e.edge_type = v
             elif "value" in k:
                 e.edge_value = v
-            elif k == "uid" :
+            elif k == "uid":
                 e.db_id = v
         return e
 
@@ -271,8 +271,8 @@ class Dgraph(Graph):
                 log.debug("Ran into exception {}, retrying {}/{}...".format(
                     rpc_error_call, depth, max_depth
                 ))
-                time.sleep(2**depth)
-                self.mutate(nquads=nquads, depth=depth+1)
+                time.sleep(2 ** depth)
+                self.mutate(nquads=nquads, depth=depth + 1)
         except Exception as e:
             log.debug("Exception type was {}".format(type(e)))
             raise e
@@ -299,7 +299,7 @@ class Dgraph(Graph):
         pass
 
     def connected(self, node_a: str, node_b: str) -> typing.Tuple[
-            bool, typing.Tuple]:
+        bool, typing.Tuple]:
         pass
 
     @staticmethod
@@ -339,43 +339,22 @@ class Dgraph(Graph):
         return r["q"][0][DEFAULT_EDGE_PREDICATE][0][
             "{}|value".format(DEFAULT_EDGE_PREDICATE)]
 
-    def find_depth(self, uid_a: str, uid_b: str, t: str) -> int:
-        """
-        Depth is used for prevent queries from getting stuck in a cycle.
-        :param uid_a:
-        :param uid_b:
-        :param t:
-        :return:
-        """
-        va = self.find_value(uid_a, t)
-        if va == -1:
-            return -1
-        vb = self.find_value_reverse(uid_b, t)
-        if vb == -1:
-            return -1
-        depth = vb - va
-        # Depth is in number of hops, so +1
-        return depth+1
+    @staticmethod
+    def _path_query(node_type: str, node_value: str, edge_predicate: str,
+                    edge_type: str, start_int: int, end_int: int) -> str:
+        s = '{{f(func: eq({nt}, "{nv}")) {{ {nt} '.format(
+            nt=node_type, nv=node_value)
+        for ix in range(start_int, end_int + 1):
+            s += '{ep} @filter(eq(type, "{et}") AND eq(value, {v})) {{ {ep} {{ {nt}'.format(
+                ep=edge_predicate, et=edge_type, v=ix, nt=node_type)
+        for ix in range(start_int, end_int + 1):
+            s += '}}'
+        s += '}}'
+        return s
 
-    def query_paths(self, uid_a: str, uid_b: str, t: str,
-                    n: int = 100) -> tuple:
-        log.info("Querying path between {} and {}".format(uid_a, uid_b))
-        depth = self.find_depth(uid_a, uid_b, t)
-        log.info("Found depth of: {}".format(depth))
-        query = """
-        {{
-            path as shortest(
-                from:{uid_a}, to:{uid_b}, numpaths:{n}, depth:{d}) {{
-                    {ep} @facets(eq(type, "{t}"))
-            }}
-            path(func: uid(path)) {{
-                {nt}
-            }}
-        }}
-        """.format(nt=DEFAULT_NODE_TYPE, ep=DEFAULT_EDGE_PREDICATE,
-                   uid_a=uid_a, uid_b=uid_b, t=t, n=n, d=depth)
-        r = self.query(query)
-        log.info("query_paths() got {}".format(r))
+    @staticmethod
+    def _parse_path(d: dict, node_type: str, edge_predicate: str) -> str:
+        return ""
 
     def path(self, node_a: str, node_b: str) -> typing.Tuple[tuple, tuple]:
         log.info("Checking all paths between {} and {}".format(node_a, node_b))
@@ -404,7 +383,17 @@ class Dgraph(Graph):
         paths = tuple()
         for t in types:
             log.info("Checking path for type: {}".format(t))
-            p = self.query_paths(uid_a, uid_b, t)
+            start_int = self.find_value(uid_a, t)
+            end_int = self.find_value_reverse(uid_b, t)
+            log.info("Found start value of {} and end value  of {}".format(
+                start_int, end_int))
+            query = self._path_query(
+                node_type=DEFAULT_NODE_TYPE, node_value=node_a,
+                edge_predicate=DEFAULT_EDGE_PREDICATE, edge_type=t,
+                start_int=start_int, end_int=end_int)
+            r = self.query(query)
+            log.info(r)
+            p = self._parse_path(r, DEFAULT_NODE_TYPE, DEFAULT_EDGE_PREDICATE)
             paths += p
 
 
