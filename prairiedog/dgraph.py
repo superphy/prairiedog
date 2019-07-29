@@ -369,7 +369,7 @@ class Dgraph(Graph):
     @staticmethod
     def _path_query(node_type: str, node_value: str, edge_predicate: str,
                     edge_type: str, start_int: int, end_int: int) -> str:
-        s = '{{f(func: eq({nt}, "{nv}")) {{ {nt} '.format(
+        s = '{{q(func: eq({nt}, "{nv}")) {{ {nt} '.format(
             nt=node_type, nv=node_value)
         for ix in range(start_int, end_int + 1):
             s += '{ep} @filter(eq(type, "{et}") AND eq(value, {v})) {{ {ep} {{ {nt}'.format(
@@ -381,7 +381,13 @@ class Dgraph(Graph):
 
     @staticmethod
     def _parse_path(d: dict, node_type: str, edge_predicate: str) -> str:
-        return ""
+        s = d[node_type]
+        while True:
+            if edge_predicate not in d:
+                break
+            d = d[edge_predicate][0][edge_predicate][0]
+            s += d[node_type][-1]
+        return s
 
     def path(self, node_a: str, node_b: str) -> typing.Tuple[tuple, tuple]:
         log.info("Checking all paths between {} and {}".format(node_a, node_b))
@@ -414,7 +420,7 @@ class Dgraph(Graph):
             log.info("Checking path for type: {}".format(t))
             start_int = self.find_value(uid_a, t)
             end_int = self.find_value_reverse(uid_b, t)
-            log.info("Found start value of {} and end value  of {}".format(
+            log.info("Found start value of {} and end value of {}".format(
                 start_int, end_int))
             query = self._path_query(
                 node_type=DEFAULT_NODE_TYPE, node_value=node_a,
@@ -422,7 +428,11 @@ class Dgraph(Graph):
                 start_int=start_int, end_int=end_int)
             r = self.query(query)
             log.info(r)
-            p = self._parse_path(r, DEFAULT_NODE_TYPE, DEFAULT_EDGE_PREDICATE)
+            if len(r['q']) != 1:
+                log.warning("Path not found for type: {}".format(t))
+                continue
+            p = self._parse_path(
+                r['q'][0], DEFAULT_NODE_TYPE, DEFAULT_EDGE_PREDICATE)
             paths += p
 
 
