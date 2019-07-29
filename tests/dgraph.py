@@ -14,9 +14,8 @@ log = logging.getLogger('prairiedog')
 offset = 0
 
 with open("dgraph/kmers.schema") as f:
-    log.info("Trying to parse kmers schema...")
-    KMERS_SCHEMA = ' '.join(line.rstrip() for line in f)
-    log.info("Parsed kmers schemas as {}".format(KMERS_SCHEMA))
+    KMERS_SCHEMA = ''.join(line for line in f)
+
 
 class DG(Dgraph):
     """
