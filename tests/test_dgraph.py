@@ -49,10 +49,21 @@ def test_dgraph_find_value(dg):
     dg.upsert_node(nb)
     e = Edge(src="ATCG", tgt="ATCC", edge_type="genome_a", edge_value=0)
     dg.upsert_edge(e)
+
     _, uid = dg.exists_node(na)
     v = dg.find_value(uid, "genome_a")
     log.info("Found value for {} as {}".format(uid, v))
     assert v == 0
+
+
+def test_dgraph_find_value_reverse(dg):
+    na = Node(value="ATCG")
+    nb = Node(value="ATCC")
+    dg.upsert_node(na)
+    dg.upsert_node(nb)
+    e = Edge(src="ATCG", tgt="ATCC", edge_type="genome_a", edge_value=0)
+    dg.upsert_edge(e)
+    
     _, uid_b = dg.exists_node(nb)
     v2 = dg.find_value_reverse(uid_b, "genome_a")
     assert v2 == 0
