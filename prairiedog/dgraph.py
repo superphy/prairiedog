@@ -346,7 +346,7 @@ class Dgraph(Graph):
         r = self.query(query)
         if len(r["q"]) == 0:
             return -1
-        return r["q"][0][DEFAULT_EDGE_PREDICATE][0]["value"]
+        return r["q"][0]["value"]
 
     def find_depth(self, uid_a: str, uid_b: str, t: str) -> int:
         """
