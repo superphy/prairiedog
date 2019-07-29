@@ -14,7 +14,7 @@ log = logging.getLogger('prairiedog')
 offset = 0
 
 with open("dgraph/kmers.schema") as f:
-    KMERS_SCHEMA = ''.join(line.rstrip() for line in f)
+    KMERS_SCHEMA = ' '.join(line.rstrip() for line in f)
 
 
 class DG(Dgraph):
