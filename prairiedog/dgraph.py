@@ -311,7 +311,7 @@ class Dgraph(Graph):
     def _parse_types(l: list, ep: str) -> typing.Set[str]:
         st = set()
         for d in l:
-            t = d[ep][0]["{}|type".format(ep)]
+            t = d[ep][0]["type"]
             st.add(t)
         return st
 
@@ -329,26 +329,22 @@ class Dgraph(Graph):
         r = self.query(query)
         if len(r["q"]) == 0:
             return -1
-        return r["q"][0][DEFAULT_EDGE_PREDICATE][0][
-            "{}|value".format(DEFAULT_EDGE_PREDICATE)]
+        return r["q"][0][DEFAULT_EDGE_PREDICATE][0]["value"]
 
     def find_value_reverse(self, uid: str, t: str) -> int:
         query = """
         {{
-            q(func: has({nt})) @filter(uid_in({ep}, {uid})) {{
-                {ep} {{
-                    value
-                    @filter(type, "{t}")
-                }}
+            q(func: has({ep})) @filter(uid_in({ep}, {uid})) {{
+                value
+                @filter(type, "{et}")
             }}  
         }}
         """.format(nt=DEFAULT_NODE_TYPE, ep=DEFAULT_EDGE_PREDICATE, uid=uid,
-                   t=t)
+                   et=t)
         r = self.query(query)
         if len(r["q"]) == 0:
             return -1
-        return r["q"][0][DEFAULT_EDGE_PREDICATE][0][
-            "{}|value".format(DEFAULT_EDGE_PREDICATE)]
+        return r["q"][0][DEFAULT_EDGE_PREDICATE][0]["value"]
 
     @staticmethod
     def _path_query(node_type: str, node_value: str, edge_predicate: str,
