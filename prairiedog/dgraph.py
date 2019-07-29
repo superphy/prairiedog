@@ -232,10 +232,11 @@ class Dgraph(Graph):
 
     @staticmethod
     def _parse_edges(list_edges: list, node_type: str,
-                     edge_predicate: str) -> set:
+                     edge_predicate: str, src: str = None) -> set:
         st = set()
         for d in list_edges:
-            src = d[node_type]
+            if src is None:
+                src = d[node_type]
             edges_list = d[edge_predicate]
             for edge_dict in edges_list:
                 e = Dgraph._parse_edge(src, edge_dict, node_type,
@@ -336,7 +337,33 @@ class Dgraph(Graph):
 
     def find_edges_reverse(self, node_value: str) -> set:
         _, uid = self.exists_node(Node(value=node_value))
+        # Find the uid of the edge
         query = """
+        {{
+            q(func: has({et})) @filter(uid_in({et}, {tgt})) {{
+                uid
+            }}
+        }}
+        """.format(et=DEFAULT_EDGE_PREDICATE, tgt=uid)
+        r = self.query(query)
+        if len(r['q']) == 0:
+            return set()
+        edge_uid = r['q'][0]['uid']
+
+        # Find the source edge
+        query_2 = """
+        {{
+            q(func: has({nt})) @filter(uid_in({et}, {uid})) {{
+                {nt}
+            }}
+        }}
+        """.format(nt=DEFAULT_NODE_TYPE, et=DEFAULT_EDGE_PREDICATE,
+                   uid=edge_uid)
+        r_2 = self.query(query_2)
+        src = r_2['q'][0][DEFAULT_NODE_TYPE]
+
+        # Finally, query the edge
+        query_3 = """
         {{
             q(func: has({et})) @filter(uid_in({et}, {tgt})) {{
                 expand(_all_) {{
@@ -349,12 +376,13 @@ class Dgraph(Graph):
         }}
         """.format(nv=node_value, nt=DEFAULT_NODE_TYPE,
                    et=DEFAULT_EDGE_PREDICATE, tgt=uid)
-        r = self.query(query)
-        if len(r['q']) == 0:
+        r_3 = self.query(query_3)
+        if len(r_3['q']) == 0:
             return set()
+
         return self._parse_edges(
-            list_edges=r['q'], node_type=DEFAULT_NODE_TYPE,
-            edge_predicate=DEFAULT_EDGE_PREDICATE)
+            list_edges=r_3['q'], node_type=DEFAULT_NODE_TYPE,
+            edge_predicate=DEFAULT_EDGE_PREDICATE, src=src)
 
     def connected(self, node_a: str, node_b: str) -> typing.Tuple[
             bool, typing.Tuple]:
