@@ -313,9 +313,62 @@ class Dgraph(Graph):
     def __len__(self):
         pass
 
+    def find_edges(self, node_value: str) -> set:
+        query = """
+        {{
+            q(func: eq({nt}, "{nv}")) @filter(has({et})) {{
+                expand(_all_) {{
+                    uid
+                    expand(_all_) {{
+                        {nt}
+                    }}
+                }}
+            }}
+        }}
+        """.format(nv=node_value, nt=DEFAULT_NODE_TYPE,
+                   et=DEFAULT_EDGE_PREDICATE)
+        r = self.query(query)
+        if len(r['q']) == 0:
+            return set()
+        return self._parse_edges(
+            list_edges=r['q'], node_type=DEFAULT_NODE_TYPE,
+            edge_predicate=DEFAULT_EDGE_PREDICATE)
+
+    def find_edges_reverse(self, node_value: str) -> set:
+        _, uid = self.exists_node(Node(value=node_value))
+        query = """
+        {{
+            q(func: has({et})) @filter(uid_in({et}, {tgt})) {{
+                expand(_all_) {{
+                    uid
+                    expand(_all_) {{
+                        {nt}
+                    }}
+                }}
+            }}
+        }}
+        """.format(nv=node_value, nt=DEFAULT_NODE_TYPE,
+                   et=DEFAULT_EDGE_PREDICATE, tgt=uid)
+        r = self.query(query)
+        if len(r['q']) == 0:
+            return set()
+        return self._parse_edges(
+            list_edges=r['q'], node_type=DEFAULT_NODE_TYPE,
+            edge_predicate=DEFAULT_EDGE_PREDICATE)
+
     def connected(self, node_a: str, node_b: str) -> typing.Tuple[
-        bool, typing.Tuple]:
-        pass
+            bool, typing.Tuple]:
+        edges_a = self.find_edges(node_a)
+        edges_b = self.find_edges_reverse(node_b)
+        matched, src_edges = Dgraph.matching_edges(edges_a, edges_b)
+        if matched is not True:
+            return False, ()
+        else:
+            log.info("Found {} connections between {} and {}".format(
+                len(src_edges), node_a, node_b
+            ))
+            log.debug("src_edges are {}".format(src_edges))
+            return True, src_edges
 
     @staticmethod
     def _parse_types(l: list, ep: str) -> typing.Set[str]:
