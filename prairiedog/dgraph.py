@@ -216,11 +216,12 @@ class Dgraph(Graph):
         return st
 
     @staticmethod
-    def _parse_edge(src, d):
+    def _parse_edge(src, d, node_type: str = DEFAULT_NODE_TYPE,
+                    edge_predicate: str = DEFAULT_EDGE_PREDICATE) -> Edge:
         e = Edge(src=src, tgt="")
         for k, v in d.items():
-            if k == DEFAULT_EDGE_PREDICATE:
-                e.tgt = v[0][DEFAULT_NODE_TYPE]
+            if k == edge_predicate:
+                e.tgt = v[0][node_type]
             elif "type" in k:
                 e.edge_type = v
             elif "value" in k:
@@ -228,6 +229,19 @@ class Dgraph(Graph):
             elif k == "uid":
                 e.db_id = v
         return e
+
+    @staticmethod
+    def _parse_edges(list_edges: list, node_type: str,
+                     edge_predicate: str) -> set:
+        st = set()
+        for d in list_edges:
+            src = d[node_type]
+            edges_list = d[edge_predicate]
+            for edge_dict in edges_list:
+                e = Dgraph._parse_edge(src, edge_dict, node_type,
+                                       edge_predicate)
+                st.add(e)
+        return st
 
     @property
     def edges(self) -> typing.Set[Edge]:
@@ -248,14 +262,8 @@ class Dgraph(Graph):
         if len(r['q']) == 0:
             return set()
 
-        st = set()
-        for d in r['q']:
-            src = d[DEFAULT_NODE_TYPE]
-            edges_list = d[DEFAULT_EDGE_PREDICATE]
-            for edge_dict in edges_list:
-                e = Dgraph._parse_edge(src, edge_dict)
-                st.add(e)
-        return st
+        return self._parse_edges(
+            r['q'], DEFAULT_NODE_TYPE, DEFAULT_EDGE_PREDICATE)
 
     def get_labels(self, node: str) -> dict:
         pass
