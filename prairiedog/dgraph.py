@@ -219,8 +219,8 @@ class Dgraph(Graph):
     def _parse_edge(src, d):
         e = Edge(src=src, tgt="")
         for k, v in d.items():
-            if k == DEFAULT_NODE_TYPE:
-                e.tgt = v
+            if k == DEFAULT_EDGE_PREDICATE:
+                e.tgt = v[0][DEFAULT_NODE_TYPE]
             elif "type" in k:
                 e.edge_type = v
             elif "value" in k:
@@ -236,7 +236,9 @@ class Dgraph(Graph):
             q(func: has({nt})) @filter(has({et})) {{
                 expand(_all_) {{
                     uid
-                    expand(_all_)
+                    expand(_all_) {{
+                        {nt}
+                    }}
                 }}
             }}
         }}
@@ -249,9 +251,9 @@ class Dgraph(Graph):
         st = set()
         for d in r['q']:
             src = d[DEFAULT_NODE_TYPE]
-            edges = d[DEFAULT_EDGE_PREDICATE]
-            for ed in edges:
-                e = Dgraph._parse_edge(src, ed)
+            edges_list = d[DEFAULT_EDGE_PREDICATE]
+            for edge_dict in edges_list:
+                e = Dgraph._parse_edge(src, edge_dict)
                 st.add(e)
         return st
 
@@ -321,7 +323,7 @@ class Dgraph(Graph):
             q(func: uid({uid})) {{
                 {ep} {{
                     value
-                    @filter(type, "{et}")
+                    @filter(eq(type, "{et}"))
                 }}
             }}
         }}
@@ -336,7 +338,7 @@ class Dgraph(Graph):
         {{
             q(func: has({ep})) @filter(uid_in({ep}, {uid})) {{
                 value
-                @filter(type, "{et}")
+                @filter(eq(type, "{et}"))
             }}  
         }}
         """.format(nt=DEFAULT_NODE_TYPE, ep=DEFAULT_EDGE_PREDICATE, uid=uid,
@@ -345,6 +347,24 @@ class Dgraph(Graph):
         if len(r["q"]) == 0:
             return -1
         return r["q"][0][DEFAULT_EDGE_PREDICATE][0]["value"]
+
+    def find_depth(self, uid_a: str, uid_b: str, t: str) -> int:
+        """
+        Depth is used for prevent queries from getting stuck in a cycle.
+        :param uid_a:
+        :param uid_b:
+        :param t:
+        :return:
+        """
+        va = self.find_value(uid_a, t)
+        if va == -1:
+            return -1
+        vb = self.find_value_reverse(uid_b, t)
+        if vb == -1:
+            return -1
+        depth = vb - va
+        # Depth is in number of hops, so +1
+        return depth+1
 
     @staticmethod
     def _path_query(node_type: str, node_value: str, edge_predicate: str,
