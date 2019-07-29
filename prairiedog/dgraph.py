@@ -136,10 +136,12 @@ class Dgraph(Graph):
             edge_predicate = DEFAULT_EDGE_PREDICATE
         query = """{{
             q(func: eq({node_type}, "{src}")) {{
-                {edge_predicate} @facets(
-                    eq(type, "{facet_type}") AND eq(value, {facet_value})
-                ) @filter(eq({node_type}, "{tgt}")) {{
+                {edge_predicate} {{
                     uid
+                    @filter(
+                        eq(type, "{facet_type}") AND eq(value, {facet_value})
+                    )
+                    e @filter(eq({node_type}, "{tgt}"))
                 }}
             }}
         }}
@@ -166,7 +168,10 @@ class Dgraph(Graph):
             uid_b = self.upsert_node(
                 Node(node_type=node_type, value=edge.tgt), echo=True).db_id
             nquads = """
-            <{a}> <{ep}> <{b}> (type="{edge_type}", value={edge_value}) .
+            <{a}> <{ep}> _:e .
+            _:e <{ep}> <{b}> .
+            _:e <type> "{edge_type}" .
+            _:e <value> "{edge_value}" .
             """.format(a=uid_a, b=uid_b,
                        ep=edge_predicate, edge_type=edge.edge_type,
                        edge_value=edge.edge_value)
@@ -314,7 +319,10 @@ class Dgraph(Graph):
         query = """
         {{
             q(func: uid({uid})) {{
-                {ep} @facets(eq(type, "{et}")) @facets(value)
+                {ep} {{
+                    value
+                    @filter(type, "{et}")
+                }}
             }}
         }}
         """.format(uid=uid, ep=DEFAULT_EDGE_PREDICATE, et=t)
@@ -328,7 +336,10 @@ class Dgraph(Graph):
         query = """
         {{
             q(func: has({nt})) @filter(uid_in({ep}, {uid})) {{
-                {ep} @facets(eq(type, "{t}")) @facets(value)
+                {ep} {{
+                    value
+                    @filter(type, "{t}")
+                }}
             }}  
         }}
         """.format(nt=DEFAULT_NODE_TYPE, ep=DEFAULT_EDGE_PREDICATE, uid=uid,
@@ -370,7 +381,9 @@ class Dgraph(Graph):
         query_et = """
         {{
             q(func: eq({nt}, "{src}")){{
-                {ep} @facets(type)
+                {ep} {{
+                    type
+                }}
             }}
         }}
         """.format(src=node_a, nt=DEFAULT_NODE_TYPE, ep=DEFAULT_EDGE_PREDICATE)
