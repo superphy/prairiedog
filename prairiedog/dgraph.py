@@ -141,7 +141,7 @@ class Dgraph(Graph):
                     @filter(
                         eq(type, "{facet_type}") AND eq(value, {facet_value})
                     )
-                    e @filter(eq({node_type}, "{tgt}"))
+                    {edge_predicate} @filter(eq({node_type}, "{tgt}"))
                 }}
             }}
         }}
