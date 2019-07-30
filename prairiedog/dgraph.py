@@ -238,10 +238,10 @@ class Dgraph(Graph):
             if src is None:
                 src = d[node_type]
             edges_list = d[edge_predicate]
-            for edge_dict in edges_list:
-                e = Dgraph._parse_edge(src, edge_dict, node_type,
-                                       edge_predicate)
-                st.add(e)
+            e = Dgraph._parse_edge(src, d, node_type,
+                                   edge_predicate)
+            st.add(e)
+
         return tuple(st)
 
     @property
@@ -330,7 +330,7 @@ class Dgraph(Graph):
                    et=DEFAULT_EDGE_PREDICATE)
         r = self.query(query)
         if len(r['q']) == 0:
-            return set()
+            return tuple()
         return self._parse_edges(
             list_edges=r['q'], node_type=DEFAULT_NODE_TYPE,
             edge_predicate=DEFAULT_EDGE_PREDICATE)
@@ -350,7 +350,7 @@ class Dgraph(Graph):
         """.format(et=DEFAULT_EDGE_PREDICATE, tgt=uid)
         r = self.query(query)
         if len(r['q']) == 0:
-            return set()
+            return tuple()
         edge_uid = r['q'][0]['uid']
 
         # Find the source edge
@@ -381,7 +381,7 @@ class Dgraph(Graph):
                    et=DEFAULT_EDGE_PREDICATE, tgt=uid)
         r_3 = self.query(query_3)
         if len(r_3['q']) == 0:
-            return set()
+            return tuple()
 
         return self._parse_edges(
             list_edges=r_3['q'], node_type=DEFAULT_NODE_TYPE,
