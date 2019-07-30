@@ -3,6 +3,7 @@ import logging
 
 from prairiedog.node import Node
 from prairiedog.edge import Edge
+from prairiedog.dgraph import Dgraph
 
 log = logging.getLogger('prairiedog')
 
@@ -14,7 +15,7 @@ def test_dgraph_install():
     assert 'Usage' in out
 
 
-def test_dgraph_conftest(dg):
+def test_dgraph_conftest(dg: Dgraph):
     assert True
 
 # TODO: this currently runs too slow for tests
@@ -23,7 +24,7 @@ def test_dgraph_conftest(dg):
 #     assert True
 
 
-def test_dgraph_exists_node(dg):
+def test_dgraph_exists_node(dg: Dgraph):
     na = Node(node_type='n', value='a')
     exists, _ = dg.exists_node(na)
     assert not exists
@@ -33,7 +34,7 @@ def test_dgraph_exists_node(dg):
     log.info("uid: {}".format(uid))
 
 
-def test_dgraph_exists_edge(dg):
+def test_dgraph_exists_edge(dg: Dgraph):
     e = Edge(src="ATCG", tgt="ATCC", edge_value=1)
     exists, _ = dg.exists_edge(e)
     assert not exists
@@ -42,7 +43,7 @@ def test_dgraph_exists_edge(dg):
     assert exists
 
 
-def test_dgraph_find_value(dg):
+def test_dgraph_find_value(dg: Dgraph):
     na = Node(value="ATCG")
     nb = Node(value="ATCC")
     dg.upsert_node(na)
@@ -56,7 +57,7 @@ def test_dgraph_find_value(dg):
     assert v == 0
 
 
-def test_dgraph_find_value_reverse(dg):
+def test_dgraph_find_value_reverse(dg: Dgraph):
     na = Node(value="ATCG")
     nb = Node(value="ATCC")
     dg.upsert_node(na)
@@ -69,7 +70,7 @@ def test_dgraph_find_value_reverse(dg):
     assert v2 == 0
 
 
-def test_dgraph_find_depth(dg):
+def test_dgraph_find_depth(dg: Dgraph):
     na = Node(value="ATCG")
     nb = Node(value="ATCC")
     dg.upsert_node(na)
@@ -90,3 +91,37 @@ def test_dgraph_find_depth(dg):
     d2 = dg.find_depth(uid_a, uid_c, "genome_a")
     log.info("Found depth for {} to {} as {}".format(uid_a, uid_c, d))
     assert d2 == 2
+
+
+def test_dgraph_find_edges(dg: Dgraph):
+    na = Node(value="ATCG")
+    nb = Node(value="ATCC")
+    dg.upsert_node(na)
+    dg.upsert_node(nb)
+    e = Edge(src="ATCG", tgt="ATCC", edge_type="genome_a", edge_value=0)
+    dg.upsert_edge(e)
+
+    ef_set = dg.find_edges("ATCG")
+    assert len(ef_set) == 1
+    ef = ef_set[0]
+    assert ef.src == "ATCG"
+    assert ef.tgt == "ATCC"
+    assert ef.edge_value == 0
+    assert ef.edge_type == "genome_a"
+
+
+def test_dgraph_find_edges_reverse(dg: Dgraph):
+    na = Node(value="ATCG")
+    nb = Node(value="ATCC")
+    dg.upsert_node(na)
+    dg.upsert_node(nb)
+    e = Edge(src="ATCG", tgt="ATCC", edge_type="genome_a", edge_value=0)
+    dg.upsert_edge(e)
+
+    ef_set = dg.find_edges_reverse("ATCC")
+    assert len(ef_set) == 1
+    ef = ef_set[0]
+    assert ef.src == "ATCG"
+    assert ef.tgt == "ATCC"
+    assert ef.edge_value == 0
+    assert ef.edge_type == "genome_a"

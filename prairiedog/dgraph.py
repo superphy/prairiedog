@@ -232,7 +232,7 @@ class Dgraph(Graph):
 
     @staticmethod
     def _parse_edges(list_edges: list, node_type: str,
-                     edge_predicate: str, src: str = None) -> set:
+                     edge_predicate: str, src: str = None) -> tuple:
         st = set()
         for d in list_edges:
             if src is None:
@@ -242,7 +242,7 @@ class Dgraph(Graph):
                 e = Dgraph._parse_edge(src, edge_dict, node_type,
                                        edge_predicate)
                 st.add(e)
-        return st
+        return tuple(st)
 
     @property
     def edges(self) -> typing.Set[Edge]:
@@ -314,7 +314,7 @@ class Dgraph(Graph):
     def __len__(self):
         pass
 
-    def find_edges(self, node_value: str) -> set:
+    def find_edges(self, node_value: str) -> tuple:
         query = """
         {{
             q(func: eq({nt}, "{nv}")) @filter(has({et})) {{
@@ -335,7 +335,7 @@ class Dgraph(Graph):
             list_edges=r['q'], node_type=DEFAULT_NODE_TYPE,
             edge_predicate=DEFAULT_EDGE_PREDICATE)
 
-    def find_edges_reverse(self, node_value: str) -> set:
+    def find_edges_reverse(self, node_value: str) -> tuple:
         exists, uid = self.exists_node(Node(value=node_value))
         if not exists:
             log.warning("node_value {} doesn't exist".format(node_value))
