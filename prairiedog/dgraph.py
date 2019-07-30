@@ -238,6 +238,20 @@ class Dgraph(Graph):
             if src is None:
                 src = d[node_type]
             edges_list = d[edge_predicate]
+            for edge_dict in edges_list:
+                e = Dgraph._parse_edge(src, edge_dict, node_type,
+                                       edge_predicate)
+                st.add(e)
+
+        return tuple(st)
+
+    @staticmethod
+    def _parse_edges_reverse(list_edges: list, node_type: str,
+                             edge_predicate: str, src: str = None) -> tuple:
+        st = set()
+        for d in list_edges:
+            if src is None:
+                src = d[node_type]
             e = Dgraph._parse_edge(src, d, node_type,
                                    edge_predicate)
             st.add(e)
@@ -383,7 +397,7 @@ class Dgraph(Graph):
         if len(r_3['q']) == 0:
             return tuple()
 
-        return self._parse_edges(
+        return self._parse_edges_reverse(
             list_edges=r_3['q'], node_type=DEFAULT_NODE_TYPE,
             edge_predicate=DEFAULT_EDGE_PREDICATE, src=src)
 
