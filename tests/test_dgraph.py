@@ -4,6 +4,8 @@ import logging
 from prairiedog.node import Node
 from prairiedog.edge import Edge
 from prairiedog.dgraph import Dgraph
+from prairiedog.graph import Graph
+from prairiedog.errors import GraphException
 
 log = logging.getLogger('prairiedog')
 
@@ -125,3 +127,41 @@ def test_dgraph_find_edges_reverse(dg: Dgraph):
     assert ef.tgt == "ATCC"
     assert ef.edge_value == 0
     assert ef.edge_type == "genome_a"
+
+
+def _setup_connected_multiple(g: Graph):
+    n1 = Node(value="ABC")
+    n2 = Node(value="BCD")
+    n2_alt = Node(value="XYZ")
+    n3 = Node(value="CDE")
+    g.upsert_node(n1)
+    g.upsert_node(n2)
+    g.upsert_node(n3)
+    g.upsert_node(n2_alt)
+    e1 = Edge(src="ABC", tgt="BCD", edge_type="path1", edge_value=0)
+    g.add_edge(e1)
+    e2 = Edge(src="BCD", tgt="CDE", edge_type="path1", edge_value=1)
+    g.add_edge(e2)
+    e1_alt = Edge(src="ABC", tgt="XYZ", edge_type="path2", edge_value=0)
+    g.add_edge(e1_alt)
+    e2_alt = Edge(src="XYZ", tgt="CDE", edge_type="path2", edge_value=1)
+    g.add_edge(e2_alt)
+    g.save()
+
+
+def test_dgraph_edges_multiple(dg: Dgraph):
+    _setup_connected_multiple(dg)
+    edges = dg.find_edges("ABC")
+    try:
+        assert len(edges) == 2
+    except:
+        raise GraphException(dg)
+
+
+def test_dgraph_edges_multiple_reverse(dg: Dgraph):
+    _setup_connected_multiple(dg)
+    edges = dg.find_edges_reverse("CDE")
+    try:
+        assert len(edges) == 2
+    except:
+        raise GraphException(dg)
