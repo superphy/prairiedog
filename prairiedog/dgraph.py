@@ -485,14 +485,16 @@ class Dgraph(Graph):
         return s
 
     @staticmethod
-    def _parse_path(d: dict, node_type: str, edge_predicate: str) -> str:
-        s = d[node_type]
+    def _parse_path(d: dict, node_type: str, edge_predicate: str) -> tuple:
+        lt = []
+        lt += Node(value=d[node_type])
         while True:
             if edge_predicate not in d:
                 break
             d = d[edge_predicate][0][edge_predicate][0]
-            s += d[node_type][-1]
-        return s
+            v = d[node_type][-1]
+            lt += Node(value=v)
+        return tuple(lt)
 
     def path(self, node_a: str, node_b: str) -> typing.Tuple[tuple, tuple]:
         log.info("Checking all paths between {} and {}".format(node_a, node_b))
@@ -541,6 +543,7 @@ class Dgraph(Graph):
                 p = self._parse_path(
                     r['q'][0], DEFAULT_NODE_TYPE, DEFAULT_EDGE_PREDICATE)
                 paths += p
+        return tuple(paths), tuple()
 
 
 class DgraphBulk(Graph):
