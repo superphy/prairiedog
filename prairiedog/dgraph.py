@@ -513,13 +513,13 @@ class Dgraph(Graph):
 
         for src_edge in src_edges:
             log.info("Finding path between {} and {} with source edge {}"
-                      "".format(node_a, node_b, src_edge))
+                     "".format(node_a, node_b, src_edge))
             tgt_edges = self.find_edges_reverse(node_b)
             for tgt_edge in tgt_edges:
                 if tgt_edge.edge_type != src_edge.edge_type or \
-                        tgt_edge.edge_value != src_edge.edge_value:
+                        tgt_edge.edge_value < src_edge.edge_value:
                     log.info("Skipping tgt edge {} for src edge {}".format(
-                        tgt_edges, src_edge
+                        tgt_edge, src_edge
                     ))
                     continue
                 log.info("Checking path for type: {}".format(
