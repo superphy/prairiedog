@@ -502,43 +502,45 @@ class Dgraph(Graph):
         exists, uid_b = self.exists_node(Node(value=node_b))
         if not exists:
             return tuple(), tuple()
-        log.info("Both nodes exist, checking types...")
-        # We first have to find all "type"(s) of edges there are; these are the
-        # source genomes
-        query_et = """
-        {{
-            q(func: eq({nt}, "{src}")){{
-                {ep} {{
-                    type
-                }}
-            }}
-        }}
-        """.format(src=node_a, nt=DEFAULT_NODE_TYPE, ep=DEFAULT_EDGE_PREDICATE)
-        r = self.query(query_et)
-        if len(r["q"]) == 0:
-            log.info("No types found, returning...")
+        log.info("Both nodes exist, checking connectivity...")
+
+        connected, src_edges = self.connected(node_a, node_b)
+        if not connected:
             return tuple(), tuple()
-        types = self._parse_types(r["q"], DEFAULT_EDGE_PREDICATE)
-        log.info("Found types as: {}".format(types))
-        paths = tuple()
-        for t in types:
-            log.info("Checking path for type: {}".format(t))
-            start_int = self.find_value(uid_a, t)
-            end_int = self.find_value_reverse(uid_b, t)
-            log.info("Found start value of {} and end value of {}".format(
-                start_int, end_int))
-            query = self._path_query(
-                node_type=DEFAULT_NODE_TYPE, node_value=node_a,
-                edge_predicate=DEFAULT_EDGE_PREDICATE, edge_type=t,
-                start_int=start_int, end_int=end_int)
-            r = self.query(query)
-            log.info(r)
-            if len(r['q']) != 1:
-                log.warning("Path not found for type: {}".format(t))
-                continue
-            p = self._parse_path(
-                r['q'][0], DEFAULT_NODE_TYPE, DEFAULT_EDGE_PREDICATE)
-            paths += p
+
+        log.info("Nodes are connected")
+        paths = []
+
+        for src_edge in src_edges:
+            log.info("Finding path between {} and {} with source edge {}"
+                      "".format(node_a, node_b, src_edge))
+            tgt_edges = self.find_edges_reverse(node_b)
+            for tgt_edge in tgt_edges:
+                if tgt_edge.edge_type != src_edge.edge_type or \
+                        tgt_edge.edge_value != src_edge.edge_value:
+                    log.info("Skipping tgt edge {} for src edge {}".format(
+                        tgt_edges, src_edge
+                    ))
+                    continue
+                log.info("Checking path for type: {}".format(
+                    tgt_edge.edge_type))
+                log.info("Found start value of {} and end value of {}".format(
+                    src_edge.edge_value, tgt_edge.edge_value))
+                query = self._path_query(
+                    node_type=DEFAULT_NODE_TYPE, node_value=node_a,
+                    edge_predicate=DEFAULT_EDGE_PREDICATE,
+                    edge_type=src_edge.edge_type,
+                    start_int=src_edge.edge_value, end_int=tgt_edge.edge_value)
+                r = self.query(query)
+                log.info(r)
+                if len(r['q']) != 1:
+                    log.warning("Path not found for type: {}".format(
+                        src_edge.edge_type
+                    ))
+                    continue
+                p = self._parse_path(
+                    r['q'][0], DEFAULT_NODE_TYPE, DEFAULT_EDGE_PREDICATE)
+                paths += p
 
 
 class DgraphBulk(Graph):
