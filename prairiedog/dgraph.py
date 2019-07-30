@@ -336,7 +336,10 @@ class Dgraph(Graph):
             edge_predicate=DEFAULT_EDGE_PREDICATE)
 
     def find_edges_reverse(self, node_value: str) -> set:
-        _, uid = self.exists_node(Node(value=node_value))
+        exists, uid = self.exists_node(Node(value=node_value))
+        if not exists:
+            log.warning("node_value {} doesn't exist".format(node_value))
+            return set()
         # Find the uid of the edge
         query = """
         {{
