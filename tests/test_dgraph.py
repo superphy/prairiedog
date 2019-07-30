@@ -168,7 +168,13 @@ def test_dgraph_edges_multiple_reverse(dg: Dgraph):
 
 
 def test_dgraph_parse_edges(dg: Dgraph):
-    lt = [{'n': 'ABC', 'fd': [{'type': 'e', 'uid': '0x3', 'fd': [{'n': 'BCE'}], 'value': -1}]}, {'n': 'BCE', 'fd': [{'type': 'e', 'uid': '0x5', 'fd': [{'n': 'CEF'}], 'value': -1}]}]
+    lt = [
+        {'n': 'ABC', 'fd':
+            [{'type': 'e', 'uid': '0x3', 'fd': [{'n': 'BCE'}], 'value': -1}]
+         },
+        {'n': 'BCE', 'fd':
+            [{'type': 'e', 'uid': '0x5', 'fd': [{'n': 'CEF'}], 'value': -1}]
+         }]
     edges = dg._parse_edges(list_edges=lt, node_type="n", edge_predicate="fd")
 
     for e in edges:

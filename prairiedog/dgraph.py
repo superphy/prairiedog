@@ -236,9 +236,12 @@ class Dgraph(Graph):
     def _parse_edges(list_edges: list, node_type: str,
                      edge_predicate: str, src: str = None) -> tuple:
         st = set()
+        src_arg = src
         for d in list_edges:
-            if src is None:
+            if src_arg is None:
                 src = d[node_type]
+            else:
+                src = src_arg
             edges_list = d[edge_predicate]
             for edge_dict in edges_list:
                 e = Dgraph._parse_edge(src, edge_dict, node_type,
