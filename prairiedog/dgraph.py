@@ -113,6 +113,7 @@ class Dgraph(Graph):
         else:
             nquads = '_:{value} <{type}> "{value}" .'.format(
                 value=node.value, type=node.node_type)
+            log.debug("Node not found, adding nquads \n{}".format(nquads))
             self.mutate(nquads)
             if echo:
                 return self.upsert_node(node)
@@ -160,6 +161,8 @@ class Dgraph(Graph):
         exists, uid = self.exists_edge(edge, node_type=node_type,
                                        edge_predicate=edge_predicate)
         if exists:
+            log.warning("upsert_edge() was called with existing edge:")
+            log.warning(str(edge))
             return
         else:
             uid_a = self.upsert_node(
