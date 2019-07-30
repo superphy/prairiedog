@@ -352,7 +352,7 @@ class Dgraph(Graph):
         exists, uid = self.exists_node(Node(value=node_value))
         if not exists:
             log.warning("node_value {} doesn't exist".format(node_value))
-            return set()
+            return tuple()
         # Find the uid of the edge
         query = """
         {{
@@ -486,14 +486,13 @@ class Dgraph(Graph):
 
     @staticmethod
     def _parse_path(d: dict, node_type: str, edge_predicate: str) -> tuple:
-        lt = []
-        lt += Node(value=d[node_type])
+        lt = [Node(value=d[node_type])]
         while True:
             if edge_predicate not in d:
                 break
             d = d[edge_predicate][0][edge_predicate][0]
             v = d[node_type][-1]
-            lt += Node(value=v)
+            lt.append(Node(value=v))
         return tuple(lt)
 
     def path(self, node_a: str, node_b: str) -> typing.Tuple[tuple, tuple]:
