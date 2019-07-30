@@ -135,12 +135,11 @@ class Dgraph(Graph):
         if edge_predicate is None:
             edge_predicate = DEFAULT_EDGE_PREDICATE
         query = """{{
-            q(func: eq({node_type}, "{src}")) {{
-                {edge_predicate} {{
-                    uid
-                    @filter(
+            q(func: eq({node_type}, "{src}")) @cascade {{
+                {edge_predicate} @filter(
                         eq(type, "{facet_type}") AND eq(value, {facet_value})
-                    )
+                    ) {{
+                    uid
                     {edge_predicate} @filter(eq({node_type}, "{tgt}"))
                 }}
             }}
