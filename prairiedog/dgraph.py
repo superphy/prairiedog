@@ -548,11 +548,14 @@ class Dgraph(Graph):
                 p = self._parse_path(
                     r['q'][0], DEFAULT_NODE_TYPE, DEFAULT_EDGE_PREDICATE)
                 paths.append(p)
+        paths = tuple(paths)
         log.info("Returning paths as: {}".format(paths))
         log.info("Which is:")
-        for p in paths:
-            log.info(str(p))
-        return tuple(paths), tuple()
+        for i, p in enumerate(paths):
+            log.info("Path {}:".format(i))
+            for sp in p:
+                log.info(str(sp))
+        return paths, tuple()
 
 
 class DgraphBulk(Graph):
