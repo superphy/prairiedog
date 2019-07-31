@@ -483,7 +483,7 @@ class Dgraph(Graph):
         s = '{{q(func: eq({nt}, "{nv}")) {{ {nt} '.format(
             nt=node_type, nv=node_value)
         for ix in range(start_int, end_int + 1):
-            s += '{ep} @filter(eq(type, "{et}") AND eq(value, {v})) {{ {ep} {{ {nt}'.format(
+            s += '{ep} @filter(eq(type, "{et}") AND eq(value, {v})) {{ {ep} {{ {nt} '.format(
                 ep=edge_predicate, et=edge_type, v=ix, nt=node_type)
         for ix in range(start_int, end_int + 1):
             s += '}}'
