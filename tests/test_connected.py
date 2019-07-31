@@ -194,20 +194,16 @@ def test_graph_connected_distant_path(g: Graph):
     _setup_connected_distant(g)
 
     paths, _ = g.path('ABC', 'CDE')
-    try:
-        assert len(paths) == 1
+    assert len(paths) == 1
 
-        path = paths[0]
-        assert len(path) == 3
-        assert path[0].value == "ABC"
-        assert path[1].value == "BCD"
-        assert path[2].value == "CDE"
+    path = paths[0]
+    assert len(path) == 3
+    assert path[0].value == "ABC"
+    assert path[1].value == "BCD"
+    assert path[2].value == "CDE"
 
-        joined = concat_values(path)
-        assert joined == "ABCDE"
-    except:
-        log.fatal("An assertion check failed.")
-        raise GraphException(g)
+    joined = concat_values(path)
+    assert joined == "ABCDE"
 
 
 def _setup_connected_multiple(g: Graph):
@@ -252,22 +248,18 @@ def test_graph_connected_multiple_path(g: Graph):
     flagged_bcd = False
     flagged_xyz = False
     for path in paths:
-        try:
-            assert path[0].value == "ABC"
-            assert path[2].value == "CDE"
-            # flagged to prevent reuse of same value
-            if path[1].value == "BCD" and not flagged_bcd:
-                flagged_bcd = True
-                assert True
-            elif path[1].value == "XYZ" and not flagged_xyz:
-                flagged_xyz = True
-                assert True
-            else:
-                log.fatal("Reached the end of path iteration, unexpected.")
-                raise GraphException(g)
-        except:
-            log.fatal("An assertion check failed.")
-            raise GraphException(g)
+        assert path[0].value == "ABC"
+        assert path[2].value == "CDE"
+        # flagged to prevent reuse of same value
+        if path[1].value == "BCD" and not flagged_bcd:
+            flagged_bcd = True
+            assert True
+        elif path[1].value == "XYZ" and not flagged_xyz:
+            flagged_xyz = True
+            assert True
+        else:
+            log.fatal("Reached the end of path iteration unexpectedly.")
+            assert False
 
 
 def _setup_connected_shortcut(g: Graph):
@@ -309,22 +301,18 @@ def test_graph_connected_shortcut_path(g: Graph):
     flagged_shortcut = False
     flagged_regular = False
     for path in paths:
-        try:
-            assert path[0].value == "ABC"
-            assert path[-1].value == "CDE"
-            if len(path) == 2 and not flagged_shortcut:
-                # This is the shortcut
-                flagged_shortcut = True
-                assert True
-            elif len(path) == 3 and not flagged_regular:
-                flagged_regular = True
-                assert path[1].value == "BCD"
-            else:
-                log.fatal("Reached the end of path iteration, unexpected.")
-                raise GraphException(g)
-        except:
-            log.fatal("An assertion check failed.")
-            raise GraphException(g)
+        assert path[0].value == "ABC"
+        assert path[-1].value == "CDE"
+        if len(path) == 2 and not flagged_shortcut:
+            # This is the shortcut
+            flagged_shortcut = True
+            assert True
+        elif len(path) == 3 and not flagged_regular:
+            flagged_regular = True
+            assert path[1].value == "BCD"
+        else:
+            log.fatal("Reached the end of path iteration unexpectedly.")
+            assert False
 
 
 def test_graph_connected_repeats_full_path(g: Graph):

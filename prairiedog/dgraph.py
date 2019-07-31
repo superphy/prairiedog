@@ -102,7 +102,7 @@ class Dgraph(Graph):
         return Dgraph._exists_node(r)
 
     def upsert_node(self, node: Node, echo: bool = True) -> typing.Optional[
-        Node]:
+            Node]:
         exists, uid = self.exists_node(node)
         if exists:
             if echo:
@@ -450,7 +450,7 @@ class Dgraph(Graph):
             q(func: has({ep})) @filter(uid_in({ep}, {uid})) {{
                 value
                 @filter(eq(type, "{et}"))
-            }}  
+            }}
         }}
         """.format(nt=DEFAULT_NODE_TYPE, ep=DEFAULT_EDGE_PREDICATE, uid=uid,
                    et=t)
@@ -610,7 +610,7 @@ class DgraphBulk(Graph):
         pass
 
     def connected(self, node_a: str, node_b: str) -> typing.Tuple[
-        bool, typing.Tuple]:
+            bool, typing.Tuple]:
         pass
 
     def path(self, node_a: str, node_b: str) -> tuple:
