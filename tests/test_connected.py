@@ -258,7 +258,8 @@ def test_graph_connected_multiple_path(g: Graph):
             flagged_xyz = True
             assert True
         else:
-            raise GraphException(g)
+            log.fatal("Reached the end of path iteration unexpectedly.")
+            assert False
 
 
 def _setup_connected_shortcut(g: Graph):
@@ -310,7 +311,8 @@ def test_graph_connected_shortcut_path(g: Graph):
             flagged_regular = True
             assert path[1].value == "BCD"
         else:
-            raise GraphException(g)
+            log.fatal("Reached the end of path iteration unexpectedly.")
+            assert False
 
 
 def test_graph_connected_repeats_full_path(g: Graph):

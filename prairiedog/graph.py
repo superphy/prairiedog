@@ -76,13 +76,19 @@ class Graph(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def path(self, node_a: str, node_b: str) -> tuple:
+    def path(self, node_a: str, node_b: str) -> typing.Tuple[tuple, tuple]:
         pass
 
     @staticmethod
     def matching_edges(src_edges: typing.Tuple[Edge],
                        tgt_edges: typing.Tuple[Edge]) -> typing.Tuple[
             bool, typing.Tuple[Edge]]:
+        log.debug("Checking matching edges for src_edges:")
+        for e in src_edges:
+            log.debug("{}".format(e))
+        log.debug("With tgt_edges:")
+        for e in tgt_edges:
+            log.debug("{}".format(e))
 
         # Set of src edges from which you can find a target edge
         st = set()

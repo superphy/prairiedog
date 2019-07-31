@@ -28,11 +28,8 @@ GENOME_FILES_SHORTENED = [
     "tests/SRR1106609_SHORTENED.fasta",
 ]
 
-# Dgraph runs via Docker in a way which isn't possible in CircleCI
-if "CI" in os.environ:
-    BACKENDS = ['lemongraph']
-else:
-    BACKENDS = ['lemongraph', 'dgraph']
+# TODO: switch to just one backend
+BACKENDS = ['dgraph', 'lemongraph']
 
 
 @pytest.fixture
