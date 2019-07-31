@@ -497,7 +497,7 @@ class Dgraph(Graph):
             if edge_predicate not in d:
                 break
             d = d[edge_predicate][0][edge_predicate][0]
-            v = d[node_type][-1]
+            v = d[node_type]
             lt.append(Node(value=v))
         return tuple(lt)
 
