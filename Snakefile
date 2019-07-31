@@ -1,13 +1,10 @@
 import pathlib
 import os
 import shutil
-import subprocess
 import psutil
 
 import dill
 import pandas as pd
-import numpy as np
-from contextlib import contextmanager
 
 from prairiedog.profiler import Profiler
 from prairiedog.kmers import Kmers
@@ -15,7 +12,7 @@ from prairiedog.networkx_graph import NetworkXGraph
 from prairiedog.graph_ref import GraphRef
 from prairiedog.subgraph_ref import SubgraphRef
 from prairiedog.lemon_graph import LGGraph, DB_PATH
-from prairiedog.dgraph import Dgraph
+from prairiedog.dgraph import DgraphBulk
 
 configfile: "config.yaml"
 
@@ -78,7 +75,7 @@ rule pangenome:
             sg = SubgraphRef(LGGraph())
         elif config['backend'] == 'dgraph':
             print("Using Dgraph as graph backend")
-            sg = SubgraphRef(Dgraph())
+            sg = SubgraphRef(DgraphBulk())
         else:
             raise Exception("No graph backend found")
 
