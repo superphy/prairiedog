@@ -547,7 +547,11 @@ class Dgraph(Graph):
                     continue
                 p = self._parse_path(
                     r['q'][0], DEFAULT_NODE_TYPE, DEFAULT_EDGE_PREDICATE)
-                paths += p
+                paths.append(p)
+        log.info("Returning paths as: {}".format(paths))
+        log.info("Which is:")
+        for p in paths:
+            log.info(str(p))
         return tuple(paths), tuple()
 
 
