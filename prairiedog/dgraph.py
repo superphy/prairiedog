@@ -510,14 +510,15 @@ class Dgraph(Graph):
         exists, uid_b = self.exists_node(Node(value=node_b))
         if not exists:
             return tuple(), tuple()
-        log.info("Both nodes exist, checking connectivity...")
+        log.debug("Both nodes exist, checking connectivity...")
 
         connected, src_edges = self.connected(node_a, node_b)
         if not connected:
             return tuple(), tuple()
 
-        log.info("Nodes are connected")
+        log.debug("Nodes are connected")
         paths = []
+        paths_meta = []
 
         for src_edge in src_edges:
             log.info("Finding path between {} and {} with source edge {}"
@@ -530,9 +531,9 @@ class Dgraph(Graph):
                         tgt_edge, src_edge
                     ))
                     continue
-                log.info("Checking path for type: {}".format(
+                log.debug("Checking path for type: {}".format(
                     tgt_edge.edge_type))
-                log.info("Found start value of {} and end value of {}".format(
+                log.debug("Found start value of {} and end value of {}".format(
                     src_edge.edge_value, tgt_edge.edge_value))
                 query = self._path_query(
                     node_type=DEFAULT_NODE_TYPE, node_value=node_a,
@@ -549,14 +550,8 @@ class Dgraph(Graph):
                 p = self._parse_path(
                     r['q'][0], DEFAULT_NODE_TYPE, DEFAULT_EDGE_PREDICATE)
                 paths.append(p)
-        paths = tuple(paths)
-        log.info("Returning paths as: {}".format(paths))
-        log.info("Which is:")
-        for i, p in enumerate(paths):
-            log.info("Path {}:".format(i))
-            for sp in p:
-                log.info(str(sp))
-        return paths, tuple()
+                paths_meta.append({'edge_type': tgt_edge.edge_type})
+        return tuple(paths), tuple(paths_meta)
 
 
 class DgraphBulk(Graph):
