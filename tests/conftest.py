@@ -98,7 +98,7 @@ def g(request):
         # Create a new LemonGraph instance with its own database file
         return _lgr()
     elif request.param == "dgraph":
-        return DG()
+        return dg()
 
 
 @pytest.fixture(scope="function")
