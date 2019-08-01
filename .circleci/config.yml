@@ -113,6 +113,7 @@ workflows:
             - test
     build-master:
         jobs:
+            - test
             - build:
                   requires:
                       - test
@@ -128,6 +129,7 @@ workflows:
                           only: master
     build-tags:
         jobs:
+            - test
             - build:
                   requires:
                       - test
