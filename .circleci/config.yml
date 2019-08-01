@@ -1,23 +1,25 @@
-# Python CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-python/ for more details
-#
-version: 2
-jobs:
-    build:
+version: 2.1
+executors:
+    testenv:
+        working_directory: ~/repo
         docker:
             - image: superphy/tox-base:d698931a52ddeef64dcf5918b32790bcef75af61
-
-        working_directory: ~/repo
-
+    docker-publisher:
+        environment:
+            IMAGE_NAME: superphy/prairiedog
+        docker:
+            - image: circleci/buildpack-deps:stretch
+jobs:
+    test:
+        executor: testenv
         steps:
             - checkout
 
             - run:
-                name: pull submodules
-                command: |
-                    git submodule init
-                    git submodule update --remote
+                  name: pull submodules
+                  command: |
+                      git submodule init
+                      git submodule update --remote
 
             - run:
                   name: install dependencies
@@ -38,7 +40,7 @@ jobs:
                   name: install dgraph
                   command: |
                       curl https://get.dgraph.io -sSf | bash
-                      
+
             - run:
                   name: update pip
                   command: |
@@ -57,3 +59,89 @@ jobs:
                   command: |
                       . venv/bin/activate
                       codecov
+    build:
+        executor: docker-publisher
+        steps:
+            - checkout
+            - setup_remote_docker
+            - run:
+                  name: Build Docker image
+                  command: |
+                      docker build -t $IMAGE_NAME:latest .
+            - run:
+                  name: Archive Docker image
+                  command: docker save -o image.tar $IMAGE_NAME
+            - persist_to_workspace:
+                  root: .
+                  paths:
+                      - ./image.tar
+    publish-latest:
+        executor: docker-publisher
+        steps:
+            - attach_workspace:
+                  at: /tmp/workspace
+            - setup_remote_docker
+            - run:
+                  name: Load archived Docker image
+                  command: docker load -i /tmp/workspace/image.tar
+            - run:
+                  name: Publish Docker Image to Docker Hub
+                  command: |
+                      echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+                      docker push $IMAGE_NAME:latest
+    publish-tag:
+        executor: docker-publisher
+        steps:
+            - attach_workspace:
+                  at: /tmp/workspace
+            - setup_remote_docker
+            - run:
+                  name: Load archived Docker image
+                  command: docker load -i /tmp/workspace/image.tar
+            - run:
+                  name: Publish Docker Image to Docker Hub
+                  command: |
+                      echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+                      IMAGE_TAG=${CIRCLE_TAG/v/''}
+                      docker tag $IMAGE_NAME:latest $IMAGE_NAME:$IMAGE_TAG
+                      docker push $IMAGE_NAME:latest
+                      docker push $IMAGE_NAME:$IMAGE_TAG
+workflows:
+    version: 2
+    test:
+        jobs:
+            - test
+    build-master:
+        jobs:
+            - build:
+                  requires:
+                      - test
+                  filters:
+                      branches:
+                          only: master
+            - publish-latest:
+                  requires:
+                      - test
+                      - build
+                  filters:
+                      branches:
+                          only: master
+    build-tags:
+        jobs:
+            - build:
+                  requires:
+                      - test
+                  filters:
+                      tags:
+                          only: /^v.*/
+                      branches:
+                          ignore: /.*/
+            - publish-tag:
+                  requires:
+                      - test
+                      - build
+                  filters:
+                      tags:
+                          only: /^v.*/
+                      branches:
+                          ignore: /.*/
