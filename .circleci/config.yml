@@ -120,7 +120,7 @@ workflows:
                       - build
     test-build-master:
         jobs:
-            - test
+            - test:
                   filters:
                       branches:
                           only: master
