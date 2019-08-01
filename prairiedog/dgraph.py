@@ -9,6 +9,7 @@ import hashlib
 import pydgraph
 import grpc
 
+
 from prairiedog.edge import Edge
 from prairiedog.graph import Graph
 from prairiedog.node import Node, DEFAULT_NODE_TYPE
@@ -17,7 +18,6 @@ from prairiedog.kmers import possible_kmers
 log = logging.getLogger("prairiedog")
 
 DGRAPH_HOST = 'localhost'
-SCHEME = ''
 
 # This is specific to Dgraph
 DEFAULT_EDGE_PREDICATE = 'fd'
