@@ -4,9 +4,11 @@ import time
 import pathlib
 import json
 import sys
+import hashlib
 
 import pydgraph
 import grpc
+
 
 from prairiedog.edge import Edge
 from prairiedog.graph import Graph
@@ -16,7 +18,6 @@ from prairiedog.kmers import possible_kmers
 log = logging.getLogger("prairiedog")
 
 DGRAPH_HOST = 'localhost'
-SCHEME = ''
 
 # This is specific to Dgraph
 DEFAULT_EDGE_PREDICATE = 'fd'
@@ -555,15 +556,25 @@ class Dgraph(Graph):
 
 
 class DgraphBulk(Graph):
+    def __init__(self):
+        self.nquads = ""
+
     def upsert_node(self, node: Node, echo: bool = True) -> typing.Optional[
             Node]:
         pass
 
     def add_edge(self, edge: Edge, echo: bool = True) -> typing.Optional[Edge]:
+        # The hash is used to ensure blank nodes are unique before assignment
+        e = hashlib.sha1("{}{}{}{}".format(
+            edge.src, edge.tgt, edge.edge_type, edge.edge_value).encode(
+            "utf-8")).hexdigest()
         self.nquads += """
-        _:{src} <{et}> _:{tgt} (type="{fl}", value={fv}) .
+        _:{src} <{et}> _:{e} .
+        _:{e} <{et}> _:{tgt} .
+        _:{e} <type> "{fl}" .
+        _:{e} <value> "{fv}" .
         """.format(src=edge.src, tgt=edge.tgt, fl=edge.edge_type,
-                   fv=edge.edge_value, et=DEFAULT_EDGE_PREDICATE)
+                   fv=edge.edge_value, et=DEFAULT_EDGE_PREDICATE, e=e)
 
     def clear(self):
         pass

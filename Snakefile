@@ -1,13 +1,9 @@
 import pathlib
 import os
 import shutil
-import subprocess
-import psutil
 
 import dill
 import pandas as pd
-import numpy as np
-from contextlib import contextmanager
 
 from prairiedog.profiler import Profiler
 from prairiedog.kmers import Kmers
@@ -15,7 +11,7 @@ from prairiedog.networkx_graph import NetworkXGraph
 from prairiedog.graph_ref import GraphRef
 from prairiedog.subgraph_ref import SubgraphRef
 from prairiedog.lemon_graph import LGGraph, DB_PATH
-from prairiedog.dgraph import Dgraph
+from prairiedog.dgraph import DgraphBulk
 
 configfile: "config.yaml"
 
@@ -61,13 +57,6 @@ rule pangenome:
     output:
         'outputs/pangenome_{input}.g'
     run:
-        # Remove old memory usage logs
-        # sizes = []
-        # try:
-        #     os.remove('outputs/sizes_{}.txt'.format(input[0]))
-        # except:
-        #     pass
-
         # Setup graph backend
         gr = GraphRef(MIC_CSV)
         if config['backend'] == 'networkx':
@@ -78,7 +67,7 @@ rule pangenome:
             sg = SubgraphRef(LGGraph())
         elif config['backend'] == 'dgraph':
             print("Using Dgraph as graph backend")
-            sg = SubgraphRef(Dgraph())
+            sg = SubgraphRef(DgraphBulk())
         else:
             raise Exception("No graph backend found")
 
@@ -90,25 +79,12 @@ rule pangenome:
         else:
             profiler = None
 
-        # Note that start=1 is only for the index, sgf still starts at
-        # position 0
-        # for index, kmf in enumerate(input, start=1):
-        # print("rule 'pangenome' on Kmer {} / {}".format(
-        #     index, len(input)))
+        # Main graphing step
         km = dill.load(open(input[0],'rb'))
         gr.index_kmers(km)
         sg.update_graph(km, gr)
         if config['backend'] in ('lemongraph', 'dgraph'):
             sg.save(output[0])
-
-        # Calculate rough memory usage
-        pid = os.getpid()
-        py = psutil.Process(pid)
-        sz = py.memory_info()[0]/2.**30
-        # sizes.append(sz)
-        print("Current process memory usage is {} GB".format(sz))
-        # with open('outputs/sizes.txt', 'a') as f:
-        #     f.write('{}\n'.format(sz))
 
         # It seems the km object is being kept in memory for too long
         del km
@@ -128,8 +104,6 @@ rule pangenome:
             open(output[0], 'w').close()
         else:
             sg.save(output[0])
-
-        # dill.dump(sizes, open('outputs/sizes.pkl', 'wb'))
 
 rule done:
     input:
