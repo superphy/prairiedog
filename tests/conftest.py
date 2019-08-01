@@ -85,9 +85,13 @@ def _lgr():
     return LGGraph(path, delete_on_exit=True)
 
 
+def _dg():
+    return DgraphBundled()
+
+
 @pytest.fixture
 def dg():
-    return DgraphBundled()
+    return _dg()
 
 # TODO: use params to test against multiple backing stores
 @pytest.fixture(scope="function", params=BACKENDS)
@@ -98,7 +102,7 @@ def g(request):
         # Create a new LemonGraph instance with its own database file
         return _lgr()
     elif request.param == "dgraph":
-        return dg()
+        return _dg()
 
 
 @pytest.fixture(scope="function")
