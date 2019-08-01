@@ -17,7 +17,7 @@ with open("dgraph/kmers.schema") as f:
     KMERS_SCHEMA = ''.join(line for line in f)
 
 
-class DG(Dgraph):
+class DgraphBundled(Dgraph):
     """
     Helper to setup and tear-down dgraph
     """
@@ -44,7 +44,7 @@ class DG(Dgraph):
         time.sleep(4)
 
     def set_schema(self):
-        self.client.alter(pydgraph.Operation(schema=DG.SCHEMA))
+        self.client.alter(pydgraph.Operation(schema=DgraphBundled.SCHEMA))
         self.client.alter(pydgraph.Operation(schema=KMERS_SCHEMA))
 
     def shutdown_dgraph(self):

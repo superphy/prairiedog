@@ -11,7 +11,7 @@ import pytest
 from prairiedog import kmers
 from prairiedog.networkx_graph import NetworkXGraph
 from prairiedog.lemon_graph import LGGraph
-from tests.dgraph import DG
+from prairiedog.dgraph_bundled import DgraphBundled
 
 log = logging.getLogger('prairiedog')
 
@@ -84,9 +84,10 @@ def _lgr():
     os.close(fd)
     return LGGraph(path, delete_on_exit=True)
 
+
 @pytest.fixture
 def dg():
-    return DG()
+    return DgraphBundled()
 
 # TODO: use params to test against multiple backing stores
 @pytest.fixture(scope="function", params=BACKENDS)
