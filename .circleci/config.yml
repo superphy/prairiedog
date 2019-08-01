@@ -108,12 +108,22 @@ jobs:
                       docker push $IMAGE_NAME:$IMAGE_TAG
 workflows:
     version: 2
-    test:
+    test-build-all:
         jobs:
             - test
-    build-master:
+            - build:
+                  requires:
+                      - test
+            - publish-tag:
+                  requires:
+                      - test
+                      - build
+    test-build-master:
         jobs:
             - test
+                  filters:
+                      branches:
+                          only: master
             - build:
                   requires:
                       - test
@@ -127,23 +137,3 @@ workflows:
                   filters:
                       branches:
                           only: master
-    build-tags:
-        jobs:
-            - test
-            - build:
-                  requires:
-                      - test
-                  filters:
-                      tags:
-                          only: /^v.*/
-                      branches:
-                          ignore: /.*/
-            - publish-tag:
-                  requires:
-                      - test
-                      - build
-                  filters:
-                      tags:
-                          only: /^v.*/
-                      branches:
-                          ignore: /.*/
