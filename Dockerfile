@@ -5,6 +5,9 @@ MAINTAINER Kevin Le <kevin.kent.le@gmail.com>
 WORKDIR /pdg
 COPY . /pdg
 
+# Update git submodules
+RUN git submodule init && git submodule update --remote
+
 # Setup PyPy3 virtualenv
 ENV VIRTUAL_ENV=/opt/venv
 RUN pypy3 -m venv $VIRTUAL_ENV
@@ -13,5 +16,12 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 # Install deps
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
+
+# lemongraph
+RUN apt-get update -y && apt-get install -y libffi-dev zlib1g-dev python-dev python-cffi libatlas-base-dev
+RUN pip install --upgrade cffi
+
+# setup.py
+RUN python setup.py install
 
 ENTRYPOINT ["snakemake"]
