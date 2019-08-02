@@ -123,7 +123,7 @@ rule dgraph:
         'outputs/dgraph.done'
     run:
         # Create a reference to a running Dgraph instance
-        dg = DgraphBundled()
+        dg = DgraphBundled(delete=False, output_folder='outputs/dgraph/')
         # Execute dgraph bulk
         p = port('ZERO', offset)
         shell(dgraph_bulk_cmd(zero_port=p))

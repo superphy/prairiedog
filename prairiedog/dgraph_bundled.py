@@ -3,6 +3,7 @@ import tempfile
 import shutil
 import logging
 import time
+import pathlib
 
 import pydgraph
 
@@ -53,8 +54,13 @@ class DgraphBundled(Dgraph):
         self._p_zero.terminate()
         time.sleep(2)
 
-    def __init__(self):
-        self.tmp_dir = tempfile.mkdtemp()
+    def __init__(self, delete: bool = True, output_folder: str = None):
+        self.delete = delete
+        if output_folder is None:
+            self.tmp_dir = tempfile.mkdtemp()
+        else:
+            self.tmp_dir = pathlib.Path(output_folder)
+            self.tmp_dir.mkdir(parents=True, exist_ok=True)
         log.info("Will setup Dgraph from folder {}".format(self.tmp_dir))
         self._p_zero = None
         self._p_alpha = None
@@ -66,8 +72,10 @@ class DgraphBundled(Dgraph):
         self.set_schema()
 
     def __del__(self):
-        self.clear()
+        if self.delete:
+            self.clear()
         time.sleep(2)
         self.shutdown_dgraph()
-        shutil.rmtree(self.tmp_dir)
+        if self.delete:
+            shutil.rmtree(self.tmp_dir)
         super().__del__()
