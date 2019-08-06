@@ -20,6 +20,7 @@ RUN pip install -r requirements.txt
 # lemongraph
 RUN apt-get update -y && apt-get install -y libffi-dev zlib1g-dev python-dev python-cffi libatlas-base-dev
 RUN pip install --upgrade cffi
+RUN cd lemongraph/ && python setup.py install
 
 # setup.py
 RUN python setup.py install
