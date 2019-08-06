@@ -75,6 +75,25 @@ jobs:
                   root: .
                   paths:
                       - ./image.tar
+    test-build:
+        executor: docker-publisher
+        steps:
+            - attach_workspace:
+                  at: /tmp/workspace
+            - setup_remote_docker
+            - run:
+                  name: Load archived Docker image
+                  command: docker load -i /tmp/workspace/image.tar
+            - run:
+                  name: Test built Docker image
+                  command: |
+                      # Test without mapping
+                      docker run $IMAGE_NAME:latest
+
+                      # Test with mapping
+                      mkdir outputs/
+                      mkdir samples/
+                      docker run -v outputs/:/pdg/outputs/ -v samples/:/pdg/samples/ $IMAGE_NAME:latest
     publish-latest:
         executor: docker-publisher
         steps:
@@ -112,14 +131,20 @@ workflows:
             - build:
                   requires:
                       - test
+            - test-build:
+                  requires:
+                      - test
+                      - build
             - publish-sha:
                   requires:
                       - test
                       - build
+                      - test-build
             - publish-latest:
                   requires:
                       - test
                       - build
+                      - test-build
                   filters:
                       branches:
                           only: master
