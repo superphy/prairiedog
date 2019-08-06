@@ -2,6 +2,7 @@ FROM superphy/tox-base:d698931a52ddeef64dcf5918b32790bcef75af61
 
 MAINTAINER Kevin Le <kevin.kent.le@gmail.com>
 
+# TODO: switch to build stages, and rm prairiedog src after setup
 WORKDIR /pdg
 COPY . /pdg
 
