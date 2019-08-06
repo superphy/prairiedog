@@ -57,6 +57,13 @@ For querying an existing graph
 Usage
 =====
 
+Docker
+------
+
+::
+
+    docker run -v /abs-path-to/outputs/:/pdg/outputs/ -v /abs-path-to/samples/:/pdg/samples/ superphy/prairiedog
+
 For creating a graph
 ---------------------
 
