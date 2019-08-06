@@ -62,7 +62,7 @@ Docker
 
 ::
 
-    docker run -v /abs-path-to/outputs/:/pdg/outputs/ -v /abs-path-to/samples/:/pdg/samples/ superphy/prairiedog
+    docker run -v /abs-path-to/outputs/:/pdg/outputs/ -v /abs-path-to/samples/:/pdg/samples/ superphy/prairiedog dgraph
 
 For creating a graph
 ---------------------
