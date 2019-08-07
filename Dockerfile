@@ -26,4 +26,4 @@ RUN cd lemongraph/ && python setup.py install
 # setup.py
 RUN python setup.py install
 
-ENTRYPOINT ["snakemake"]
+ENTRYPOINT ["snakemake", "-j"]
