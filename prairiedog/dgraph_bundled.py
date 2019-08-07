@@ -50,8 +50,8 @@ class DgraphBundled(Dgraph):
     def init_dgraph(self):
         log.info("Using global offset {}".format(offset))
         # Log level is set only to INFO or greater
-        info_or_higher = log.getEffectiveLevel() >= 20
-        if info_or_higher:
+        if_condition = log.getEffectiveLevel() >= 20
+        if if_condition:
             # Don't display subprocess output
             self._p_zero = DgraphBundled._setup_zero(
                 self.tmp_dir, subprocess.DEVNULL
@@ -61,7 +61,7 @@ class DgraphBundled(Dgraph):
                 self.tmp_dir, subprocess.PIPE
             )
         time.sleep(2)
-        if info_or_higher:
+        if if_condition:
             self._p_alpha = DgraphBundled._setup_alpha(
                 self.tmp_dir, subprocess.DEVNULL
             )
