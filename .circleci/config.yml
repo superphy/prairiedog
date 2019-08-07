@@ -93,7 +93,7 @@ jobs:
                       # Test with mapping
                       mkdir /tmp/outputs/
                       mkdir /tmp/samples/
-                      docker run -v /tmp/outputs/:/pdg/outputs/ -v /tmp/samples/:/pdg/samples/ $IMAGE_NAME:latest
+                      docker run -v /tmp/outputs/:/p/outputs/ -v /tmp/samples/:/p/samples/ $IMAGE_NAME:latest
     publish-latest:
         executor: docker-publisher
         steps:

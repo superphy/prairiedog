@@ -3,8 +3,8 @@ FROM superphy/tox-base:d698931a52ddeef64dcf5918b32790bcef75af61
 MAINTAINER Kevin Le <kevin.kent.le@gmail.com>
 
 # TODO: switch to build stages, and rm prairiedog src after setup
-WORKDIR /pdg
-COPY . /pdg
+WORKDIR /p
+COPY . /p
 
 # Update git submodules
 RUN git submodule init && git submodule update --remote
