@@ -27,21 +27,48 @@ class DgraphBundled(Dgraph):
     {}: string @index(exact) @upsert .
     """.format(DEFAULT_NODE_TYPE)
 
-    def init_dgraph(self):
-        log.info("Using global offset {}".format(offset))
-        self._p_zero = subprocess.Popen(
-            ['dgraph', 'zero', '-o', str(offset)], cwd=self.tmp_dir,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL
-        )
-        time.sleep(2)
-        self._p_alpha = subprocess.Popen(
+    @staticmethod
+    def _setup_alpha(cwd, pipe=subprocess.DEVNULL):
+        p = subprocess.Popen(
+                ['dgraph', 'zero', '-o', str(offset)], cwd=cwd,
+                stdout=pipe,
+                stderr=pipe
+            )
+        return p
+
+    @staticmethod
+    def _setup_zero(cwd, pipe=subprocess.DEVNULL):
+        p = subprocess.Popen(
             ['dgraph', 'alpha', '--lru_mb', '2048', '--zero',
              'localhost:{}'.format(port("ZERO", offset)),
-             '-o', str(offset)], cwd=self.tmp_dir,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL
+             '-o', str(offset)], cwd=cwd,
+            stdout=pipe,
+            stderr=pipe
         )
+        return p
+
+    def init_dgraph(self):
+        log.info("Using global offset {}".format(offset))
+        # Log level is set only to INFO or greater
+        if_condition = log.getEffectiveLevel() >= 20
+        if if_condition:
+            # Don't display subprocess output
+            self._p_zero = DgraphBundled._setup_zero(
+                self.tmp_dir, subprocess.DEVNULL
+            )
+        else:
+            self._p_zero = DgraphBundled._setup_zero(
+                self.tmp_dir, subprocess.PIPE
+            )
+        time.sleep(2)
+        if if_condition:
+            self._p_alpha = DgraphBundled._setup_alpha(
+                self.tmp_dir, subprocess.DEVNULL
+            )
+        else:
+            self._p_alpha = DgraphBundled._setup_alpha(
+                self.tmp_dir, subprocess.PIPE
+            )
         time.sleep(4)
 
     def set_schema(self):
