@@ -91,9 +91,9 @@ jobs:
                       docker run $IMAGE_NAME:latest
 
                       # Test with mapping
-                      mkdir outputs/
-                      mkdir samples/
-                      docker run -v outputs/:/pdg/outputs/ -v samples/:/pdg/samples/ $IMAGE_NAME:latest
+                      mkdir /outputs/
+                      mkdir /samples/
+                      docker run -v /outputs/:/pdg/outputs/ -v /samples/:/pdg/samples/ $IMAGE_NAME:latest
     publish-latest:
         executor: docker-publisher
         steps:
