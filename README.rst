@@ -42,7 +42,6 @@ For creating a graph
 
     . venv/bin/activate
     pip install -r requirements.txt
-    pip install git+https://github.com/pytries/datrie.git
     pip install snakemake
 
 For querying an existing graph
