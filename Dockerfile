@@ -12,7 +12,7 @@ RUN git submodule init && git submodule update --remote
 # Setup PyPy3 virtualenv
 ENV VIRTUAL_ENV=/opt/venv
 RUN pypy3 -m venv $VIRTUAL_ENV
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+ENV PATH="$VIRTUAL_ENV/bin:/p/gobin/go/bin:$PATH"
 
 # Install deps
 RUN pip install --upgrade pip

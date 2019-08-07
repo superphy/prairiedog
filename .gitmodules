@@ -5,3 +5,6 @@
 	path = lemongraph
 	url = https://github.com/superphy/lemongraph.git
 	ignore = dirty
+[submodule "gobin"]
+	path = gobin
+	url = git@github.com:superphy/gobin.git
