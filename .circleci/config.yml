@@ -80,7 +80,6 @@ jobs:
         steps:
             - attach_workspace:
                   at: /tmp/workspace
-            - checkout
             - setup_remote_docker
             - run:
                   name: Load archived Docker image
@@ -94,7 +93,6 @@ jobs:
                       # Test with mapping
                       mkdir /tmp/outputs/
                       mkdir /tmp/samples/
-                      cp -rf tests/*_SHORTENED.fasta /tmp/samples/
                       docker run -v /tmp/outputs/:/p/outputs/ -v /tmp/samples/:/p/samples/ $IMAGE_NAME:latest
     publish-latest:
         executor: docker-publisher
