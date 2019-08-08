@@ -43,7 +43,7 @@ def cli(debug):
         setup_logging('DEBUG')
 
 
-@cli.command('query')
+@cli.command()
 @click.argument('src', nargs=1)
 @click.argument('dst', nargs=1)
 @click.option('--backend', default='dgraph', help='Backend graph database')
@@ -54,7 +54,7 @@ def query(src: str, dst: str, backend: str):
     pdg.query(src, dst)
 
 
-@cli.command('dgraph')
+@cli.command()
 def dgraph():
     """Create a pan-genome."""
     subprocess.run("snakemake -j dgraph", shell=True)
