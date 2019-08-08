@@ -3,6 +3,7 @@
 """Console script for prairiedog."""
 import click
 import os
+import subprocess
 
 from prairiedog.logger import setup_logging
 from prairiedog.prairiedog import Prairiedog
@@ -39,6 +40,13 @@ def parse_backend(backend: str) -> Graph:
 @click.argument('dst', nargs=1)
 @click.option('--backend', default='dgraph', help='Backend graph database')
 def query(src: str, dst: str, backend: str):
+    """Query the pan-genome for a path between two k-mers."""
     g = parse_backend(backend)
     pdg = Prairiedog(g=g)
     pdg.query(src, dst)
+
+
+@click.command()
+def dgraph():
+    """Create a pan-genome."""
+    subprocess.run("snakemake -j dgraph", shell=True)

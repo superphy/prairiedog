@@ -65,17 +65,6 @@ class Dgraph(Graph):
         if self._client_stub is not None:
             self.client_stub.close()
 
-    def preload(self, k: int = 11):
-        nquads = ""
-        c = 0
-        for kmer in possible_kmers(k):
-            nquads += ' _:{kmer} <km> "{kmer}" .'.format(kmer=kmer)
-            c += 1
-            if c % 333 == 0:
-                self.mutate(nquads)
-                nquads = ""
-        self.mutate(nquads)
-
     def query(self, q: str):
         log.debug("Using query: \n{}".format(q))
         res = self.client.txn(read_only=True).query(q)
@@ -562,6 +551,12 @@ class DgraphBulk(Graph):
     def upsert_node(self, node: Node, echo: bool = True) -> typing.Optional[
             Node]:
         pass
+
+    def preload(self, k: int = 11):
+        for kmer in possible_kmers(k):
+            self.nquads += """
+            _:{kmer} <km> "{kmer}" .
+            """.format(kmer=kmer)
 
     def add_edge(self, edge: Edge, echo: bool = True) -> typing.Optional[Edge]:
         # The hash is used to ensure blank nodes are unique before assignment

@@ -34,6 +34,7 @@ setup(
     entry_points={
         'console_scripts': [
             'prairiedog=prairiedog.cli:query',
+            'prairiedog=prairiedog.cli:dgraph',
         ],
     },
     install_requires=requirements,
