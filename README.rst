@@ -42,7 +42,6 @@ For creating a graph
 
     . venv/bin/activate
     pip install -r requirements.txt
-    pip install git+https://github.com/pytries/datrie.git
     pip install snakemake
 
 For querying an existing graph
@@ -56,6 +55,13 @@ For querying an existing graph
 =====
 Usage
 =====
+
+Docker
+------
+
+::
+
+    docker run -v /abs-path-to/outputs/:/p/outputs/ -v /abs-path-to/samples/:/p/samples/ superphy/prairiedog dgraph
 
 For creating a graph
 ---------------------

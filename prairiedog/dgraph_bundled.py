@@ -3,6 +3,7 @@ import tempfile
 import shutil
 import logging
 import time
+import pathlib
 
 import pydgraph
 
@@ -17,7 +18,7 @@ with open("dgraph/kmers.schema") as f:
     KMERS_SCHEMA = ''.join(line for line in f)
 
 
-class DG(Dgraph):
+class DgraphBundled(Dgraph):
     """
     Helper to setup and tear-down dgraph
     """
@@ -31,7 +32,7 @@ class DG(Dgraph):
         self._p_zero = subprocess.Popen(
             ['dgraph', 'zero', '-o', str(offset)], cwd=self.tmp_dir,
             stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL
+            stderr=subprocess.PIPE
         )
         time.sleep(2)
         self._p_alpha = subprocess.Popen(
@@ -39,12 +40,12 @@ class DG(Dgraph):
              'localhost:{}'.format(port("ZERO", offset)),
              '-o', str(offset)], cwd=self.tmp_dir,
             stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL
+            stderr=subprocess.PIPE
         )
         time.sleep(4)
 
     def set_schema(self):
-        self.client.alter(pydgraph.Operation(schema=DG.SCHEMA))
+        self.client.alter(pydgraph.Operation(schema=DgraphBundled.SCHEMA))
         self.client.alter(pydgraph.Operation(schema=KMERS_SCHEMA))
 
     def shutdown_dgraph(self):
@@ -53,8 +54,13 @@ class DG(Dgraph):
         self._p_zero.terminate()
         time.sleep(2)
 
-    def __init__(self):
-        self.tmp_dir = tempfile.mkdtemp()
+    def __init__(self, delete: bool = True, output_folder: str = None):
+        self.delete = delete
+        if output_folder is None:
+            self.tmp_dir = tempfile.mkdtemp()
+        else:
+            self.tmp_dir = pathlib.Path(output_folder)
+            self.tmp_dir.mkdir(parents=True, exist_ok=True)
         log.info("Will setup Dgraph from folder {}".format(self.tmp_dir))
         self._p_zero = None
         self._p_alpha = None
@@ -66,8 +72,10 @@ class DG(Dgraph):
         self.set_schema()
 
     def __del__(self):
-        self.clear()
+        if self.delete:
+            self.clear()
         time.sleep(2)
         self.shutdown_dgraph()
-        shutil.rmtree(self.tmp_dir)
+        if self.delete:
+            shutil.rmtree(self.tmp_dir)
         super().__del__()

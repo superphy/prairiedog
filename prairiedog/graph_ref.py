@@ -23,6 +23,8 @@ class GraphRef(GRef):
             self.MIC_DF = pd.read_csv(mic_csv, index_col=0)
         elif os.path.isfile(config.MIC_CSV):
             self.MIC_DF = pd.read_csv(config.MIC_CSV, index_col=0)
+        else:
+            self.MIC_DF = None
 
         if self.MIC_DF is not None:
             self.MIC_COLUMNS = self.MIC_DF.columns

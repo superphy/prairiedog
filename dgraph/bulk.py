@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import psutil
 
 # Calculations for Dgraph Bulk processes, this was based off our tests
@@ -19,7 +17,9 @@ def recommended_procs() -> int:
         return cpus
 
 
-def dgraph_bulk_cmd(rdfs: Path, schema: Path, zero_port: int = 5080) -> str:
+def dgraph_bulk_cmd(
+    rdfs: str = 'outputs/samples/', schema: str = 'dgraph/kmers.schema',
+        zero_port: int = 5080) -> str:
     run_cmd = "dgraph bulk \
     -f {rdfs} \
     -s {schema} \

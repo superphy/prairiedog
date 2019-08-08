@@ -11,7 +11,9 @@ from prairiedog.networkx_graph import NetworkXGraph
 from prairiedog.graph_ref import GraphRef
 from prairiedog.subgraph_ref import SubgraphRef
 from prairiedog.lemon_graph import LGGraph, DB_PATH
-from prairiedog.dgraph import DgraphBulk
+from prairiedog.dgraph import DgraphBulk, port
+from prairiedog.dgraph_bundled import DgraphBundled, offset
+from dgraph.bulk import dgraph_bulk_cmd
 
 configfile: "config.yaml"
 
@@ -112,6 +114,20 @@ rule done:
     output:
         'outputs/pangenome.g'
     run:
+        open(output[0], 'w').close()
+
+rule dgraph:
+    input:
+        'outputs/pangenome.g'
+    output:
+        'outputs/dgraph.done'
+    run:
+        # Create a reference to a running Dgraph instance
+        dg = DgraphBundled(delete=False, output_folder='outputs/dgraph/')
+        # Execute dgraph bulk
+        p = port('ZERO', offset)
+        shell(dgraph_bulk_cmd(zero_port=p))
+        # Create the done file
         open(output[0], 'w').close()
 
 rule clean:
