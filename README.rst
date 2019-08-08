@@ -74,6 +74,17 @@ For creating a graph
 For querying an existing graph
 -------------------------------
 
+Via docker
+
+::
+
+    # Without debug
+    docker run -v /home/kevin/pdg-test/outputs:/p/outputs/ -v /home/kevin/pdg-test/samples:/p/samples/ superphy/prairiedog:c6ff5c63779a73de02c9b3de0f4225b29564f285 query TCGAGCATTAT GCATAGGCAAC
+    # With debug
+    docker run -v /home/kevin/pdg-test/outputs:/p/outputs/ -v /home/kevin/pdg-test/samples:/p/samples/ superphy/prairiedog:c6ff5c63779a73de02c9b3de0f4225b29564f285 --debug query TCGAGCATTAT GCATAGGCAAC
+
+or virtualenv
+
 ::
 
     . venv/bin/activate

@@ -31,7 +31,7 @@ def parse_backend(backend: str) -> Graph:
     elif backend == 'lemongraph':
         g = connect_lemongraph()
     else:
-        g = DgraphBundled()
+        g = DgraphBundled(delete=False, output_folder='outputs/dgraph/')
     return g
 
 
