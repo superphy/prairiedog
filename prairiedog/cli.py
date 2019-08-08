@@ -35,10 +35,18 @@ def parse_backend(backend: str) -> Graph:
     return g
 
 
-@click.command()
-@click.argument('src', nargs=1)
-@click.argument('dst', nargs=1)
-@click.option('--backend', default='dgraph', help='Backend graph database')
+@click.group()
+@click.option('--debug/--no-debug', default=False)
+def cli(debug):
+    click.echo('Debug mode is %s' % ('on' if debug else 'off'))
+    if debug:
+        setup_logging('DEBUG')
+
+
+@cli.command()
+@cli.argument('src', nargs=1)
+@cli.argument('dst', nargs=1)
+@cli.option('--backend', default='dgraph', help='Backend graph database')
 def query(src: str, dst: str, backend: str):
     """Query the pan-genome for a path between two k-mers."""
     g = parse_backend(backend)
@@ -46,7 +54,7 @@ def query(src: str, dst: str, backend: str):
     pdg.query(src, dst)
 
 
-@click.command()
+@cli.command()
 def dgraph():
     """Create a pan-genome."""
     subprocess.run("snakemake -j dgraph", shell=True)
