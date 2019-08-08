@@ -5,6 +5,8 @@ import click
 import os
 import subprocess
 
+import psutil
+
 from prairiedog.logger import setup_logging
 from prairiedog.prairiedog import Prairiedog
 from prairiedog.graph import Graph
@@ -57,4 +59,5 @@ def query(src: str, dst: str, backend: str):
 @cli.command()
 def dgraph():
     """Create a pan-genome."""
-    subprocess.run("snakemake -j dgraph", shell=True)
+    subprocess.run("snakemake -j {} dgraph".format(
+        psutil.cpu_count()), shell=True)
