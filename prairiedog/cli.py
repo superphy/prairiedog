@@ -44,9 +44,9 @@ def cli(debug):
 
 
 @cli.command()
-@cli.argument('src', nargs=1)
-@cli.argument('dst', nargs=1)
-@cli.option('--backend', default='dgraph', help='Backend graph database')
+@click.argument('src', nargs=1)
+@click.argument('dst', nargs=1)
+@click.option('--backend', default='dgraph', help='Backend graph database')
 def query(src: str, dst: str, backend: str):
     """Query the pan-genome for a path between two k-mers."""
     g = parse_backend(backend)
