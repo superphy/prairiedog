@@ -9,6 +9,7 @@ import tempfile
 import pytest
 
 from prairiedog import kmers
+from prairiedog.graph import Graph
 from prairiedog.networkx_graph import NetworkXGraph
 from prairiedog.lemon_graph import LGGraph
 from prairiedog.dgraph_bundled import DgraphBundled
@@ -144,8 +145,7 @@ def setup_snakefile(request):
     subprocess.run("snakemake clean", shell=True)
 
 
-@pytest.fixture
-def lg() -> LGGraph:
+def lg_prebuilt() -> LGGraph:
     """
     A pre-made LemonGraph made from:
         - SRR1060582_SHORTENED.fasta,
@@ -155,3 +155,15 @@ def lg() -> LGGraph:
     """
     g = LGGraph('tests/pangenome.lemongraph', delete_on_exit=False)
     return g
+
+
+def dgraph_prebuilt() -> DgraphBundled:
+    pass
+
+
+@pytest.fixture(params='lemongraph')
+def prebuilt_graph(request) -> Graph:
+    if request.param == 'lemongraph':
+        return lg_prebuilt()
+    elif request.param == 'dgraph':
+        return dgraph_prebuilt()
