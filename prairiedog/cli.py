@@ -9,7 +9,7 @@ from prairiedog.logger import setup_logging
 from prairiedog.prairiedog import Prairiedog
 from prairiedog.graph import Graph
 from prairiedog.lemon_graph import LGGraph, DB_PATH
-from prairiedog.dgraph import Dgraph
+from prairiedog.dgraph_bundled import DgraphBundled
 
 # If cli is imported, re-setup logging to level INFO
 setup_logging("INFO")
@@ -27,11 +27,11 @@ def connect_lemongraph() -> LGGraph:
 
 def parse_backend(backend: str) -> Graph:
     if backend == 'dgraph':
-        g = Dgraph()
+        g = DgraphBundled()
     elif backend == 'lemongraph':
         g = connect_lemongraph()
     else:
-        g = Dgraph()
+        g = DgraphBundled()
     return g
 
 
