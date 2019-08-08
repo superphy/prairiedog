@@ -161,7 +161,7 @@ def dgraph_prebuilt() -> DgraphBundled:
     pass
 
 
-@pytest.fixture(params='lemongraph')
+@pytest.fixture(params=['lemongraph'])
 def prebuilt_graph(request) -> Graph:
     if request.param == 'lemongraph':
         return lg_prebuilt()
