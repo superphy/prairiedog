@@ -553,7 +553,7 @@ class DgraphBulk(Graph):
         pass
 
     def preload(self, k: int = 11):
-        self.nquads = ' '.join('_:{kmer} <km> "{kmer}" .'.format(kmer=kmer)
+        self.nquads = '\n'.join('_:{kmer} <km> "{kmer}" .'.format(kmer=kmer)
                                for kmer in possible_kmers(k))
 
     def add_edge(self, edge: Edge, echo: bool = True) -> typing.Optional[Edge]:
