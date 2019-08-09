@@ -1,20 +1,9 @@
-import psutil
+from prairiedog import recommended_procs
 
 # Calculations for Dgraph Bulk processes, this was based off our tests
-GB_PER_PROC = 94 / 12
+GB_PER_PROC_DGRAPH = 94 / 12
 
-
-def recommended_procs() -> int:
-    vm_bytes = psutil.virtual_memory().total
-    vm_gb = vm_bytes / (1 << 30)
-    procs_by_mem = int(vm_gb / GB_PER_PROC)
-    cpus = psutil.cpu_count()
-    if procs_by_mem < cpus:
-        # Memory is the limitation
-        return procs_by_mem
-    else:
-        # Plenty of memory, use all CPUs
-        return cpus
+recommended_procs_dgraph = recommended_procs(GB_PER_PROC_DGRAPH)
 
 
 def dgraph_bulk_cmd(
@@ -28,7 +17,7 @@ def dgraph_bulk_cmd(
     --reduce_shards=1 \
     --http localhost:8001 \
     --zero=localhost:{zero_port}".format(
-        rdfs=rdfs, schema=schema, n_procs=recommended_procs(),
+        rdfs=rdfs, schema=schema, n_procs=recommended_procs_dgraph,
         zero_port=zero_port)
     return run_cmd
 

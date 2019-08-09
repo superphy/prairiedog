@@ -12,6 +12,7 @@ from prairiedog.prairiedog import Prairiedog
 from prairiedog.graph import Graph
 from prairiedog.lemon_graph import LGGraph, DB_PATH
 from prairiedog.dgraph_bundled import DgraphBundled
+from prairiedog.kmers import recommended_procs_kmers
 
 # If cli is imported, re-setup logging to level INFO
 setup_logging("INFO")
@@ -60,4 +61,4 @@ def query(src: str, dst: str, backend: str):
 def dgraph():
     """Create a pan-genome."""
     subprocess.run("snakemake -j {} dgraph".format(
-        psutil.cpu_count()), shell=True)
+        recommended_procs_kmers), shell=True)
