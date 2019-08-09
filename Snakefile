@@ -115,7 +115,10 @@ rule preload:
         'outputs/samples/kmers.rdf'
     run:
         dg = DgraphBulk()
+        print("Trying to create rdf for all possible k-mers...")
         dg.preload(K)
+        print("Done creating rdf for all possible k-mers.")
+        print("Trying to save rdf to file {}".format(output[0]))
         dg.save(output[0])
 
 rule dgraph:
