@@ -5,8 +5,6 @@ import click
 import os
 import subprocess
 
-import psutil
-
 from prairiedog.logger import setup_logging
 from prairiedog.prairiedog import Prairiedog
 from prairiedog.graph import Graph
