@@ -120,6 +120,7 @@ rule preload:
         print("Done creating rdf for all possible k-mers.")
         print("Trying to save rdf to file {}".format(output[0]))
         dg.save(output[0])
+        print("Saved rdf as {}".format(output[0]))
 
 rule dgraph:
     input:

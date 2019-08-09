@@ -553,10 +553,8 @@ class DgraphBulk(Graph):
         pass
 
     def preload(self, k: int = 11):
-        for kmer in possible_kmers(k):
-            self.nquads += """
-            _:{kmer} <km> "{kmer}" .
-            """.format(kmer=kmer)
+        self.nquads = ' '.join('_:{kmer} <km> "{kmer}" .'.format(kmer=kmer)
+                               for kmer in possible_kmers(k))
 
     def add_edge(self, edge: Edge, echo: bool = True) -> typing.Optional[Edge]:
         # The hash is used to ensure blank nodes are unique before assignment
