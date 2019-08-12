@@ -4,7 +4,6 @@ import shutil
 import logging
 import time
 import pathlib
-import os
 
 import pydgraph
 
@@ -33,7 +32,7 @@ class DgraphBundled(Dgraph):
         self._p_zero = subprocess.Popen(
             ['dgraph', 'zero', '-o', str(offset), '--wal', str(self.wal_dir)],
             cwd=self.tmp_dir,
-            stdout=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
         time.sleep(2)
@@ -43,7 +42,7 @@ class DgraphBundled(Dgraph):
              '-o', str(offset), '--wal', str(self.wal_dir), '--postings',
              str(self.postings_dir)],
             cwd=self.tmp_dir,
-            stdout=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
         time.sleep(4)
