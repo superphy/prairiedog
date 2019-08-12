@@ -26,13 +26,24 @@ def connect_lemongraph() -> LGGraph:
     return g
 
 
+def connect_dgraph() -> DgraphBundled:
+    p = 'outputs/dgraph/'
+    # If the path exists, this was called after a Snakemake run.
+    # Otherwise, "query" was called without computing the backend graph.
+    if os.path.isdir(p):
+        g = DgraphBundled(delete=False, output_folder=p)
+    else:
+        g = DgraphBundled()
+    return g
+
+
 def parse_backend(backend: str) -> Graph:
     if backend == 'dgraph':
-        g = DgraphBundled()
+        g = connect_dgraph()
     elif backend == 'lemongraph':
         g = connect_lemongraph()
     else:
-        g = DgraphBundled(delete=False, output_folder='outputs/dgraph/')
+        g = connect_dgraph()
     return g
 
 
