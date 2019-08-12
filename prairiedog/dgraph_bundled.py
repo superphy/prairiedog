@@ -4,6 +4,7 @@ import shutil
 import logging
 import time
 import pathlib
+import os
 
 import pydgraph
 
@@ -30,7 +31,8 @@ class DgraphBundled(Dgraph):
     def init_dgraph(self):
         log.info("Using global offset {}".format(offset))
         self._p_zero = subprocess.Popen(
-            ['dgraph', 'zero', '-o', str(offset)], cwd=self.tmp_dir,
+            ['dgraph', 'zero', '-o', str(offset), '--wal', self.wal_dir],
+            cwd=self.tmp_dir,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.PIPE
         )
@@ -38,7 +40,9 @@ class DgraphBundled(Dgraph):
         self._p_alpha = subprocess.Popen(
             ['dgraph', 'alpha', '--lru_mb', '2048', '--zero',
              'localhost:{}'.format(port("ZERO", offset)),
-             '-o', str(offset)], cwd=self.tmp_dir,
+             '-o', str(offset), '--wal', self.wal_dir, '--postings',
+             self.postings_dir],
+            cwd=self.tmp_dir,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.PIPE
         )
@@ -62,6 +66,9 @@ class DgraphBundled(Dgraph):
             self.tmp_dir = pathlib.Path(output_folder)
             self.tmp_dir.mkdir(parents=True, exist_ok=True)
         log.info("Will setup Dgraph from folder {}".format(self.tmp_dir))
+        self.postings_dir = os.path.join(self.tmp_dir, '/p')
+        self.wal_dir = os.path.join(self.tmp_dir, '/w')
+        # Processes
         self._p_zero = None
         self._p_alpha = None
         self.init_dgraph()
