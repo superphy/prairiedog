@@ -31,7 +31,7 @@ class DgraphBundled(Dgraph):
     def init_dgraph(self):
         log.info("Using global offset {}".format(offset))
         self._p_zero = subprocess.Popen(
-            ['dgraph', 'zero', '-o', str(offset), '--wal', self.wal_dir],
+            ['dgraph', 'zero', '-o', str(offset), '--wal', str(self.wal_dir)],
             cwd=self.tmp_dir,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.PIPE
@@ -40,7 +40,7 @@ class DgraphBundled(Dgraph):
         self._p_alpha = subprocess.Popen(
             ['dgraph', 'alpha', '--lru_mb', '2048', '--zero',
              'localhost:{}'.format(port("ZERO", offset)),
-             '-o', str(offset), '--wal', self.wal_dir, '--postings',
+             '-o', str(offset), '--wal', str(self.wal_dir), '--postings',
              self.postings_dir],
             cwd=self.tmp_dir,
             stdout=subprocess.DEVNULL,
