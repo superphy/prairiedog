@@ -41,7 +41,7 @@ class DgraphBundled(Dgraph):
             ['dgraph', 'alpha', '--lru_mb', '2048', '--zero',
              'localhost:{}'.format(port("ZERO", offset)),
              '-o', str(offset), '--wal', str(self.wal_dir), '--postings',
-             self.postings_dir],
+             str(self.postings_dir)],
             cwd=self.tmp_dir,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.PIPE
