@@ -32,8 +32,6 @@ class DgraphBundled(Dgraph):
         self._p_zero = subprocess.Popen(
             ['dgraph', 'zero', '-o', str(offset), '--wal', str(self.wal_dir)],
             cwd=self.tmp_dir,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
         )
         time.sleep(2)
         self._p_alpha = subprocess.Popen(
@@ -42,8 +40,6 @@ class DgraphBundled(Dgraph):
              '-o', str(offset), '--wal', str(self.wal_dir), '--postings',
              str(self.postings_dir)],
             cwd=self.tmp_dir,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
         )
         time.sleep(4)
 
