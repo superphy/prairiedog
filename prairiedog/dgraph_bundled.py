@@ -66,8 +66,10 @@ class DgraphBundled(Dgraph):
             self.tmp_dir = pathlib.Path(output_folder)
             self.tmp_dir.mkdir(parents=True, exist_ok=True)
         log.info("Will setup Dgraph from folder {}".format(self.tmp_dir))
-        self.postings_dir = os.path.join(self.tmp_dir, '/p')
-        self.wal_dir = os.path.join(self.tmp_dir, '/w')
+        self.postings_dir = pathlib.Path(self.tmp_dir, '/p')
+        self.postings_dir.mkdir(parents=True, exist_ok=True)
+        self.wal_dir = pathlib.Path(self.tmp_dir, '/w')
+        self.wal_dir.mkdir(parents=True, exist_ok=True)
         # Processes
         self._p_zero = None
         self._p_alpha = None
