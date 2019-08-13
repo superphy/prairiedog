@@ -113,8 +113,8 @@ class LGGraph(prairiedog.graph.Graph):
             return LGGraph._parse_node(n)
 
     def add_edge(self, edge: Edge, echo: bool = True) -> typing.Optional[Edge]:
-        na = self.txn.node(type='n', value=edge.src)
-        nb = self.txn.node(type='n', value=edge.tgt)
+        na = self.txn.node(value=edge.src)
+        nb = self.txn.node(value=edge.tgt)
 
         # Add the edge
         e = self.txn.edge(src=na, tgt=nb, type=edge.edge_type,
