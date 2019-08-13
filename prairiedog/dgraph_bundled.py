@@ -38,7 +38,7 @@ class DgraphBundled(Dgraph):
         self._p_alpha = subprocess.Popen(
             ['dgraph', 'alpha', '--lru_mb', '2048', '--zero',
              'localhost:{}'.format(port("ZERO", offset)),
-             '-o', str(offset), '--wal', str(self.wal_dir_alpha), '--postings',
+             '-o', str(offset), '--wal', str(self.wal_dir), '--postings',
              str(self.postings_dir)],
             cwd=self.tmp_dir,
             stdout=subprocess.DEVNULL,
@@ -70,8 +70,8 @@ class DgraphBundled(Dgraph):
         self.wal_dir = pathlib.Path(self.tmp_dir, 'w')
         self.wal_dir.mkdir(parents=True, exist_ok=True)
         # Need separate wal for alpha
-        self.wal_dir_alpha = pathlib.Path(self.tmp_dir, 'alpha', 'w')
-        self.wal_dir_alpha.mkdir(parents=True, exist_ok=True)
+        # self.wal_dir_alpha = pathlib.Path(self.tmp_dir, 'alpha', 'w')
+        # self.wal_dir_alpha.mkdir(parents=True, exist_ok=True)
         # Processes
         self._p_zero = None
         self._p_alpha = None
