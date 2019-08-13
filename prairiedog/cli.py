@@ -69,5 +69,5 @@ def query(src: str, dst: str, backend: str):
 @cli.command()
 def dgraph():
     """Create a pan-genome."""
-    subprocess.run("snakemake -j {} dgraph".format(
+    subprocess.run("snakemake --config backend=dgraph -j {} dgraph".format(
         recommended_procs_kmers), shell=True)

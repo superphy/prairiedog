@@ -8,7 +8,7 @@ import LemonGraph
 import prairiedog.graph
 import prairiedog.config
 from prairiedog.edge import Edge
-from prairiedog.node import Node
+from prairiedog.node import Node, DEFAULT_NODE_TYPE
 from prairiedog.errors import GraphException
 
 
@@ -113,8 +113,8 @@ class LGGraph(prairiedog.graph.Graph):
             return LGGraph._parse_node(n)
 
     def add_edge(self, edge: Edge, echo: bool = True) -> typing.Optional[Edge]:
-        na = self.txn.node(value=edge.src)
-        nb = self.txn.node(value=edge.tgt)
+        na = self.txn.node(type=DEFAULT_NODE_TYPE, value=edge.src)
+        nb = self.txn.node(type=DEFAULT_NODE_TYPE, value=edge.tgt)
 
         # Add the edge
         e = self.txn.edge(src=na, tgt=nb, type=edge.edge_type,
