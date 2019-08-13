@@ -6,6 +6,9 @@ __author__ = """Kevin Le"""
 __email__ = 'kevin.kent.le@gmail.com'
 __version__ = '0.1.1'
 
+import logging
+import os
+
 import psutil
 
 from prairiedog.logger import setup_logging
@@ -25,3 +28,14 @@ def recommended_procs(gb_per_proc) -> int:
     else:
         # Plenty of memory, use all CPUs
         return cpus
+
+
+def debug_and_not_ci() -> bool:
+    """Defined as a function so we can eval on call"""
+    log = logging.getLogger('prairiedog')
+    debug = log.isEnabledFor(logging.DEBUG)
+    ci = os.getenv('CI') == 'true'
+    if debug and not ci:
+        return True
+    else:
+        return False

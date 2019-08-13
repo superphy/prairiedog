@@ -7,6 +7,7 @@ import pathlib
 
 import pydgraph
 
+from prairiedog import debug_and_not_ci
 from prairiedog.node import DEFAULT_NODE_TYPE
 from prairiedog.dgraph import Dgraph, port
 
@@ -28,11 +29,18 @@ class DgraphBundled(Dgraph):
     """.format(DEFAULT_NODE_TYPE)
 
     def init_dgraph(self):
+        if debug_and_not_ci():
+            # Will display subprocess outputs
+            pipes = {}
+        else:
+            # Will not display subprocess outputs
+            pipes = {'stdout': subprocess.DEVNULL, 'stderr': subprocess.DEVNULL}
+
         log.info("Using global offset {}".format(offset))
         self._p_zero = subprocess.Popen(
             ['dgraph', 'zero', '-o', str(offset), '--wal', str(self.wal_dir)],
             cwd=self.tmp_dir,
-            stdout=subprocess.DEVNULL,
+            **pipes
         )
         time.sleep(2)
         self._p_alpha = subprocess.Popen(
@@ -41,7 +49,7 @@ class DgraphBundled(Dgraph):
              '-o', str(offset), '--wal', str(self.wal_dir_alpha), '--postings',
              str(self.postings_dir)],
             cwd=self.tmp_dir,
-            stdout=subprocess.DEVNULL,
+            **pipes
         )
         time.sleep(4)
 
