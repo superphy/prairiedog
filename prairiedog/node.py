@@ -1,6 +1,6 @@
 import typing
 
-DEFAULT_NODE_TYPE = 'n'
+DEFAULT_NODE_TYPE = 'km'
 
 
 class Node:
