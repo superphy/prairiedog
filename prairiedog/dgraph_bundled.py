@@ -62,13 +62,13 @@ class DgraphBundled(Dgraph):
             self.tmp_dir.mkdir(parents=True, exist_ok=True)
         log.info("Will setup Dgraph from folder {}".format(self.tmp_dir))
         # Postings is only used by alpha
-        self.postings_dir = pathlib.Path(self.tmp_dir, '/p')
+        self.postings_dir = pathlib.Path(self.tmp_dir, 'p')
         self.postings_dir.mkdir(parents=True, exist_ok=True)
         # This is the wal dir for zero
-        self.wal_dir = pathlib.Path(self.tmp_dir, '/w')
+        self.wal_dir = pathlib.Path(self.tmp_dir, 'w')
         self.wal_dir.mkdir(parents=True, exist_ok=True)
         # Need separate wal for alpha
-        self.wal_dir_alpha = pathlib.Path(self.tmp_dir, '/alpha', '/w')
+        self.wal_dir_alpha = pathlib.Path(self.tmp_dir, 'alpha', 'w')
         self.wal_dir_alpha.mkdir(parents=True, exist_ok=True)
         # Processes
         self._p_zero = None
