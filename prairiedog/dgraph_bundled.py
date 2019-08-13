@@ -34,7 +34,8 @@ class DgraphBundled(Dgraph):
             pipes = {}
         else:
             # Will not display subprocess outputs
-            pipes = {'stdout': subprocess.DEVNULL, 'stderr': subprocess.DEVNULL}
+            pipes = {'stdout': subprocess.DEVNULL,
+                     'stderr': subprocess.DEVNULL}
 
         log.info("Using global offset {}".format(offset))
         self._p_zero = subprocess.Popen(
