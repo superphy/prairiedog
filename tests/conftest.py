@@ -11,6 +11,7 @@ import pytest
 from prairiedog import kmers
 from prairiedog.networkx_graph import NetworkXGraph
 from prairiedog.lemon_graph import LGGraph
+from prairiedog.dgraph_bundled import DgraphBundled
 
 log = logging.getLogger('prairiedog')
 
@@ -26,6 +27,9 @@ GENOME_FILES_SHORTENED = [
     "tests/SRR1060582_SHORTENED.fasta",
     "tests/SRR1106609_SHORTENED.fasta",
 ]
+
+# TODO: switch to just one backend
+BACKENDS = ['dgraph', 'lemongraph']
 
 
 @pytest.fixture
@@ -81,20 +85,29 @@ def _lgr():
     return LGGraph(path, delete_on_exit=True)
 
 
+def _dg():
+    return DgraphBundled()
+
+
+@pytest.fixture
+def dg():
+    return _dg()
+
 # TODO: use params to test against multiple backing stores
-@pytest.fixture(scope="function", params=["lemongraph"])
+@pytest.fixture(scope="function", params=BACKENDS)
 def g(request):
     if request.param == "networkx":
         return NetworkXGraph()
     elif request.param == "lemongraph":
         # Create a new LemonGraph instance with its own database file
         return _lgr()
+    elif request.param == "dgraph":
+        return _dg()
 
 
 @pytest.fixture(scope="function")
 def lgr():
     return _lgr()
-
 
 # TODO: unused
 @pytest.fixture

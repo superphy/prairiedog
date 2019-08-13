@@ -21,12 +21,18 @@ class SubgraphRef(GRef):
         """
         """
         self.graph = graph
+        self.out_file = None
 
     def __str__(self):
         return "SubgraphRef"
 
-    def update_graph(self,
-                     km: Kmers, gr: GraphRef, encode: bool = False) -> int:
+    def update_graph(self, km: Kmers, gr: GraphRef, encode: bool = False,
+                     buffer: int = 333) -> int:
+        self.out_file = os.path.join(
+            'outputs/',
+            km.filepath + '.rdf'
+        )
+        log.debug("Will write to {}".format(self.out_file))
         log.debug(
             "Starting to graph {} in pid {}".format(
                 km, os.getpid()))
@@ -58,13 +64,22 @@ class SubgraphRef(GRef):
                             tgt=node2_label,
                             edge_type='{} in {}'.format(header2, str(km)),
                             edge_value=edge_c,
-                            labels={
-                                'f': str(km),
-                                'hd': header2
-                            }
                         ),
                         echo=False
                     )
+                    # self.graph.add_edge(
+                    #     Edge(
+                    #         src=node1_label,
+                    #         tgt=node2_label,
+                    #         edge_type='{} in {}'.format(header2, str(km)),
+                    #         edge_value=edge_c,
+                    #         labels={
+                    #             'f': str(km),
+                    #             'hd': header2
+                    #         }
+                    #     ),
+                    #     echo=False
+                    # )
                 except Exception as e:
                     log.fatal(
                         "Failed to add edge between {} and {}".format(
@@ -74,9 +89,13 @@ class SubgraphRef(GRef):
                 node1_label = node2_label
                 c += 1
                 edge_c += 1
+                if c % buffer == 0:
+                    # log.debug("Committing txn...")
+                    self.graph.save(self.out_file)
                 if c % 100000 == 0:
                     log.debug("{}/{}, {}%".format(
                         c, len(km), int(c/len(km)*100)))
+
             # At this point, we're out of kmers on that contig
             # The loop will check if there's still kmers, and reset kmer1
         en = time.time()
@@ -92,4 +111,4 @@ class SubgraphRef(GRef):
         # log.debug("After filtering, graph size when from {} to {}".format(
         #     full_length, filtered_length
         # ))
-        self.graph.save(f)
+        self.graph.save(self.out_file)

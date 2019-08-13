@@ -19,11 +19,15 @@ class GraphRef(GRef):
     """
     def __init__(self, mic_csv=None):
         self.max_num_nodes = 0
-        if mic_csv:
+        if mic_csv is not None and os.path.isfile(mic_csv):
             self.MIC_DF = pd.read_csv(mic_csv, index_col=0)
-        else:
+        elif os.path.isfile(config.MIC_CSV):
             self.MIC_DF = pd.read_csv(config.MIC_CSV, index_col=0)
-        self.MIC_COLUMNS = self.MIC_DF.columns
+        else:
+            self.MIC_DF = None
+
+        if self.MIC_DF is not None:
+            self.MIC_COLUMNS = self.MIC_DF.columns
 
         # Used if you want to reverse the graph label to MIC value
         self.mic_map = {}  # MIC value : some int

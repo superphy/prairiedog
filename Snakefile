@@ -1,13 +1,9 @@
 import pathlib
 import os
 import shutil
-import subprocess
-import psutil
 
 import dill
 import pandas as pd
-import numpy as np
-from contextlib import contextmanager
 
 from prairiedog.profiler import Profiler
 from prairiedog.kmers import Kmers
@@ -15,6 +11,9 @@ from prairiedog.networkx_graph import NetworkXGraph
 from prairiedog.graph_ref import GraphRef
 from prairiedog.subgraph_ref import SubgraphRef
 from prairiedog.lemon_graph import LGGraph, DB_PATH
+from prairiedog.dgraph import DgraphBulk, port
+from prairiedog.dgraph_bundled import DgraphBundled, offset
+from dgraph.bulk import dgraph_bulk_cmd
 
 configfile: "config.yaml"
 
@@ -23,8 +22,9 @@ INPUTS = [os.path.splitext(f)[0] for f in os.listdir(config["samples"])
            if f.endswith(('.fna', '.fasta', '.fa'))
 ]
 MIC_CSV = config["graph_labels"]
-MIC_COLUMNS = set(pd.read_csv(MIC_CSV).columns)
-MIC_COLUMNS.remove('run')
+if os.path.isfile(MIC_CSV):
+    MIC_COLUMNS = set(pd.read_csv(MIC_CSV).columns)
+    MIC_COLUMNS.remove('run')
 
 ###################
 # Graphing steps
@@ -44,20 +44,22 @@ rule kmers:
         km = Kmers(input[0],K)
         dill.dump(km, open(output[0],'wb'))
 
+rule preload:
+    output:
+        'outputs/preloaded.txt'
+    run:
+        # if config['backend'] == 'dgraph':
+        #     dg = Dgraph()
+        #     dg.preload(K)
+        open(output[0], 'w').close()
+
 rule pangenome:
     input:
-        expand('outputs/kmers/{input}.pkl', input=INPUTS)
+        'outputs/kmers/{input}.pkl',
+        'outputs/preloaded.txt'
     output:
-        'outputs/graphref.pkl',
-        'outputs/pangenome.g'
+        'outputs/pangenome_{input}.g'
     run:
-        # Remove old memory usage logs
-        sizes = []
-        try:
-            os.remove('outputs/sizes.txt')
-        except:
-            pass
-
         # Setup graph backend
         gr = GraphRef(MIC_CSV)
         if config['backend'] == 'networkx':
@@ -66,6 +68,9 @@ rule pangenome:
         elif config['backend'] == 'lemongraph':
             print("Using LemonGraph as graph backend")
             sg = SubgraphRef(LGGraph())
+        elif config['backend'] == 'dgraph':
+            print("Using Dgraph as graph backend")
+            sg = SubgraphRef(DgraphBulk())
         else:
             raise Exception("No graph backend found")
 
@@ -77,28 +82,15 @@ rule pangenome:
         else:
             profiler = None
 
-        # Note that start=1 is only for the index, sgf still starts at
-        # position 0
-        for index, kmf in enumerate(input, start=1):
-            print("rule 'pangenome' on Kmer {} / {}".format(
-                index, len(input)))
-            km = dill.load(open(kmf,'rb'))
-            gr.index_kmers(km)
-            sg.update_graph(km, gr)
-            if config['backend'] == 'lemongraph':
-                sg.save(output[1])
+        # Main graphing step
+        km = dill.load(open(input[0],'rb'))
+        gr.index_kmers(km)
+        sg.update_graph(km, gr)
+        if config['backend'] in ('lemongraph', 'dgraph'):
+            sg.save(output[0])
 
-            # Calculate rough memory usage
-            pid = os.getpid()
-            py = psutil.Process(pid)
-            sz = py.memory_info()[0]/2.**30
-            sizes.append(sz)
-            print("Current graph size is {} GB".format(sz))
-            with open('outputs/sizes.txt', 'a') as f:
-                f.write('{}\n'.format(sz))
-
-            # It seems the km object is being kept in memory for too long
-            del km
+        # It seems the km object is being kept in memory for too long
+        del km
 
         # Stop pyinstrument profiler
         if config['pyinstrument'] is True:
@@ -110,11 +102,33 @@ rule pangenome:
         dill.dump(gr,
                     open('outputs/graphref.pkl','wb'), protocol=4)
         if config['backend'] == 'lemongraph':
-            shutil.copy2(DB_PATH, output[1])
+            shutil.copy2(DB_PATH, output[0])
+        elif config['backend'] == 'dgraph':
+            open(output[0], 'w').close()
         else:
-            sg.save(output[1])
+            sg.save(output[0])
 
-        dill.dump(sizes, open('outputs/sizes.pkl', 'wb'))
+rule done:
+    input:
+        expand('outputs/pangenome_{input}.g', input=INPUTS)
+    output:
+        'outputs/pangenome.g'
+    run:
+        open(output[0], 'w').close()
+
+rule dgraph:
+    input:
+        'outputs/pangenome.g'
+    output:
+        'outputs/dgraph.done'
+    run:
+        # Create a reference to a running Dgraph instance
+        dg = DgraphBundled(delete=False, output_folder='outputs/dgraph/')
+        # Execute dgraph bulk
+        p = port('ZERO', offset)
+        shell(dgraph_bulk_cmd(zero_port=p))
+        # Create the done file
+        open(output[0], 'w').close()
 
 rule clean:
     shell:

@@ -1,0 +1,3 @@
+km: string @index(exact) @upsert .
+type: string @index(exact)  .
+value: int @index(int) .
