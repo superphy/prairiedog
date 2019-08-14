@@ -40,7 +40,7 @@ class DgraphBundled(Dgraph):
         log.info("Using global offset {}".format(offset))
         self._p_zero = subprocess.Popen(
             ['dgraph', 'zero', '-o', str(offset), '--wal', str(self.wal_dir)],
-            cwd=self.tmp_dir,
+            cwd=self.out_dir,
             **pipes
         )
         time.sleep(2)
@@ -49,7 +49,7 @@ class DgraphBundled(Dgraph):
              'localhost:{}'.format(port("ZERO", offset)),
              '-o', str(offset), '--wal', str(self.wal_dir_alpha), '--postings',
              str(self.postings_dir)],
-            cwd=self.tmp_dir,
+            cwd=self.out_dir,
             **pipes
         )
         time.sleep(4)
@@ -67,19 +67,19 @@ class DgraphBundled(Dgraph):
     def __init__(self, delete: bool = True, output_folder: str = None):
         self.delete = delete
         if output_folder is None:
-            self.tmp_dir = tempfile.mkdtemp()
+            self.out_dir = tempfile.mkdtemp()
         else:
-            self.tmp_dir = pathlib.Path(output_folder)
-            self.tmp_dir.mkdir(parents=True, exist_ok=True)
-        log.info("Will setup Dgraph from folder {}".format(self.tmp_dir))
+            self.out_dir = pathlib.Path(output_folder)
+            self.out_dir.mkdir(parents=True, exist_ok=True)
+        log.info("Will setup Dgraph from folder {}".format(self.out_dir))
         # Postings is only used by alpha
-        self.postings_dir = pathlib.Path(self.tmp_dir, 'p')
+        self.postings_dir = pathlib.Path(self.out_dir, 'p')
         self.postings_dir.mkdir(parents=True, exist_ok=True)
         # This is the wal dir for zero
-        self.wal_dir = pathlib.Path(self.tmp_dir, 'w')
+        self.wal_dir = pathlib.Path(self.out_dir, 'w')
         self.wal_dir.mkdir(parents=True, exist_ok=True)
         # Need separate wal for alpha
-        self.wal_dir_alpha = pathlib.Path(self.tmp_dir, 'alpha', 'w')
+        self.wal_dir_alpha = pathlib.Path(self.out_dir, 'alpha', 'w')
         self.wal_dir_alpha.mkdir(parents=True, exist_ok=True)
         # Processes
         self._p_zero = None
@@ -97,5 +97,6 @@ class DgraphBundled(Dgraph):
         time.sleep(2)
         self.shutdown_dgraph()
         if self.delete:
-            shutil.rmtree(self.tmp_dir)
+            log.warning("Wiping {} ...".format(self.out_dir))
+            shutil.rmtree(self.out_dir)
         super().__del__()

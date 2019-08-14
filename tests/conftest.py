@@ -130,12 +130,13 @@ def g(request):
 
 @pytest.fixture
 def dgraph_build() -> DgraphBundled:
+    """Build a bundled dgraph instance via snakemake"""
     tmp_output = tempfile.mkdtemp()
     tmp_samples = tempfile.mkdtemp()
     for f in GENOME_FILES_SHORTENED:
         shutil.copy2(f, tmp_samples)
     run_dgraph_snakemake(
-        '--config outputs_dir={outputs} --config samples_dir={samples}'.format(
+        'outputs_dir={outputs} samples_dir={samples}'.format(
             outputs=tmp_output, samples=tmp_samples
         ))
     p = os.path.join(tmp_output, 'dgraph/')
