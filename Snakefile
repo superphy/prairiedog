@@ -143,13 +143,15 @@ rule dgraph:
     output:
         os.path.join(outputs_dir, 'dgraph.done')
     run:
+        dgraph_output = os.path.join(outputs_dir, 'dgraph/')
+        rdfs = os.path.join(dgraph_output, 'samples/')
         # Create a reference to a running Dgraph instance
         dg = DgraphBundled(
             delete=False,
-            output_folder=os.path.join(outputs_dir, 'dgraph/'))
+            output_folder=dgraph_output)
         # Execute dgraph bulk
         p = port('ZERO', offset)
-        shell(dgraph_bulk_cmd(zero_port=p))
+        shell(dgraph_bulk_cmd(rdfs=rdfs, zero_port=p))
         # Create the done file
         open(output[0], 'w').close()
 
