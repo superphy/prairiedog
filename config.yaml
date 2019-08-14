@@ -1,7 +1,7 @@
-samples:
+samples_dir:
     samples/
 
-outputs:
+outputs_dir:
     outputs/
 
 k:

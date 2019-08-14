@@ -135,7 +135,7 @@ def dgraph_build() -> DgraphBundled:
     for f in GENOME_FILES_SHORTENED:
         shutil.copy2(f, tmp_samples)
     run_dgraph_snakemake(
-        '--config outputs={outputs} --config samples={samples}'.format(
+        '--config outputs_dir={outputs} --config samples_dir={samples}'.format(
             outputs=tmp_output, samples=tmp_samples
         ))
     p = os.path.join(tmp_output, 'dgraph/')

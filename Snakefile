@@ -28,8 +28,8 @@ if os.path.isfile(MIC_CSV):
     MIC_COLUMNS = set(pd.read_csv(MIC_CSV).columns)
     MIC_COLUMNS.remove('run')
 
-samples_dir = config['samples']
-outputs_dir = config['outputs']
+samples_dir = config['samples_dir']
+outputs_dir = config['outputs_dir']
 
 print("Snakemake will run with samples dir {} and output dir {}".format(
     samples_dir, outputs_dir
