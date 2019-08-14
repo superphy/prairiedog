@@ -1,4 +1,4 @@
-FROM superphy/tox-base:d698931a52ddeef64dcf5918b32790bcef75af61
+FROM superphy/tox-base:af2794de54ad6edf097552d06d69be541f3bd419
 
 MAINTAINER Kevin Le <kevin.kent.le@gmail.com>
 
