@@ -19,7 +19,7 @@ configfile: "config.yaml"
 
 K = config["k"]
 
-INPUTS = [os.path.splitext(f)[0] for f in os.listdir(config["samples"])
+INPUTS = [os.path.splitext(f)[0] for f in os.listdir(config["samples_dir"])
            if f.endswith(('.fna', '.fasta', '.fa'))
 ]
 
