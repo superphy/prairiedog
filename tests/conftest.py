@@ -128,12 +128,19 @@ def g(request):
         return _dg()
 
 
+@pytest.fixture
 def dgraph_build() -> DgraphBundled:
     tmp_output = tempfile.mkdtemp()
     tmp_samples = tempfile.mkdtemp()
     for f in GENOME_FILES_SHORTENED:
         shutil.copy2(f, tmp_samples)
-    run_dgraph_snakemake('--config ')
+    run_dgraph_snakemake(
+        '--config outputs={outputs} --config samples={samples}'.format(
+            outputs=tmp_output, samples=tmp_samples
+        ))
+    p = os.path.join(tmp_output, 'dgraph/')
+    g = DgraphBundled(delete=True, output_folder=p)
+    return g
 
 #########
 # Prebuilt Graphs
