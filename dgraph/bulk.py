@@ -10,7 +10,7 @@ def dgraph_bulk_cmd(
     rdfs: str = 'outputs/samples/', schema: str = 'dgraph/kmers.schema',
         zero_port: int = 5080) -> str:
     run_cmd = "dgraph bulk \
-    -f {rdfs} \
+    -r {rdfs} \
     -s {schema} \
     -j {n_procs} \
     --map_shards=1 \
