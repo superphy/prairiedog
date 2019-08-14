@@ -31,6 +31,10 @@ if os.path.isfile(MIC_CSV):
 samples_dir = config['samples']
 outputs_dir = config['outputs']
 
+print("Snakemake will run with samples dir {} and output dir {}".format(
+    samples_dir, outputs_dir
+))
+
 ###################
 # Graphing steps
 ###################
