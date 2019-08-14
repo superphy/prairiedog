@@ -19,6 +19,15 @@ with open("dgraph/kmers.schema") as f:
     KMERS_SCHEMA = ''.join(line for line in f)
 
 
+def proc_error(p, msg: str):
+    """Error handling for Dgraph processes"""
+    log.fatal(msg)
+    out, err = p.communicate()
+    log.fatal("stdout:\n{}".format(out))
+    log.fatal("stderr:\n{}".format(err))
+    raise Exception(msg)
+
+
 class DgraphBundled(Dgraph):
     """
     Helper to setup and tear-down dgraph
@@ -47,7 +56,7 @@ class DgraphBundled(Dgraph):
         time.sleep(2)
         # Should return None if still running
         if self._p_zero.poll() is not None:
-            self._p_zero.communicate()
+            proc_error(self._p_zero, "Dgraph Zero failed to initialize")
 
         self._p_alpha = subprocess.Popen(
             ['dgraph', 'alpha', '--lru_mb', '2048', '--zero',
@@ -59,7 +68,7 @@ class DgraphBundled(Dgraph):
         )
         time.sleep(4)
         if self._p_alpha.poll() is not None:
-            self._p_alpha.communicate()
+            proc_error(self._p_alpha, "Dgraph Alpha failed to initialize")
 
     def set_schema(self):
         self.client.alter(pydgraph.Operation(schema=DgraphBundled.SCHEMA))
