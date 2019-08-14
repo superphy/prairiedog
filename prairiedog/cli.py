@@ -4,6 +4,7 @@
 import click
 import os
 import subprocess
+import logging
 
 from prairiedog.logger import setup_logging
 from prairiedog.prairiedog import Prairiedog
@@ -14,6 +15,8 @@ from prairiedog.kmers import recommended_procs_kmers
 
 # If cli is imported, re-setup logging to level INFO
 setup_logging("INFO")
+
+log = logging.getLogger('prairiedog')
 
 
 def connect_lemongraph() -> LGGraph:
@@ -49,8 +52,10 @@ def parse_backend(backend: str) -> Graph:
 
 def run_dgraph_snakemake(additional_str: str):
     """Helper to execute snakemake for dgraph"""
-    subprocess.run("snakemake --config backend=dgraph -j {} {} dgraph".format(
-        recommended_procs_kmers, additional_str), shell=True)
+    cmd = "snakemake --config backend=dgraph {c} -j {j}  dgraph".format(
+        c=additional_str, j=recommended_procs_kmers)
+    log.info("Executing Snakemake with cmd:\n{}".format(cmd))
+    subprocess.run(cmd, shell=True)
 
 
 @click.group()
