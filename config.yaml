@@ -1,7 +1,12 @@
 samples:
     samples/
+
+outputs:
+    outputs/
+
 k:
     11
+
 graph_labels:
     samples/public_mic_class_dataframe.csv
 

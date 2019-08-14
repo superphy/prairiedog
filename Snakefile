@@ -18,13 +18,18 @@ from dgraph.bulk import dgraph_bulk_cmd
 configfile: "config.yaml"
 
 K = config["k"]
+
 INPUTS = [os.path.splitext(f)[0] for f in os.listdir(config["samples"])
            if f.endswith(('.fna', '.fasta', '.fa'))
 ]
+
 MIC_CSV = config["graph_labels"]
 if os.path.isfile(MIC_CSV):
     MIC_COLUMNS = set(pd.read_csv(MIC_CSV).columns)
     MIC_COLUMNS.remove('run')
+
+samples_dir = config['samples']
+outputs_dir = config['outputs']
 
 ###################
 # Graphing steps
@@ -32,23 +37,23 @@ if os.path.isfile(MIC_CSV):
 
 rule all:
     input:
-         'outputs/pangenome.g'
+         os.path.join(outputs_dir, 'pangenome.g')
         
 rule kmers:
     input:
-        'samples/{sample}.fasta'
+         os.path.join(samples_dir, '{sample}.fasta')
     output:
-        'outputs/kmers/{sample}.pkl'
+        os.path.join(outputs_dir, 'kmers/{sample}.pkl')
     run:
-        pathlib.Path('outputs/kmers/').mkdir(parents=True, exist_ok=True)
+        pathlib.Path(outputs_dir, 'kmers').mkdir(parents=True, exist_ok=True)
         km = Kmers(input[0],K)
         dill.dump(km, open(output[0],'wb'))
 
 rule pangenome:
     input:
-        'outputs/kmers/{input}.pkl'
+         os.path.join(outputs_dir, 'kmers/{input}.pkl')
     output:
-        'outputs/pangenome_{input}.g'
+          os.path.join(outputs_dir, 'pangenome_{input}.g')
     run:
         # Setup graph backend
         gr = GraphRef(MIC_CSV)
@@ -89,8 +94,11 @@ rule pangenome:
 
         print("rule 'pangenome' found max_num_nodes to be {}".format(
             gr.max_num_nodes))
-        dill.dump(gr,
-                    open('outputs/graphref.pkl','wb'), protocol=4)
+        dill.dump(
+            gr,
+            open(
+                os.path.join(outputs_dir, 'graphref.pkl'),'wb'),
+            protocol=4)
         if config['backend'] == 'lemongraph':
             shutil.copy2(DB_PATH, output[0])
         elif config['backend'] == 'dgraph':
@@ -100,9 +108,11 @@ rule pangenome:
 
 rule done:
     input:
-        expand('outputs/pangenome_{input}.g', input=INPUTS)
+        expand(
+            os.path.join(outputs_dir, 'pangenome_{input}.g'),
+            input=INPUTS)
     output:
-        'outputs/pangenome.g'
+        os.path.join(outputs_dir, 'pangenome.g')
     run:
         open(output[0], 'w').close()
 
@@ -112,7 +122,7 @@ rule done:
 
 rule preload:
     output:
-        'outputs/samples/kmers.rdf'
+        os.path.join(outputs_dir, 'samples/kmers.rdf')
     run:
         dg = DgraphBulk()
         print("Trying to create rdf for all possible k-mers...")
@@ -124,13 +134,15 @@ rule preload:
 
 rule dgraph:
     input:
-        'outputs/pangenome.g',
-        'outputs/samples/kmers.rdf'
+        os.path.join(outputs_dir, 'pangenome.g'),
+        os.path.join(outputs_dir, 'samples/kmers.rdf')
     output:
-        'outputs/dgraph.done'
+        os.path.join(outputs_dir, 'dgraph.done')
     run:
         # Create a reference to a running Dgraph instance
-        dg = DgraphBundled(delete=False, output_folder='outputs/dgraph/')
+        dg = DgraphBundled(
+            delete=False,
+            output_folder=os.path.join(outputs_dir, 'dgraph/'))
         # Execute dgraph bulk
         p = port('ZERO', offset)
         shell(dgraph_bulk_cmd(zero_port=p))
@@ -139,4 +151,4 @@ rule dgraph:
 
 rule clean:
     shell:
-        "rm -rf outputs/"
+        "rm -rf {}".format(outputs_dir)

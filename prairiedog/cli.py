@@ -47,6 +47,12 @@ def parse_backend(backend: str) -> Graph:
     return g
 
 
+def run_dgraph_snakemake(additional_str: str):
+    """Helper to execute snakemake for dgraph"""
+    subprocess.run("snakemake --config backend=dgraph -j {} {} dgraph".format(
+        recommended_procs_kmers, additional_str), shell=True)
+
+
 @click.group()
 @click.option('--debug/--no-debug', default=False)
 def cli(debug):
@@ -69,5 +75,4 @@ def query(src: str, dst: str, backend: str):
 @cli.command()
 def dgraph():
     """Create a pan-genome."""
-    subprocess.run("snakemake --config backend=dgraph -j {} dgraph".format(
-        recommended_procs_kmers), shell=True)
+    run_dgraph_snakemake()
