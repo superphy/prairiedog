@@ -50,7 +50,7 @@ class DgraphBundled(Dgraph):
 
         self._p_zero = subprocess.Popen(
             ['dgraph', 'zero', '-o', str(offset), '--wal', str(self.wal_dir)],
-            cwd=self.out_dir,
+            cwd=str(self.out_dir),
             **pipes
         )
         time.sleep(2)
@@ -63,7 +63,7 @@ class DgraphBundled(Dgraph):
              'localhost:{}'.format(port("ZERO", offset)),
              '-o', str(offset), '--wal', str(self.wal_dir_alpha), '--postings',
              str(self.postings_dir)],
-            cwd=self.out_dir,
+            cwd=str(self.out_dir),
             **pipes
         )
         time.sleep(4)
