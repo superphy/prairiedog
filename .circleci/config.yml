@@ -51,10 +51,15 @@ jobs:
                   paths:
                       - "venv"
 
+#            - run:
+#                  name: install dgraph
+#                  command: |
+#                      curl https://get.dgraph.io -sSf | bash
+
             - run:
                   name: install dgraph
                   command: |
-                      curl https://get.dgraph.io -sSf | bash
+                      cp -rf gobin/go/bin/* /usr/local/bin/
 
             - run:
                   name: update pip
