@@ -38,12 +38,17 @@ class DgraphBundled(Dgraph):
                      'stderr': subprocess.DEVNULL}
 
         log.info("Using global offset {}".format(offset))
+
         self._p_zero = subprocess.Popen(
             ['dgraph', 'zero', '-o', str(offset), '--wal', str(self.wal_dir)],
             cwd=self.out_dir,
             **pipes
         )
         time.sleep(2)
+        # Should return None if still running
+        if self._p_zero.poll() is not None:
+            self._p_zero.communicate()
+
         self._p_alpha = subprocess.Popen(
             ['dgraph', 'alpha', '--lru_mb', '2048', '--zero',
              'localhost:{}'.format(port("ZERO", offset)),
@@ -53,6 +58,8 @@ class DgraphBundled(Dgraph):
             **pipes
         )
         time.sleep(4)
+        if self._p_alpha.poll() is not None:
+            self._p_alpha.communicate()
 
     def set_schema(self):
         self.client.alter(pydgraph.Operation(schema=DgraphBundled.SCHEMA))
