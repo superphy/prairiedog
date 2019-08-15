@@ -5,6 +5,7 @@ import click
 import os
 import subprocess
 import logging
+import signal
 
 from prairiedog.logger import setup_logging
 from prairiedog.prairiedog import Prairiedog
@@ -29,14 +30,14 @@ def connect_lemongraph() -> LGGraph:
     return g
 
 
-def connect_dgraph() -> DgraphBundled:
+def connect_dgraph(**kwargs) -> DgraphBundled:
     p = 'outputs/dgraph/'
     # If the path exists, this was called after a Snakemake run.
     # Otherwise, "query" was called without computing the backend graph.
     if os.path.isdir(p):
-        g = DgraphBundled(delete=False, output_folder=p)
+        g = DgraphBundled(delete=False, output_folder=p, **kwargs)
     else:
-        g = DgraphBundled()
+        g = DgraphBundled(**kwargs)
     return g
 
 
@@ -81,3 +82,11 @@ def query(src: str, dst: str, backend: str):
 def dgraph():
     """Create a pan-genome."""
     run_dgraph_snakemake()
+
+
+@cli.command()
+def ratel():
+    g = connect_dgraph(ratel=True)
+    log.info("Initialzied {}".format(g))
+    # Suspend the main thread
+    signal.pause()

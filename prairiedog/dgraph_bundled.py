@@ -70,6 +70,15 @@ class DgraphBundled(Dgraph):
         if self._p_alpha.poll() is not None:
             proc_error(self._p_alpha, "Dgraph Alpha failed to initialize")
 
+        if self.ratel:
+            self._p_ratel = subprocess.Popen(
+                ['dgraph-ratel', '-addr', 'localhost:{}'.format(
+                    port("ZERO", offset))]
+            )
+            time.sleep(1)
+            if self._p_ratel.poll() is not None:
+                proc_error(self._p_ratel, "Dgraph Ratel failed to initialize")
+
     def set_schema(self):
         self.client.alter(pydgraph.Operation(schema=DgraphBundled.SCHEMA))
         self.client.alter(pydgraph.Operation(schema=KMERS_SCHEMA))
@@ -79,8 +88,13 @@ class DgraphBundled(Dgraph):
         time.sleep(2)
         self._p_zero.terminate()
         time.sleep(2)
+        if self._p_ratel is not None:
+            self._p_ratel.terminate()
 
-    def __init__(self, delete: bool = True, output_folder: str = None):
+    def __init__(self, delete: bool = True, output_folder: str = None,
+                 ratel: bool = False):
+        # Ratel is the UI
+        self.ratel = ratel
         self.delete = delete
         if output_folder is None:
             self.out_dir = tempfile.mkdtemp()
@@ -100,6 +114,7 @@ class DgraphBundled(Dgraph):
         # Processes
         self._p_zero = None
         self._p_alpha = None
+        self._p_ratel = None
         self.init_dgraph()
         global offset
         super().__init__(offset)
