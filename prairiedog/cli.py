@@ -50,7 +50,7 @@ def parse_backend(backend: str) -> Graph:
     return g
 
 
-def run_dgraph_snakemake(additional_str: str):
+def run_dgraph_snakemake(additional_str: str = ""):
     """Helper to execute snakemake for dgraph"""
     cmd = "snakemake --config backend=dgraph {c} -j {j}  dgraph".format(
         c=additional_str, j=recommended_procs_kmers)
