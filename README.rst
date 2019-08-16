@@ -10,7 +10,7 @@ prairiedog
 .. image:: https://codecov.io/gh/superphy/prairiedog/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/superphy/prairiedog
 
-Supports Python3.5+ on Linux
+Supports Python3.6, Python3.7, PyPy3.6 on Linux
 
 ============
 Installation
