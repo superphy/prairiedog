@@ -98,7 +98,7 @@ class DgraphBundled(Dgraph):
             log.info("Dgraph Alpha HTTP port    : {}".format(
                 port("ALPHA_HTTP", self.offset)))
         if self.ratel_port:
-            log.info("Dgraph Ratel HTTP port : {}".format(self.ratel_port))
+            log.info("Dgraph Ratel HTTP port    : {}".format(self.ratel_port))
             log.info("Note: Ratel should connect to port {}".format(
                 port("ALPHA_HTTP", self.offset)))
 
