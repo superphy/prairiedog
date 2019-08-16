@@ -122,7 +122,7 @@ class DgraphBundled(Dgraph):
         if output_folder is None:
             self.out_dir = tempfile.mkdtemp()
         else:
-            self.out_dir = pathlib.Path(output_folder)
+            self.out_dir = pathlib.Path(output_folder).resolve()
             self.out_dir.mkdir(parents=True, exist_ok=True)
         log.info("Will setup Dgraph from folder {}".format(self.out_dir))
         # Postings is only used by alpha

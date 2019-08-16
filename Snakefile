@@ -143,8 +143,8 @@ rule dgraph:
     output:
         os.path.join(outputs_dir, 'dgraph.done')
     run:
-        dgraph_output = os.path.join(outputs_dir, 'dgraph/')
-        rdfs = os.path.join(outputs_dir, 'samples/')
+        dgraph_output = pathlib.Path(outputs_dir, 'dgraph/').resolve()
+        rdfs = pathlib.Path(outputs_dir, 'samples/').resolve()
         # Create a reference to a running Dgraph instance
         print("Initializing built-in dgraph instance...")
         dg = DgraphBundled(
