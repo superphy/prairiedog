@@ -28,6 +28,9 @@ def port(component: str, offset: int = 0) -> int:
         return 5080 + offset
     elif component == "ALPHA":
         return 9080 + offset
+    elif component == "RATEL":
+        log.debug("Ratel port isn't controlled with an offset")
+        return 8000
 
 
 def decode(b: bytes):

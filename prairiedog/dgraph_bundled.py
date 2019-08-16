@@ -82,7 +82,7 @@ class DgraphBundled(Dgraph):
             time.sleep(1)
             if self._p_ratel.poll() is not None:
                 proc_error(self._p_ratel, "Dgraph Ratel failed to initialize")
-                self.ratel_port = 8000  # This is default
+                self.ratel_port = port("RATEL")  # This is not via offset
 
         # Log ports
         log.info("Initialized Dgraph instance:")
