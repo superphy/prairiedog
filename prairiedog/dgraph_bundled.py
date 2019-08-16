@@ -90,11 +90,17 @@ class DgraphBundled(Dgraph):
         # Log ports
         log.info("Initialized Dgraph instance:")
         if self.zero_port:
-            log.info("Dgraph Zero port  : {}".format(self.zero_port))
+            log.info("Dgraph Zero gRPC port     : {}".format(self.zero_port))
+            log.info("Dgraph Zero HTTP port     : {}".format(
+                port("ZERO_HTTP", self.offset)))
         if self.alpha_port:
-            log.info("Dgraph Alpha port : {}".format(self.alpha_port))
+            log.info("Dgraph Alpha gRPC port    : {}".format(self.alpha_port))
+            log.info("Dgraph Alpha HTTP port    : {}".format(
+                port("ALPHA_HTTP", self.offset)))
         if self.ratel_port:
-            log.info("Dgraph Ratel port : {}".format(self.ratel_port))
+            log.info("Dgraph Ratel HTTP port : {}".format(self.ratel_port))
+            log.info("Note: Ratel should connect to port {}".format(
+                port("ALPHA_HTTP", self.offset)))
 
     def set_schema(self):
         self.client.alter(pydgraph.Operation(schema=DgraphBundled.SCHEMA))
@@ -136,9 +142,11 @@ class DgraphBundled(Dgraph):
         self.zero_port = None
         self.alpha_port = None
         self.ratel_port = None
+        self.offset = None
         # Init dgraph
         self.init_dgraph()
         global offset
+        self.offset = offset
         super().__init__(offset)
         offset += 1
         log.info("Set global offset to {}".format(offset))

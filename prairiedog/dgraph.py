@@ -25,10 +25,17 @@ DEFAULT_EDGE_PREDICATE = 'fd'
 
 def port(component: str, offset: int = 0) -> int:
     if component == "ZERO":
+        # gRPC port
         return 5080 + offset
+    elif component == "ZERO_HTTP":
+        return 6080 + offset
     elif component == "ALPHA":
+        # gRPC port
         return 9080 + offset
+    elif component == "ALPHA_HTTP":
+        return 8080 + offset
     elif component == "RATEL":
+        # HTTP port
         log.debug("Ratel port isn't controlled with an offset")
         return 8000
 
