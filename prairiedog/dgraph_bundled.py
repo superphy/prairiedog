@@ -40,9 +40,11 @@ class DgraphBundled(Dgraph):
     def init_dgraph(self):
         if debug_and_not_ci():
             # Will display subprocess outputs
+            log.info("Debug mode is set - will output Dgraph logs")
             pipes = {}
         else:
             # Will not display subprocess outputs
+            log.info("Debug mode is not set - will not output Dgraph logs")
             pipes = {'stdout': subprocess.DEVNULL,
                      'stderr': subprocess.DEVNULL}
 
@@ -84,6 +86,7 @@ class DgraphBundled(Dgraph):
                 proc_error(self._p_ratel, "Dgraph Ratel failed to initialize")
                 self.ratel_port = port("RATEL")  # This is not via offset
 
+    def log_ports(self):
         # Log ports
         log.info("Initialized Dgraph instance:")
         if self.zero_port:
@@ -140,6 +143,7 @@ class DgraphBundled(Dgraph):
         offset += 1
         log.info("Set global offset to {}".format(offset))
         self.set_schema()
+        self.log_ports()
 
     def __del__(self):
         if self.delete:
