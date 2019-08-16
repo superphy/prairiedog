@@ -87,6 +87,5 @@ def dgraph():
 @cli.command()
 def ratel():
     g = connect_dgraph(ratel=True)
-    log.info("Initialzied {}".format(g))
     # Suspend the main thread
     signal.pause()

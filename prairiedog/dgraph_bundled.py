@@ -57,10 +57,12 @@ class DgraphBundled(Dgraph):
         # Should return None if still running
         if self._p_zero.poll() is not None:
             proc_error(self._p_zero, "Dgraph Zero failed to initialize")
+        else:
+            self.zero_port = port("ZERO", offset)
 
         self._p_alpha = subprocess.Popen(
             ['dgraph', 'alpha', '--lru_mb', '2048', '--zero',
-             'localhost:{}'.format(port("ZERO", offset)),
+             'localhost:{}'.format(self.zero_port),
              '-o', str(offset), '--wal', str(self.wal_dir_alpha), '--postings',
              str(self.postings_dir)],
             cwd=str(self.out_dir),
@@ -69,15 +71,27 @@ class DgraphBundled(Dgraph):
         time.sleep(4)
         if self._p_alpha.poll() is not None:
             proc_error(self._p_alpha, "Dgraph Alpha failed to initialize")
+        else:
+            self.alpha_port = port("ALPHA", offset)
 
         if self.ratel:
             self._p_ratel = subprocess.Popen(
                 ['dgraph-ratel', '-addr', 'localhost:{}'.format(
-                    port("ZERO", offset))]
+                    self.zero_port)]
             )
             time.sleep(1)
             if self._p_ratel.poll() is not None:
                 proc_error(self._p_ratel, "Dgraph Ratel failed to initialize")
+                self.ratel_port = 8000  # This is default
+
+        # Log ports
+        log.info("Initialized Dgraph instance:")
+        if self.zero_port:
+            log.info("Dgraph Zero port  : {}".format(self.zero_port))
+        if self.alpha_port:
+            log.info("Dgraph Alpha port : {}".format(self.alpha_port))
+        if self.ratel_port:
+            log.info("Dgraph Ratel port : {}".format(self.ratel_port))
 
     def set_schema(self):
         self.client.alter(pydgraph.Operation(schema=DgraphBundled.SCHEMA))
@@ -115,6 +129,11 @@ class DgraphBundled(Dgraph):
         self._p_zero = None
         self._p_alpha = None
         self._p_ratel = None
+        # Ports
+        self.zero_port = None
+        self.alpha_port = None
+        self.ratel_port = None
+        # Init dgraph
         self.init_dgraph()
         global offset
         super().__init__(offset)
