@@ -11,7 +11,7 @@ import pytest
 from prairiedog.node import Node
 from prairiedog.dgraph_bundled import DgraphBundled
 from prairiedog.errors import GraphException
-from dgraph.bulk import dgraph_bulk_cmd
+from dgraph.bulk import run_dgraph_bulk
 
 
 log = logging.getLogger('prairiedog')
@@ -32,10 +32,8 @@ class DgraphBundledHelper:
             shutil.copy2(fp, self.tmp_samples)
         p = pathlib.Path(self.tmp_output, 'dgraph')
         self._g = DgraphBundled(delete=delete_after, output_folder=p)
-        cmd = dgraph_bulk_cmd(
-            rdfs=self.tmp_samples, zero_port=self.g.zero_port)
-        log.info("Running command {}".format(cmd))
-        subprocess.run(cmd, shell=True)
+        run_dgraph_bulk(cwd=p, rdfs=self.tmp_samples,
+                        zero_port=self.g.zero_port)
         return p
 
     @property

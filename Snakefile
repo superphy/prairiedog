@@ -13,7 +13,7 @@ from prairiedog.subgraph_ref import SubgraphRef
 from prairiedog.lemon_graph import LGGraph, DB_PATH
 from prairiedog.dgraph import DgraphBulk, port
 from prairiedog.dgraph_bundled import DgraphBundled, offset
-from dgraph.bulk import dgraph_bulk_cmd
+from dgraph.bulk import run_dgraph_bulk
 
 configfile: "config.yaml"
 
@@ -153,8 +153,8 @@ rule dgraph:
         print("Done initializing built-in dgraph instance.")
         # Execute dgraph bulk
         p = port('ZERO', offset)
-        print("Executing dgraph bulk command")
-        shell(dgraph_bulk_cmd(rdfs=rdfs, zero_port=p))
+        run_dgraph_bulk(cwd=outputs_dir, move_to=dgraph_output, rdfs=rdfs,
+                        zero_port=p)
         # Create the done file
         open(output[0], 'w').close()
 
