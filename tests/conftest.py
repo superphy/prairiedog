@@ -157,12 +157,15 @@ class DgraphBundledHelper:
         self._g = None
 
     def load(self, rdf_dir: str):
+        log.info("Loading rdf from {} ...".format(rdf_dir))
         for f in rdf_dir:
+            log.info("Will load {} ...".format(f))
             shutil.copy2(f, self.tmp_samples)
         p = os.path.join(self.tmp_output, 'dgraph/')
         self._g = DgraphBundled(delete=True, output_folder=p)
         cmd = dgraph_bulk_cmd(
             rdfs=self.tmp_samples, zero_port=self.g.zero_port)
+        log.info("Running command {}".format(cmd))
         subprocess.run(cmd)
 
     @property
