@@ -5,7 +5,6 @@ import logging
 import itertools
 import subprocess
 import tempfile
-import pathlib
 
 import pytest
 
@@ -15,7 +14,6 @@ from prairiedog.networkx_graph import NetworkXGraph
 from prairiedog.lemon_graph import LGGraph
 from prairiedog.dgraph_bundled import DgraphBundled
 from prairiedog.cli import run_dgraph_snakemake
-from dgraph.bulk import dgraph_bulk_cmd
 
 log = logging.getLogger('prairiedog')
 
@@ -147,42 +145,6 @@ def dgraph_build() -> DgraphBundled:
         ))
     p = os.path.join(tmp_output, 'dgraph/')
     g = DgraphBundled(delete=True, output_folder=p)
-    return g
-
-
-class DgraphBundledHelper:
-    """For loading arbitrary rdf and testing"""
-    def __init__(self):
-        self.tmp_output = tempfile.mkdtemp()
-        self.tmp_samples = tempfile.mkdtemp()
-        self._g = None
-
-    def load(self, rdf_dir: str):
-        log.info("Loading rdf from {} ...".format(rdf_dir))
-        for f in os.listdir(rdf_dir):
-            fp = pathlib.Path(rdf_dir, f)
-            log.info("Will load {} ...".format(fp))
-            shutil.copy2(fp, self.tmp_samples)
-        p = pathlib.Path(self.tmp_output, 'dgraph')
-        self._g = DgraphBundled(delete=True, output_folder=p)
-        cmd = dgraph_bulk_cmd(
-            rdfs=self.tmp_samples, zero_port=self.g.zero_port)
-        log.info("Running command {}".format(cmd))
-        subprocess.run(cmd, shell=True)
-
-    @property
-    def g(self) -> DgraphBundled:
-        if self._g is not None:
-            return self._g
-        else:
-            msg = "load() must be called before accessing g"
-            log.critical(msg)
-            raise AttributeError(msg)
-
-
-@pytest.fixture
-def dgraph_bundled_helper() -> DgraphBundledHelper:
-    g = DgraphBundledHelper()
     return g
 
 #########
