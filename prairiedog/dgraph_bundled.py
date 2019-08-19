@@ -6,6 +6,7 @@ import time
 import pathlib
 
 import pydgraph
+import grpc
 
 from prairiedog import debug_and_not_ci
 from prairiedog.node import DEFAULT_NODE_TYPE
@@ -150,8 +151,13 @@ class DgraphBundled(Dgraph):
         super().__init__(offset)
         offset += 1
         log.info("Set global offset to {}".format(offset))
-        self.set_schema()
         self.log_ports()
+        try:
+            self.set_schema()
+        except grpc.RpcError:
+            # In the case that Dgraph hasn't initialized yet
+            time.sleep(3)
+            self.set_schema()
 
     def __del__(self):
         if self.delete:
