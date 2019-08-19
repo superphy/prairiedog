@@ -15,7 +15,8 @@ recommended_procs_dgraph = recommended_procs(GB_PER_PROC_DGRAPH)
 
 
 def dgraph_bulk_cmd(
-    rdfs: str = 'outputs/samples/', schema: str = 'dgraph/kmers.schema',
+        rdfs: pathlib.Path = pathlib.Path('outputs/samples/').resolve(),
+        schema: pathlib.Path = pathlib.Path('dgraph/kmers.schema').resolve(),
         zero_port: int = 5080) -> str:
     run_cmd = "dgraph bulk \
     -r {rdfs} \
