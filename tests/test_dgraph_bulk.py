@@ -18,9 +18,11 @@ def test_dgraph_bulk_basics(dgraph_bundled_helper):
         f.write('_:a <km> "ATCG" . \n')
         f.write('_:b <km> "ATGC" . \n')
     dg.load(tmp_dir)
-    assert dg.g.exists_node(Node(value="ATCG"))
+    exists, _ = dg.g.exists_node(Node(value="ATCG"))
+    assert exists
     log.info("ATCG exists")
-    assert dg.g.exists_node(Node(value="ATGC"))
+    exists, _ = dg.g.exists_node(Node(value="ATGC"))
+    assert exists
     log.info("ATGC exists")
 
 # TODO: get this to run on CircleCI without being killed
