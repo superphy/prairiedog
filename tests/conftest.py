@@ -168,7 +168,7 @@ class DgraphBundledHelper:
         cmd = dgraph_bulk_cmd(
             rdfs=self.tmp_samples, zero_port=self.g.zero_port)
         log.info("Running command {}".format(cmd))
-        subprocess.run(cmd)
+        subprocess.run(cmd, shell=True)
 
     @property
     def g(self) -> DgraphBundled:
