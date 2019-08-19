@@ -2,6 +2,7 @@ import subprocess
 import logging
 import glob
 import shutil
+import pathlib
 
 from prairiedog import recommended_procs
 
@@ -34,10 +35,12 @@ def run_dgraph_bulk(cwd: str = '.', move_to: str = None, **kwargs):
     log.info("Executing {} from {}".format(cmd, cwd))
     subprocess.run(cmd, shell=True, cwd=cwd)
     log.info("Done running dgraph bulk")
-    files = glob.glob("{}/**".format(cwd), recursive=True)
-
-    # TODO: remove this
-    log.critical("CWD files are {}".format(files))
+    p = pathlib.Path(cwd, 'out', '0', 'p')
+    if not p.exists():
+        raise Exception("Path {} was not found".format(p))
+    else:
+        files = glob.glob("{}/**".format(p), recursive=True)
+        log.info("Output in {} is {}".format(p, files))
 
     if move_to is not None:
         log.info("Will move files to {}".format(move_to))
