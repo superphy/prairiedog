@@ -49,10 +49,11 @@ class DgraphBundled(Dgraph):
             pipes = {'stdout': subprocess.DEVNULL,
                      'stderr': subprocess.DEVNULL}
 
-        log.info("Using global offset {}".format(offset))
+        log.info("Using local offset {}".format(self.offset))
 
         self._p_zero = subprocess.Popen(
-            ['dgraph', 'zero', '-o', str(offset), '--wal', str(self.wal_dir)],
+            ['dgraph', 'zero', '-o', str(self.offset), '--wal',
+             str(self.wal_dir)],
             cwd=str(self.out_dir),
             **pipes
         )
@@ -61,13 +62,13 @@ class DgraphBundled(Dgraph):
         if self._p_zero.poll() is not None:
             proc_error(self._p_zero, "Dgraph Zero failed to initialize")
         else:
-            self.zero_port = port("ZERO", offset)
+            self.zero_port = port("ZERO", self.offset)
 
         self._p_alpha = subprocess.Popen(
             ['dgraph', 'alpha', '--lru_mb', '2048', '--zero',
              'localhost:{}'.format(self.zero_port),
-             '-o', str(offset), '--wal', str(self.wal_dir_alpha), '--postings',
-             str(self.postings_dir)],
+             '-o', str(self.offset), '--wal', str(self.wal_dir_alpha),
+             '--postings', str(self.postings_dir)],
             cwd=str(self.out_dir),
             **pipes
         )
@@ -75,7 +76,7 @@ class DgraphBundled(Dgraph):
         if self._p_alpha.poll() is not None:
             proc_error(self._p_alpha, "Dgraph Alpha failed to initialize")
         else:
-            self.alpha_port = port("ALPHA", offset)
+            self.alpha_port = port("ALPHA", self.offset)
 
         if self.ratel:
             self._p_ratel = subprocess.Popen(
@@ -143,14 +144,14 @@ class DgraphBundled(Dgraph):
         self.zero_port = None
         self.alpha_port = None
         self.ratel_port = None
-        self.offset = None
-        # Init dgraph
-        self.init_dgraph()
         global offset
         self.offset = offset
-        super().__init__(offset)
+        log.info("Claiming offset {} for local offset".format(offset))
         offset += 1
         log.info("Set global offset to {}".format(offset))
+        # Init dgraph
+        self.init_dgraph()
+        super().__init__(self.offset)
         self.log_ports()
         try:
             self.set_schema()
