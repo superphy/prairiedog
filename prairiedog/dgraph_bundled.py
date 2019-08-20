@@ -43,7 +43,7 @@ class DgraphBundled(Dgraph):
             self.subprocess_log_file_alpha = pathlib.Path(
                 self.out_dir, 'dgraph_alpha.log')
             log.info(
-                "Debug mode not set:\nAlpha logs: {}\n Zero logs: {}".format(
+                "Debug mode not set:\nAlpha logs: {}\nZero logs: {}".format(
                     self.subprocess_log_file_zero,
                     self.subprocess_log_file_alpha
                 ))
