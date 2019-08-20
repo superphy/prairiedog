@@ -35,7 +35,7 @@ class DgraphBundledHelper:
         self._g.shutdown_dgraph()
         del self._g
         self._g = DgraphBundled(delete=delete_after,
-                                output_folder=p_final_postings)
+                                output_folder=p_final)
         return p
 
     @property
