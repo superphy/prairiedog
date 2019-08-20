@@ -104,6 +104,7 @@ class DgraphBundled(Dgraph):
                 port("ALPHA_HTTP", self.offset)))
 
     def set_schema(self):
+        log.debug("Trying to set schema for Dgraph...")
         self.client.alter(pydgraph.Operation(schema=DgraphBundled.SCHEMA))
         self.client.alter(pydgraph.Operation(schema=KMERS_SCHEMA))
 
@@ -116,7 +117,7 @@ class DgraphBundled(Dgraph):
             self._p_ratel.terminate()
 
     def __init__(self, delete: bool = True, output_folder: str = None,
-                 ratel: bool = False):
+                 ratel: bool = False, set_schema=True):
         # Ratel is the UI
         self.ratel = ratel
         self.delete = delete
@@ -152,12 +153,15 @@ class DgraphBundled(Dgraph):
         offset += 1
         log.info("Set global offset to {}".format(offset))
         self.log_ports()
-        try:
-            self.set_schema()
-        except grpc.RpcError:
-            # In the case that Dgraph hasn't initialized yet
-            time.sleep(3)
-            self.set_schema()
+        if set_schema:
+            try:
+                self.set_schema()
+            except grpc.RpcError:
+                log.debug(
+                    "Got an RpcError while trying to set schema, retrying...")
+                # In the case that Dgraph hasn't initialized yet
+                time.sleep(3)
+                self.set_schema()
 
     def __del__(self):
         if self.delete:

@@ -37,7 +37,8 @@ class DgraphBundledHelper:
         # Reinitialize DgraphBundled after moving postings files
         self._g.shutdown_dgraph()
         del self._g
-        self._g = DgraphBundled(delete=delete_after, output_folder=p)
+        self._g = DgraphBundled(
+            delete=delete_after, output_folder=p, set_schema=False)
         return p
 
     @property
