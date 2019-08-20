@@ -63,8 +63,8 @@ def test_dgraph_bulk_basics(dgraph_bundled_helper: DgraphBundledHelper):
     with open(r1, 'a') as f:
         f.write('_:a <km> "ATCG" . \n')
         f.write('_:b <km> "ATGC" . \n')
-    dg.load(tmp_dir)
     try:
+        dg.load(tmp_dir)
         exists, _ = dg.g.exists_node(Node(value="ATCG"))
         assert exists
         log.info("ATCG exists")
