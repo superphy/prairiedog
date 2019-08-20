@@ -25,6 +25,3 @@ class GraphException(Error):
         log.error("Dumping edges:")
         for edge in g.edges:
             log.error(edge)
-
-
-
