@@ -10,7 +10,7 @@ import pytest
 
 from prairiedog.node import Node
 from prairiedog.dgraph_bundled import DgraphBundled
-from prairiedog.errors import GraphException
+from prairiedog.errors import DgraphBundledException
 from dgraph.bulk import run_dgraph_bulk
 
 
@@ -75,7 +75,7 @@ def test_dgraph_bulk_basics(dgraph_bundled_helper: DgraphBundledHelper):
         log.critical("Couldn't find one of the expected nodes")
         files = glob.glob('{}/**'.format(dg.g.out_dir), recursive=True)
         log.critical("Files is out_dir are:\n{}".format(files))
-        raise GraphException(dg.g)
+        raise DgraphBundledException(dg.g)
 
 
 # TODO: get this to run on CircleCI without being killed
