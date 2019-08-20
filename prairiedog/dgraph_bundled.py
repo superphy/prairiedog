@@ -11,7 +11,7 @@ import grpc
 from prairiedog import debug_and_not_ci
 from prairiedog.node import DEFAULT_NODE_TYPE
 from prairiedog.dgraph import Dgraph, port
-from prairiedog.errors import GraphException, log_proc, SubprocessException
+from prairiedog.errors import GraphException, SubprocessException
 
 log = logging.getLogger('prairiedog')
 
@@ -33,13 +33,18 @@ class DgraphBundled(Dgraph):
     def init_dgraph(self):
         if debug_and_not_ci():
             # Will display subprocess outputs
-            log.info("Debug mode is set - will output Dgraph logs")
+            log.info("Debug mode is set - will directly output Dgraph logs")
             pipes = {}
         else:
             # Will not display subprocess outputs
-            log.info("Debug mode is not set - will not output Dgraph logs")
-            pipes = {'stdout': subprocess.DEVNULL,
-                     'stderr': subprocess.DEVNULL}
+            self.subprocess_log_file = pathlib.Path(self.out_dir, 'dgraph.log')
+            log.info(
+                "Debug mode is not set - will append Dgraph logs to {}".format(
+                    self.subprocess_log_file
+                ))
+            self.subprocess_log = open(self.subprocess_log_file, 'a')
+            pipes = {'stdout': self.subprocess_log,
+                     'stderr': self.subprocess}
 
         log.info("Using local offset {}".format(self.offset))
 
@@ -136,6 +141,9 @@ class DgraphBundled(Dgraph):
         self._p_zero = None
         self._p_alpha = None
         self._p_ratel = None
+        # Optional logs
+        self.subprocess_log_file = None
+        self.subprocess_log = None
         # Ports
         self.zero_port = None
         self.alpha_port = None
@@ -174,6 +182,8 @@ class DgraphBundled(Dgraph):
         if self.delete:
             log.warning("Wiping {} ...".format(self.out_dir))
             shutil.rmtree(self.out_dir)
+        if self.subprocess_log is not None:
+            self.subprocess_log_file.close()
         super().__del__()
 
 
@@ -182,10 +192,8 @@ class DgraphBundledException(GraphException):
     For handling our subprocess exceptions.
     """
     def __init__(self, g: DgraphBundled):
-        if g._p_zero is not None:
-            log_proc(g._p_zero, "Dumping Dgraph Zero logs")
-        if g._p_alpha is not None:
-            log_proc(g._p_alpha, "Dgraph Alpha error")
-        if g._p_ratel is not None:
-            log_proc(g._p_ratel, "Dgraph Ratel error")
+        log.critical("DgraphBundled encountered an exception")
+        if g.subprocess_log_file is not None:
+            with open(g.subprocess_log_file) as f:
+                log.critical("Dgraph logs:\n{}".format(f.readlines()))
         super(DgraphBundledException, self).__init__(g)
