@@ -105,6 +105,7 @@ class DgraphBundled(Dgraph):
                 port("ALPHA_HTTP", self.offset)))
 
     def set_schema(self):
+        log.info("Setting dgraph schema...")
         self.client.alter(pydgraph.Operation(schema=DgraphBundled.SCHEMA))
         self.client.alter(pydgraph.Operation(schema=KMERS_SCHEMA))
 
@@ -160,7 +161,8 @@ class DgraphBundled(Dgraph):
                 rpc_error_call
             ))
             # In the case that Dgraph hasn't initialized yet
-            time.sleep(5)
+            time.sleep(10)
+            log.warning("Retying to set schema...")
             self.set_schema()
 
     def __del__(self):
