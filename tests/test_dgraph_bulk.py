@@ -32,8 +32,8 @@ class DgraphBundledHelper:
             shutil.copy2(fp, self.tmp_samples)
         p = pathlib.Path(self.tmp_output, 'dgraph')
         self._g = DgraphBundled(delete=delete_after, output_folder=p)
-        run_dgraph_bulk(cwd=p, rdfs=self.tmp_samples,
-                        zero_port=self.g.zero_port)
+        run_dgraph_bulk(cwd=p, move_to=self.g.postings_dir,
+                        rdfs=self.tmp_samples, zero_port=self.g.zero_port)
         return p
 
     @property

@@ -3,6 +3,7 @@ import logging
 import glob
 import shutil
 import pathlib
+import os
 
 from prairiedog import recommended_procs
 
@@ -33,7 +34,7 @@ def dgraph_bulk_cmd(
 
 def run_dgraph_bulk(cwd: str = '.', move_to: str = None, **kwargs):
     cmd = dgraph_bulk_cmd(**kwargs)
-    log.info("Executing {} from {}".format(cmd, cwd))
+    log.info("Executing:\n{}\nfrom {}".format(cmd, cwd))
     subprocess.run(cmd, shell=True, cwd=cwd)
     log.info("Done running dgraph bulk")
     p = pathlib.Path(cwd, 'out', '0', 'p')
@@ -41,8 +42,11 @@ def run_dgraph_bulk(cwd: str = '.', move_to: str = None, **kwargs):
         raise Exception("Path {} was not found".format(p))
     else:
         files = glob.glob("{}/**".format(p), recursive=True)
-        log.info("Output in {} is {}".format(p, files))
+        log.info("Output in {} is:\n{}".format(p, files))
 
     if move_to is not None:
-        log.info("Will move files to {}".format(move_to))
-        shutil.copytree(cwd, move_to)
+        log.info("Will move files from {} to {}".format(p, move_to))
+        if os.path.isdir(move_to):
+            log.warning("Will delete {} as it already exists".format(move_to))
+            shutil.rmtree(move_to)
+        shutil.move(p, move_to)

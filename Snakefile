@@ -153,7 +153,7 @@ rule dgraph:
         print("Done initializing built-in dgraph instance.")
         # Execute dgraph bulk
         p = port('ZERO', offset)
-        run_dgraph_bulk(cwd=outputs_dir, move_to=dgraph_output, rdfs=rdfs,
+        run_dgraph_bulk(cwd=outputs_dir, move_to=dg.postings_dir, rdfs=rdfs,
                         zero_port=p)
         # Create the done file
         open(output[0], 'w').close()
