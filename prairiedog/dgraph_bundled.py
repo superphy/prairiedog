@@ -44,7 +44,7 @@ class DgraphBundled(Dgraph):
                 ))
             self.subprocess_log = open(self.subprocess_log_file, 'a')
             pipes = {'stdout': self.subprocess_log,
-                     'stderr': self.subprocess}
+                     'stderr': self.subprocess_log}
 
         log.info("Using local offset {}".format(self.offset))
 
@@ -183,7 +183,7 @@ class DgraphBundled(Dgraph):
             log.warning("Wiping {} ...".format(self.out_dir))
             shutil.rmtree(self.out_dir)
         if self.subprocess_log is not None:
-            self.subprocess_log_file.close()
+            self.subprocess_log.close()
         super().__del__()
 
 
@@ -195,5 +195,5 @@ class DgraphBundledException(GraphException):
         log.critical("DgraphBundled encountered an exception")
         if g.subprocess_log_file is not None:
             with open(g.subprocess_log_file) as f:
-                log.critical("Dgraph logs:\n{}".format(f.readlines()))
+                log.critical("Dgraph logs:\n{}".format(f.read()))
         super(DgraphBundledException, self).__init__(g)
