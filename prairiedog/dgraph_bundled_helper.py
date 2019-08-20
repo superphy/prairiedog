@@ -20,7 +20,7 @@ class DgraphBundledHelper:
         if out_dir is not None:
             self.final_output = pathlib.Path(out_dir).resolve()
         else:
-            self.final_output = pathlib.Path(tempfile.mkdtemp()).resolve()
+            self.final_output = tempfile.mkdtemp()
         self._g = None
 
     def load(self, rdf_dir: str, delete_after: bool = True) -> pathlib.Path:
