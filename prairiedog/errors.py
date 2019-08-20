@@ -29,6 +29,7 @@ class GraphException(Error):
 
 def log_proc(p, msg: str):
     log.fatal(msg)
+    p.terminate()
     out, err = p.communicate()
     log.fatal("stdout:\n{}".format(out))
     log.fatal("stderr:\n{}".format(err))
