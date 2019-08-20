@@ -1,7 +1,6 @@
 import logging
 
 from prairiedog.graph import Graph
-from prairiedog.dgraph_bundled import DgraphBundled, proc_error
 
 log = logging.getLogger("prairiedog")
 
@@ -28,15 +27,4 @@ class GraphException(Error):
             log.error(edge)
 
 
-class DgraphBundledException(GraphException):
-    """
-    For handling our subprocess exceptions.
-    """
-    def __init__(self, g: DgraphBundled):
-        if g._p_zero is not None:
-            proc_error(g._p_zero, "Dgraph Zero error")
-        if g._p_alpha is not None:
-            proc_error(g._p_alpha, "Dgraph Alpha error")
-        if g._p_ratel is not None:
-            proc_error(g._p_ratel, "Dgraph Ratel error")
-        super(DgraphBundledException, self).__init__(g)
+

@@ -11,6 +11,7 @@ import grpc
 from prairiedog import debug_and_not_ci
 from prairiedog.node import DEFAULT_NODE_TYPE
 from prairiedog.dgraph import Dgraph, port
+from prairiedog.errors import GraphException
 
 log = logging.getLogger('prairiedog')
 
@@ -163,7 +164,11 @@ class DgraphBundled(Dgraph):
             # In the case that Dgraph hasn't initialized yet
             time.sleep(10)
             log.warning("Retying to set schema...")
-            self.set_schema()
+            try:
+                self.set_schema()
+            except grpc.RpcError:
+                log.critical("Ran into the same exception")
+                raise DgraphBundledException(self)
 
     def __del__(self):
         if self.delete:
@@ -174,3 +179,17 @@ class DgraphBundled(Dgraph):
             log.warning("Wiping {} ...".format(self.out_dir))
             shutil.rmtree(self.out_dir)
         super().__del__()
+
+
+class DgraphBundledException(GraphException):
+    """
+    For handling our subprocess exceptions.
+    """
+    def __init__(self, g: DgraphBundled):
+        if g._p_zero is not None:
+            proc_error(g._p_zero, "Dgraph Zero error")
+        if g._p_alpha is not None:
+            proc_error(g._p_alpha, "Dgraph Alpha error")
+        if g._p_ratel is not None:
+            proc_error(g._p_ratel, "Dgraph Ratel error")
+        super(DgraphBundledException, self).__init__(g)
