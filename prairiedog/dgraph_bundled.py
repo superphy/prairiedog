@@ -11,7 +11,7 @@ import grpc
 from prairiedog import debug_and_not_ci
 from prairiedog.node import DEFAULT_NODE_TYPE
 from prairiedog.dgraph import Dgraph, port
-from prairiedog.errors import GraphException
+from prairiedog.errors import GraphException, log_proc, SubprocessException
 
 log = logging.getLogger('prairiedog')
 
@@ -19,15 +19,6 @@ offset = 0
 
 with open("dgraph/kmers.schema") as f:
     KMERS_SCHEMA = ''.join(line for line in f)
-
-
-def proc_error(p, msg: str):
-    """Error handling for Dgraph processes"""
-    log.fatal(msg)
-    out, err = p.communicate()
-    log.fatal("stdout:\n{}".format(out))
-    log.fatal("stderr:\n{}".format(err))
-    raise Exception(msg)
 
 
 class DgraphBundled(Dgraph):
@@ -61,7 +52,8 @@ class DgraphBundled(Dgraph):
         time.sleep(2)
         # Should return None if still running
         if self._p_zero.poll() is not None:
-            proc_error(self._p_zero, "Dgraph Zero failed to initialize")
+            raise SubprocessException(
+                self._p_zero, "Dgraph Zero failed to initialize")
         else:
             self.zero_port = port("ZERO", self.offset)
 
@@ -75,7 +67,8 @@ class DgraphBundled(Dgraph):
         )
         time.sleep(4)
         if self._p_alpha.poll() is not None:
-            proc_error(self._p_alpha, "Dgraph Alpha failed to initialize")
+            raise SubprocessException(
+                self._p_alpha, "Dgraph Alpha failed to initialize")
         else:
             self.alpha_port = port("ALPHA", self.offset)
 
@@ -86,8 +79,9 @@ class DgraphBundled(Dgraph):
             )
             time.sleep(1)
             if self._p_ratel.poll() is not None:
-                proc_error(self._p_ratel, "Dgraph Ratel failed to initialize")
-                self.ratel_port = port("RATEL")  # This is not via offset
+                raise SubprocessException(
+                    self._p_ratel, "Dgraph Ratel failed to initialize")
+            self.ratel_port = port("RATEL")  # This is not via offset
 
     def log_ports(self):
         # Log ports
@@ -166,8 +160,10 @@ class DgraphBundled(Dgraph):
             log.warning("Retying to set schema...")
             try:
                 self.set_schema()
-            except grpc.RpcError:
-                log.critical("Ran into the same exception")
+            except grpc.RpcError as rpc_error_call:
+                log.critical("Ran into the a RpcError again: {}".format(
+                    rpc_error_call
+                ))
                 raise DgraphBundledException(self)
 
     def __del__(self):
@@ -187,9 +183,9 @@ class DgraphBundledException(GraphException):
     """
     def __init__(self, g: DgraphBundled):
         if g._p_zero is not None:
-            proc_error(g._p_zero, "Dgraph Zero error")
+            log_proc(g._p_zero, "Dumping Dgraph Zero logs")
         if g._p_alpha is not None:
-            proc_error(g._p_alpha, "Dgraph Alpha error")
+            log_proc(g._p_alpha, "Dgraph Alpha error")
         if g._p_ratel is not None:
-            proc_error(g._p_ratel, "Dgraph Ratel error")
+            log_proc(g._p_ratel, "Dgraph Ratel error")
         super(DgraphBundledException, self).__init__(g)

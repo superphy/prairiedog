@@ -25,3 +25,19 @@ class GraphException(Error):
         log.error("Dumping edges:")
         for edge in g.edges:
             log.error(edge)
+
+
+def log_proc(p, msg: str):
+    log.fatal(msg)
+    out, err = p.communicate()
+    log.fatal("stdout:\n{}".format(out))
+    log.fatal("stderr:\n{}".format(err))
+
+
+class SubprocessException(Error):
+    """
+    Mostly for Dgraph subprocesses.
+    """
+    def __init__(self, p, msg: str):
+        log_proc(p, msg)
+        super(SubprocessException, self).__init__(msg)
