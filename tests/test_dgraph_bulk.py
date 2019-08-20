@@ -1,62 +1,15 @@
 import tempfile
 import pathlib
 import logging
-import time
-import os
-import shutil
 import glob
 
 import pytest
 
 from prairiedog.node import Node
-from prairiedog.dgraph_bundled import DgraphBundled
-from dgraph.bulk import run_dgraph_bulk
+from prairiedog.dgraph_bundled_helper import DgraphBundledHelper
 
 
 log = logging.getLogger('prairiedog')
-
-
-class DgraphBundledHelper:
-    """For loading arbitrary rdf and testing"""
-    def __init__(self):
-        self.tmp_output = tempfile.mkdtemp()
-        self.tmp_output_b = tempfile.mkdtemp()
-        self.tmp_samples = tempfile.mkdtemp()
-        self._g = None
-
-    def load(self, rdf_dir: str, delete_after: bool = True) -> pathlib.Path:
-        log.info("Loading rdf from {} ...".format(rdf_dir))
-        for f in os.listdir(rdf_dir):
-            fp = pathlib.Path(rdf_dir, f)
-            log.info("Will load {} ...".format(fp))
-            shutil.copy2(fp, self.tmp_samples)
-        p = pathlib.Path(self.tmp_output, 'dgraph')
-        p_b = pathlib.Path(self.tmp_output_b, 'dgraph')
-        p_b_postings = pathlib.Path(p_b, 'p')
-        self._g = DgraphBundled(delete=False, output_folder=p)
-        run_dgraph_bulk(cwd=p, move_to=p_b_postings,
-                        rdfs=self.tmp_samples, zero_port=self.g.zero_port)
-        # Reinitialize DgraphBundled after moving postings files
-        self._g.shutdown_dgraph()
-        # Write out helper text to logs
-        if self._g.subprocess_log_file_zero is not None:
-            with open(self._g.subprocess_log_file_zero, 'a') as f:
-                f.write("""***\n\nRestarted DgraphBundled Logs\n\n***\n""")
-        if self._g.subprocess_log_file_alpha is not None:
-            with open(self._g.subprocess_log_file_alpha, 'a') as f:
-                f.write("""***\n\nRestarted DgraphBundled Logs\n\n***\n""")
-        del self._g
-        self._g = DgraphBundled(delete=delete_after, output_folder=p_b)
-        return p
-
-    @property
-    def g(self) -> DgraphBundled:
-        if self._g is not None:
-            return self._g
-        else:
-            msg = "load() must be called before accessing g"
-            log.critical(msg)
-            raise AttributeError(msg)
 
 
 @pytest.fixture
