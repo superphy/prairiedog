@@ -155,9 +155,12 @@ class DgraphBundled(Dgraph):
         self.log_ports()
         try:
             self.set_schema()
-        except grpc.RpcError:
+        except grpc.RpcError as rpc_error_call:
+            log.warning("Ran into exception {}, will retry...".format(
+                rpc_error_call
+            ))
             # In the case that Dgraph hasn't initialized yet
-            time.sleep(3)
+            time.sleep(5)
             self.set_schema()
 
     def __del__(self):
