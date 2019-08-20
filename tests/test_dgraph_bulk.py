@@ -1,7 +1,7 @@
 import tempfile
 import pathlib
 import logging
-import subprocess
+import time
 import os
 import shutil
 import glob
@@ -35,6 +35,8 @@ class DgraphBundledHelper:
         run_dgraph_bulk(cwd=p, move_to=self.g.postings_dir,
                         rdfs=self.tmp_samples, zero_port=self.g.zero_port)
         # Reinitialize DgraphBundled after moving postings files
+        self._g.shutdown_dgraph()
+        del self._g
         self._g = DgraphBundled(delete=delete_after, output_folder=p)
         return p
 

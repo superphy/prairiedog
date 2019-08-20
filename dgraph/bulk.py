@@ -47,6 +47,6 @@ def run_dgraph_bulk(cwd: str = '.', move_to: str = None, **kwargs):
     if move_to is not None:
         log.info("Will move files from {} to {}".format(p, move_to))
         if os.path.isdir(move_to):
-            log.warning("Will delete {} as it already exists".format(move_to))
+            log.warning("Deleting {} as it already exists".format(move_to))
             shutil.rmtree(move_to)
         shutil.move(p, move_to)
