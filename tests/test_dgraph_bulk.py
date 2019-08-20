@@ -35,6 +35,13 @@ class DgraphBundledHelper:
                         rdfs=self.tmp_samples, zero_port=self.g.zero_port)
         # Reinitialize DgraphBundled after moving postings files
         self._g.shutdown_dgraph()
+        # Write out helper text to logs
+        if self._g.subprocess_log_file_zero is not None:
+            with open(self._g.subprocess_log_file_zero, 'a') as f:
+                f.write("""***\n\nRestarted DgraphBundled Logs\n\n***""")
+        if self._g.subprocess_log_file_alpha is not None:
+            with open(self._g.subprocess_log_file_alpha, 'a') as f:
+                f.write("""***\n\nRestarted DgraphBundled Logs\n\n***""")
         del self._g
         self._g = DgraphBundled(delete=delete_after, output_folder=p)
         return p

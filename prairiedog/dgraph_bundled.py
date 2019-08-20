@@ -34,17 +34,29 @@ class DgraphBundled(Dgraph):
         if debug_and_not_ci():
             # Will display subprocess outputs
             log.info("Debug mode is set - will directly output Dgraph logs")
-            pipes = {}
+            pipes_zero = {}
+            pipes_alpha = {}
         else:
             # Will not display subprocess outputs
-            self.subprocess_log_file = pathlib.Path(self.out_dir, 'dgraph.log')
+            self.subprocess_log_file_zero = pathlib.Path(
+                self.out_dir, 'dgraph_zero.log')
+            self.subprocess_log_file_alpha = pathlib.Path(
+                self.out_dir, 'dgraph_alpha.log')
             log.info(
-                "Debug mode is not set - will append Dgraph logs to {}".format(
-                    self.subprocess_log_file
+                "Debug mode not set:\nAlpha logs: {}\n Zero logs: {}".format(
+                    self.subprocess_log_file_zero,
+                    self.subprocess_log_file_alpha
                 ))
-            self.subprocess_log = open(self.subprocess_log_file, 'a')
-            pipes = {'stdout': self.subprocess_log,
-                     'stderr': self.subprocess_log}
+            self.subprocess_log_zero = open(
+                self.subprocess_log_file_zero, 'a')
+            self.subprocess_log_alpha = open(
+                self.subprocess_log_file_alpha, 'a')
+            pipes_zero = {
+                'stdout': self.subprocess_log_zero,
+                'stderr': self.subprocess_log_zero}
+            pipes_alpha = {
+                'stdout': self.subprocess_log_alpha,
+                'stderr': self.subprocess_log_alpha}
 
         log.info("Using local offset {}".format(self.offset))
 
@@ -52,7 +64,7 @@ class DgraphBundled(Dgraph):
             ['dgraph', 'zero', '-o', str(self.offset), '--wal',
              str(self.wal_dir)],
             cwd=str(self.out_dir),
-            **pipes
+            **pipes_zero
         )
         time.sleep(2)
         # Should return None if still running
@@ -68,7 +80,7 @@ class DgraphBundled(Dgraph):
              '-o', str(self.offset), '--wal', str(self.wal_dir_alpha),
              '--postings', str(self.postings_dir)],
             cwd=str(self.out_dir),
-            **pipes
+            **pipes_alpha
         )
         time.sleep(4)
         if self._p_alpha.poll() is not None:
@@ -142,8 +154,10 @@ class DgraphBundled(Dgraph):
         self._p_alpha = None
         self._p_ratel = None
         # Optional logs
-        self.subprocess_log_file = None
-        self.subprocess_log = None
+        self.subprocess_log_file_zero = None
+        self.subprocess_log_file_alpha = None
+        self.subprocess_log_zero = None
+        self.subprocess_log_alpha = None
         # Ports
         self.zero_port = None
         self.alpha_port = None
@@ -182,8 +196,10 @@ class DgraphBundled(Dgraph):
         if self.delete:
             log.warning("Wiping {} ...".format(self.out_dir))
             shutil.rmtree(self.out_dir)
-        if self.subprocess_log is not None:
-            self.subprocess_log.close()
+        if self.subprocess_log_zero is not None:
+            self.subprocess_log_zero.close()
+        if self.subprocess_log_alpha is not None:
+            self.subprocess_log_alpha.close()
         super().__del__()
 
 
@@ -193,7 +209,10 @@ class DgraphBundledException(GraphException):
     """
     def __init__(self, g: DgraphBundled):
         log.critical("DgraphBundled encountered an exception")
-        if g.subprocess_log_file is not None:
-            with open(g.subprocess_log_file) as f:
-                log.critical("Dgraph logs:\n{}".format(f.read()))
+        if g.subprocess_log_file_zero is not None:
+            with open(g.subprocess_log_file_zero) as fz:
+                log.critical("Dgraph Zero logs:\n{}".format(fz.read()))
+        if g.subprocess_log_file_alpha is not None:
+            with open(g.subprocess_log_file_alpha) as fa:
+                log.critical("Dgraph Alpha logs:\n{}".format(fa.read()))
         super(DgraphBundledException, self).__init__(g)
