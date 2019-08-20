@@ -12,7 +12,7 @@ from prairiedog.graph_ref import GraphRef
 from prairiedog.subgraph_ref import SubgraphRef
 from prairiedog.lemon_graph import LGGraph, DB_PATH
 from prairiedog.dgraph import DgraphBulk, port
-from prairiedog.dgraph_bundled import DgraphBundled, offset
+from prairiedog.dgraph_bundled_helper import DgraphBundledHelper
 from dgraph.bulk import run_dgraph_bulk
 
 configfile: "config.yaml"
@@ -146,15 +146,10 @@ rule dgraph:
         dgraph_output = pathlib.Path(outputs_dir, 'dgraph/').resolve()
         rdfs = pathlib.Path(outputs_dir, 'samples/').resolve()
         # Create a reference to a running Dgraph instance
-        print("Initializing built-in dgraph instance...")
-        dg = DgraphBundled(
-            delete=False,
-            output_folder=dgraph_output)
-        print("Done initializing built-in dgraph instance.")
+        # DgraphBundledHelper will resolve output directory to ./dgraph/
+        dgh = DgraphBundledHelper(out_dir=outputs_dir)
         # Execute dgraph bulk
-        p = port('ZERO', offset)
-        run_dgraph_bulk(cwd=outputs_dir, move_to=dg.postings_dir, rdfs=rdfs,
-                        zero_port=p)
+        dgh.load(rdf_dir=rdfs, delete_after=False)
         # Create the done file
         open(output[0], 'w').close()
 
