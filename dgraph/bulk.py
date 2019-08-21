@@ -49,4 +49,5 @@ def run_dgraph_bulk(cwd: str = '.', move_to: str = None, **kwargs):
         if os.path.isdir(move_to):
             log.warning("Deleting {} as it already exists".format(move_to))
             shutil.rmtree(move_to)
-        shutil.move(p, move_to)
+        # Cast to str because PyPy3.6 doesn't support pathlib in shutil.move
+        shutil.move(str(p), str(move_to))

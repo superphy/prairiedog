@@ -6,6 +6,7 @@ import os
 import subprocess
 import logging
 import signal
+import sys
 
 from prairiedog.logger import setup_logging
 from prairiedog.prairiedog import Prairiedog
@@ -31,6 +32,7 @@ def connect_lemongraph() -> LGGraph:
 
 
 def connect_dgraph(**kwargs) -> DgraphBundled:
+    sys.setrecursionlimit(100000)
     p = 'outputs/dgraph/'
     # If the path exists, this was called after a Snakemake run.
     # Otherwise, "query" was called without computing the backend graph.
