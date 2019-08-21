@@ -6,9 +6,12 @@ import time
 import pathlib
 
 import pydgraph
+import grpc
 
+from prairiedog import debug_and_not_ci
 from prairiedog.node import DEFAULT_NODE_TYPE
 from prairiedog.dgraph import Dgraph, port
+from prairiedog.errors import GraphException, SubprocessException
 
 log = logging.getLogger('prairiedog')
 
@@ -28,23 +31,93 @@ class DgraphBundled(Dgraph):
     """.format(DEFAULT_NODE_TYPE)
 
     def init_dgraph(self):
-        log.info("Using global offset {}".format(offset))
+        if debug_and_not_ci():
+            # Will display subprocess outputs
+            log.info("Debug mode is set - will directly output Dgraph logs")
+            pipes_zero = {}
+            pipes_alpha = {}
+        else:
+            # Will not display subprocess outputs
+            self.subprocess_log_file_zero = pathlib.Path(
+                self.out_dir, 'dgraph_zero.log')
+            self.subprocess_log_file_alpha = pathlib.Path(
+                self.out_dir, 'dgraph_alpha.log')
+            log.info(
+                "Debug mode not set:\nAlpha logs: {}\nZero logs: {}".format(
+                    self.subprocess_log_file_zero,
+                    self.subprocess_log_file_alpha
+                ))
+            self.subprocess_log_zero = open(
+                self.subprocess_log_file_zero, 'a')
+            self.subprocess_log_alpha = open(
+                self.subprocess_log_file_alpha, 'a')
+            pipes_zero = {
+                'stdout': self.subprocess_log_zero,
+                'stderr': self.subprocess_log_zero}
+            pipes_alpha = {
+                'stdout': self.subprocess_log_alpha,
+                'stderr': self.subprocess_log_alpha}
+
+        log.info("Using local offset {}".format(self.offset))
+
         self._p_zero = subprocess.Popen(
-            ['dgraph', 'zero', '-o', str(offset)], cwd=self.tmp_dir,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.PIPE
+            ['dgraph', 'zero', '-o', str(self.offset), '--wal',
+             str(self.wal_dir)],
+            cwd=str(self.out_dir),
+            **pipes_zero
         )
         time.sleep(2)
+        # Should return None if still running
+        if self._p_zero.poll() is not None:
+            raise SubprocessException(
+                self._p_zero, "Dgraph Zero failed to initialize")
+        else:
+            self.zero_port = port("ZERO", self.offset)
+
         self._p_alpha = subprocess.Popen(
             ['dgraph', 'alpha', '--lru_mb', '2048', '--zero',
-             'localhost:{}'.format(port("ZERO", offset)),
-             '-o', str(offset)], cwd=self.tmp_dir,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.PIPE
+             'localhost:{}'.format(self.zero_port),
+             '-o', str(self.offset), '--wal', str(self.wal_dir_alpha),
+             '--postings', str(self.postings_dir)],
+            cwd=str(self.out_dir),
+            **pipes_alpha
         )
         time.sleep(4)
+        if self._p_alpha.poll() is not None:
+            raise SubprocessException(
+                self._p_alpha, "Dgraph Alpha failed to initialize")
+        else:
+            self.alpha_port = port("ALPHA", self.offset)
+
+        if self.ratel:
+            self._p_ratel = subprocess.Popen(
+                ['dgraph-ratel', '-addr', 'localhost:{}'.format(
+                    self.zero_port)]
+            )
+            time.sleep(1)
+            if self._p_ratel.poll() is not None:
+                raise SubprocessException(
+                    self._p_ratel, "Dgraph Ratel failed to initialize")
+            self.ratel_port = port("RATEL")  # This is not via offset
+
+    def log_ports(self):
+        # Log ports
+        log.info("Initialized Dgraph instance:")
+        if self.zero_port:
+            log.info("Dgraph Zero gRPC port     : {}".format(self.zero_port))
+            log.info("Dgraph Zero HTTP port     : {}".format(
+                port("ZERO_HTTP", self.offset)))
+        if self.alpha_port:
+            log.info("Dgraph Alpha gRPC port    : {}".format(self.alpha_port))
+            log.info("Dgraph Alpha HTTP port    : {}".format(
+                port("ALPHA_HTTP", self.offset)))
+        if self.ratel_port:
+            log.info("Dgraph Ratel HTTP port    : {}".format(self.ratel_port))
+            log.info("Note: Ratel should connect to port {}".format(
+                port("ALPHA_HTTP", self.offset)))
 
     def set_schema(self):
+        log.info("Setting dgraph schema...")
         self.client.alter(pydgraph.Operation(schema=DgraphBundled.SCHEMA))
         self.client.alter(pydgraph.Operation(schema=KMERS_SCHEMA))
 
@@ -53,23 +126,67 @@ class DgraphBundled(Dgraph):
         time.sleep(2)
         self._p_zero.terminate()
         time.sleep(2)
+        if self._p_ratel is not None:
+            self._p_ratel.terminate()
 
-    def __init__(self, delete: bool = True, output_folder: str = None):
+    def __init__(self, delete: bool = True, output_folder: str = None,
+                 ratel: bool = False):
+        # Ratel is the UI
+        self.ratel = ratel
         self.delete = delete
         if output_folder is None:
-            self.tmp_dir = tempfile.mkdtemp()
+            self.out_dir = tempfile.mkdtemp()
         else:
-            self.tmp_dir = pathlib.Path(output_folder)
-            self.tmp_dir.mkdir(parents=True, exist_ok=True)
-        log.info("Will setup Dgraph from folder {}".format(self.tmp_dir))
+            self.out_dir = pathlib.Path(output_folder).resolve()
+            self.out_dir.mkdir(parents=True, exist_ok=True)
+        log.info("Will setup Dgraph from folder {}".format(self.out_dir))
+        # Postings is only used by alpha
+        self.postings_dir = pathlib.Path(self.out_dir, 'p')
+        self.postings_dir.mkdir(parents=True, exist_ok=True)
+        # This is the wal dir for zero
+        self.wal_dir = pathlib.Path(self.out_dir, 'w')
+        self.wal_dir.mkdir(parents=True, exist_ok=True)
+        # Need separate wal for alpha
+        self.wal_dir_alpha = pathlib.Path(self.out_dir, 'alpha', 'w')
+        self.wal_dir_alpha.mkdir(parents=True, exist_ok=True)
+        # Processes
         self._p_zero = None
         self._p_alpha = None
-        self.init_dgraph()
+        self._p_ratel = None
+        # Optional logs
+        self.subprocess_log_file_zero = None
+        self.subprocess_log_file_alpha = None
+        self.subprocess_log_zero = None
+        self.subprocess_log_alpha = None
+        # Ports
+        self.zero_port = None
+        self.alpha_port = None
+        self.ratel_port = None
         global offset
-        super().__init__(offset)
+        self.offset = offset
+        log.info("Claiming offset {} for local offset".format(offset))
         offset += 1
         log.info("Set global offset to {}".format(offset))
-        self.set_schema()
+        # Init dgraph
+        self.init_dgraph()
+        super().__init__(self.offset)
+        self.log_ports()
+        try:
+            self.set_schema()
+        except grpc.RpcError as rpc_error_call:
+            log.warning("Ran into exception {}, will retry...".format(
+                rpc_error_call
+            ))
+            # In the case that Dgraph hasn't initialized yet
+            time.sleep(10)
+            log.warning("Retying to set schema...")
+            try:
+                self.set_schema()
+            except grpc.RpcError as rpc_error_call:
+                log.critical("Ran into the a RpcError again: {}".format(
+                    rpc_error_call
+                ))
+                raise DgraphBundledException(self)
 
     def __del__(self):
         if self.delete:
@@ -77,5 +194,25 @@ class DgraphBundled(Dgraph):
         time.sleep(2)
         self.shutdown_dgraph()
         if self.delete:
-            shutil.rmtree(self.tmp_dir)
+            log.warning("Wiping {} ...".format(self.out_dir))
+            shutil.rmtree(self.out_dir)
+        if self.subprocess_log_zero is not None:
+            self.subprocess_log_zero.close()
+        if self.subprocess_log_alpha is not None:
+            self.subprocess_log_alpha.close()
         super().__del__()
+
+
+class DgraphBundledException(GraphException):
+    """
+    For handling our subprocess exceptions.
+    """
+    def __init__(self, g: DgraphBundled):
+        log.critical("DgraphBundled encountered an exception")
+        if g.subprocess_log_file_zero is not None:
+            with open(g.subprocess_log_file_zero) as fz:
+                log.critical("Dgraph Zero logs:\n{}".format(fz.read()))
+        if g.subprocess_log_file_alpha is not None:
+            with open(g.subprocess_log_file_alpha) as fa:
+                log.critical("Dgraph Alpha logs:\n{}".format(fa.read()))
+        super(DgraphBundledException, self).__init__(g)

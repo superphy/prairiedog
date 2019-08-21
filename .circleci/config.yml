@@ -21,6 +21,9 @@ jobs:
                       git submodule init
                       git submodule update --remote
 
+            - restore_cache:
+                  key: deps1-{{ .Branch }}-{{ checksum "requirements_dev.txt" }}
+
             - run:
                   name: install dependencies
                   command: |
@@ -32,9 +35,21 @@ jobs:
                   name: install lemongraph
                   command: |
                       . venv/bin/activate
-                      apt-get update -y && apt-get install -y libffi-dev zlib1g-dev python-dev python-cffi libatlas-base-dev
                       pip install --upgrade cffi
                       cd lemongraph && python setup.py install
+
+            #            - run:
+            #                  name: install lemongraph
+            #                  command: |
+            #                      . venv/bin/activate
+            #                      apt-get update -y && apt-get install -y libffi-dev zlib1g-dev python-dev python-cffi libatlas-base-dev
+            #                      pip install --upgrade cffi
+            #                      cd lemongraph && python setup.py install
+
+            - save_cache:
+                  key: deps1-{{ .Branch }}-{{ checksum "requirements_dev.txt" }}
+                  paths:
+                      - "venv"
 
             - run:
                   name: install dgraph

@@ -33,7 +33,7 @@ setup(
     description="Graphing bacterial genomes for fun and profit",
     entry_points={
         'console_scripts': [
-            'prairiedog=prairiedog.cli:query',
+            'prairiedog=prairiedog.cli:cli'
         ],
     },
     install_requires=requirements,

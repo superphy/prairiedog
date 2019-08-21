@@ -3,15 +3,21 @@
 """Console script for prairiedog."""
 import click
 import os
+import subprocess
+import logging
+import signal
 
 from prairiedog.logger import setup_logging
 from prairiedog.prairiedog import Prairiedog
 from prairiedog.graph import Graph
 from prairiedog.lemon_graph import LGGraph, DB_PATH
-from prairiedog.dgraph import Dgraph
+from prairiedog.dgraph_bundled import DgraphBundled
+from prairiedog.kmers import recommended_procs_kmers
 
 # If cli is imported, re-setup logging to level INFO
 setup_logging("INFO")
+
+log = logging.getLogger('prairiedog')
 
 
 def connect_lemongraph() -> LGGraph:
@@ -24,21 +30,63 @@ def connect_lemongraph() -> LGGraph:
     return g
 
 
-def parse_backend(backend: str) -> Graph:
-    if backend == 'dgraph':
-        g = Dgraph()
-    elif backend == 'lemongraph':
-        g = connect_lemongraph()
+def connect_dgraph(**kwargs) -> DgraphBundled:
+    p = 'outputs/dgraph/'
+    # If the path exists, this was called after a Snakemake run.
+    # Otherwise, "query" was called without computing the backend graph.
+    if os.path.isdir(p):
+        g = DgraphBundled(delete=False, output_folder=p, **kwargs)
     else:
-        g = Dgraph()
+        g = DgraphBundled(**kwargs)
     return g
 
 
-@click.command()
+def parse_backend(backend: str) -> Graph:
+    if backend == 'dgraph':
+        g = connect_dgraph()
+    elif backend == 'lemongraph':
+        g = connect_lemongraph()
+    else:
+        g = connect_dgraph()
+    return g
+
+
+def run_dgraph_snakemake(additional_str: str = ""):
+    """Helper to execute snakemake for dgraph"""
+    cmd = "snakemake --config backend=dgraph {c} -j {j}  dgraph".format(
+        c=additional_str, j=recommended_procs_kmers)
+    log.info("Executing Snakemake with cmd:\n{}".format(cmd))
+    subprocess.run(cmd, shell=True)
+
+
+@click.group()
+@click.option('--debug/--no-debug', default=False)
+def cli(debug):
+    click.echo('Debug mode is %s' % ('on' if debug else 'off'))
+    if debug:
+        setup_logging('DEBUG')
+
+
+@cli.command()
 @click.argument('src', nargs=1)
 @click.argument('dst', nargs=1)
 @click.option('--backend', default='dgraph', help='Backend graph database')
 def query(src: str, dst: str, backend: str):
+    """Query the pan-genome for a path between two k-mers."""
     g = parse_backend(backend)
     pdg = Prairiedog(g=g)
     pdg.query(src, dst)
+
+
+@cli.command()
+def dgraph():
+    """Create a pan-genome."""
+    run_dgraph_snakemake()
+
+
+@cli.command()
+def ratel():
+    g = connect_dgraph(ratel=True)
+    log.debug("Initialized {}".format(g))
+    # Suspend the main thread
+    signal.pause()
