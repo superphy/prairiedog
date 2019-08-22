@@ -9,11 +9,17 @@ import tempfile
 import pytest
 
 from prairiedog import kmers
+from prairiedog.graph import Graph
 from prairiedog.networkx_graph import NetworkXGraph
 from prairiedog.lemon_graph import LGGraph
 from prairiedog.dgraph_bundled import DgraphBundled
+from prairiedog.cli import run_dgraph_snakemake
 
 log = logging.getLogger('prairiedog')
+
+#########
+# Globals
+#########
 
 GENOME_FILES = [
     "tests/172.fa",
@@ -30,6 +36,10 @@ GENOME_FILES_SHORTENED = [
 
 # TODO: switch to just one backend
 BACKENDS = ['dgraph', 'lemongraph']
+
+#########
+# Files
+#########
 
 
 @pytest.fixture
@@ -68,6 +78,10 @@ def all_genome_files(request):
     n = math.ceil(len(files) * request.param)
     return files[: n]
 
+#########
+# Kmers
+#########
+
 
 @pytest.fixture(scope="function", params=GENOME_FILES)
 def km(request):
@@ -77,6 +91,10 @@ def km(request):
 @pytest.fixture(scope="function", params=GENOME_FILES_SHORTENED)
 def km_short(request):
     return kmers.Kmers(request.param)
+
+#########
+# Graphs
+#########
 
 
 def _lgr():
@@ -93,6 +111,11 @@ def _dg():
 def dg():
     return _dg()
 
+
+@pytest.fixture()
+def lgr():
+    return _lgr()
+
 # TODO: use params to test against multiple backing stores
 @pytest.fixture(scope="function", params=BACKENDS)
 def g(request):
@@ -104,10 +127,58 @@ def g(request):
     elif request.param == "dgraph":
         return _dg()
 
+#########
+# For testing dgraph bulk
+#########
 
-@pytest.fixture(scope="function")
-def lgr():
-    return _lgr()
+
+@pytest.fixture
+def dgraph_build() -> DgraphBundled:
+    """Build a bundled dgraph instance via snakemake"""
+    tmp_output = tempfile.mkdtemp()
+    tmp_samples = tempfile.mkdtemp()
+    for f in GENOME_FILES_SHORTENED:
+        shutil.copy2(f, tmp_samples)
+    run_dgraph_snakemake(
+        'outputs_dir={outputs} samples_dir={samples}'.format(
+            outputs=tmp_output, samples=tmp_samples
+        ))
+    p = os.path.join(tmp_output, 'dgraph/')
+    g = DgraphBundled(delete=True, output_folder=p)
+    return g
+
+#########
+# Prebuilt Graphs
+#########
+
+
+def lg_prebuilt() -> LGGraph:
+    """
+    A pre-made LemonGraph made from:
+        - SRR1060582_SHORTENED.fasta,
+        - SRR1106609_SHORTENED.fasta
+        - GCA_900015695.1_ED647_contigs_genomic_SHORTENED.fasta
+    :return:
+    """
+    g = LGGraph('tests/pangenome.lemongraph', delete_on_exit=False)
+    return g
+
+
+def dgraph_prebuilt() -> DgraphBundled:
+    pass
+
+
+@pytest.fixture(params=['lemongraph'])
+def prebuilt_graph(request) -> Graph:
+    if request.param == 'lemongraph':
+        return lg_prebuilt()
+    elif request.param == 'dgraph':
+        return dgraph_prebuilt()
+
+#########
+# Misc
+#########
+
 
 # TODO: unused
 @pytest.fixture
@@ -142,16 +213,3 @@ def setup_snakefile(request):
     for f in files:
         os.remove(os.path.join('samples/', f))
     subprocess.run("snakemake clean", shell=True)
-
-
-@pytest.fixture
-def lg() -> LGGraph:
-    """
-    A pre-made LemonGraph made from:
-        - SRR1060582_SHORTENED.fasta,
-        - SRR1106609_SHORTENED.fasta
-        - GCA_900015695.1_ED647_contigs_genomic_SHORTENED.fasta
-    :return:
-    """
-    g = LGGraph('tests/pangenome.lemongraph', delete_on_exit=False)
-    return g

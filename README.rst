@@ -10,7 +10,7 @@ prairiedog
 .. image:: https://codecov.io/gh/superphy/prairiedog/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/superphy/prairiedog
 
-Supports Python3.5+ on Linux
+Supports Python 3.6, Python 3.7, PyPy 3.6 on Linux
 
 ============
 Installation
@@ -73,6 +73,17 @@ For creating a graph
 
 For querying an existing graph
 -------------------------------
+
+Via docker
+
+::
+
+    # Without debug
+    docker run -v /home/kevin/pdg-test/outputs:/p/outputs/ -v /home/kevin/pdg-test/samples:/p/samples/ superphy/prairiedog:c6ff5c63779a73de02c9b3de0f4225b29564f285 query TCGAGCATTAT GCATAGGCAAC
+    # With debug
+    docker run -v /home/kevin/pdg-test/outputs:/p/outputs/ -v /home/kevin/pdg-test/samples:/p/samples/ superphy/prairiedog:c6ff5c63779a73de02c9b3de0f4225b29564f285 --debug query TCGAGCATTAT GCATAGGCAAC
+
+or virtualenv
 
 ::
 

@@ -4,7 +4,14 @@ import os
 import itertools
 import typing
 
+from prairiedog import recommended_procs
+
 log = logging.getLogger("prairiedog")
+
+
+GB_PER_PROC_KMERS = 5
+
+recommended_procs_kmers = recommended_procs(GB_PER_PROC_KMERS)
 
 
 def possible_kmers(k: int = 11) -> typing.Generator:

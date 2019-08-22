@@ -1,4 +1,4 @@
-FROM superphy/tox-base:d698931a52ddeef64dcf5918b32790bcef75af61
+FROM superphy/tox-base:af2794de54ad6edf097552d06d69be541f3bd419
 
 MAINTAINER Kevin Le <kevin.kent.le@gmail.com>
 
@@ -12,7 +12,11 @@ RUN git submodule init && git submodule update --remote
 # Setup PyPy3 virtualenv
 ENV VIRTUAL_ENV=/opt/venv
 RUN pypy3 -m venv $VIRTUAL_ENV
-ENV PATH="$VIRTUAL_ENV/bin:/p/gobin/go/bin:$PATH"
+#ENV PATH="$VIRTUAL_ENV/bin:/p/gobin/go/bin:$PATH"
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# Install dgraph
+RUN curl https://get.dgraph.io -sSf | bash
 
 # Install deps
 RUN pip install --upgrade pip
@@ -26,4 +30,4 @@ RUN cd lemongraph/ && python setup.py install
 # setup.py
 RUN python setup.py install
 
-ENTRYPOINT ["snakemake", "-j"]
+ENTRYPOINT ["prairiedog"]

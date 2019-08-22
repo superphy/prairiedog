@@ -25,9 +25,19 @@ DEFAULT_EDGE_PREDICATE = 'fd'
 
 def port(component: str, offset: int = 0) -> int:
     if component == "ZERO":
+        # gRPC port
         return 5080 + offset
+    elif component == "ZERO_HTTP":
+        return 6080 + offset
     elif component == "ALPHA":
+        # gRPC port
         return 9080 + offset
+    elif component == "ALPHA_HTTP":
+        return 8080 + offset
+    elif component == "RATEL":
+        # HTTP port
+        log.debug("Ratel port isn't controlled with an offset")
+        return 8000
 
 
 def decode(b: bytes):
@@ -64,17 +74,6 @@ class Dgraph(Graph):
     def __del__(self):
         if self._client_stub is not None:
             self.client_stub.close()
-
-    def preload(self, k: int = 11):
-        nquads = ""
-        c = 0
-        for kmer in possible_kmers(k):
-            nquads += ' _:{kmer} <km> "{kmer}" .'.format(kmer=kmer)
-            c += 1
-            if c % 333 == 0:
-                self.mutate(nquads)
-                nquads = ""
-        self.mutate(nquads)
 
     def query(self, q: str):
         log.debug("Using query: \n{}".format(q))
@@ -526,8 +525,11 @@ class Dgraph(Graph):
                      "".format(node_a, node_b, src_edge))
             tgt_edges = self.find_edges_reverse(node_b)
             for tgt_edge in tgt_edges:
-                if tgt_edge.edge_type != src_edge.edge_type or \
-                        tgt_edge.edge_value < src_edge.edge_value:
+                not_matching_edge = tgt_edge.edge_type != src_edge.edge_type
+                not_directional = tgt_edge.edge_value < src_edge.edge_value
+                ln = tgt_edge.edge_value - src_edge.edge_value
+                pass_recursion = ln > sys.getrecursionlimit()
+                if not_matching_edge or not_directional or pass_recursion:
                     log.info("Skipping tgt edge {} for src edge {}".format(
                         tgt_edge, src_edge
                     ))
@@ -562,6 +564,14 @@ class DgraphBulk(Graph):
     def upsert_node(self, node: Node, echo: bool = True) -> typing.Optional[
             Node]:
         pass
+
+    def preload(self, k: int = 11):
+        self.nquads = '\n'.join(
+            '_:{kmer} <{nt}> "{kmer}" .'.format(
+                kmer=kmer, nt=DEFAULT_NODE_TYPE
+            )
+            for kmer in possible_kmers(k)
+        )
 
     def add_edge(self, edge: Edge, echo: bool = True) -> typing.Optional[Edge]:
         # The hash is used to ensure blank nodes are unique before assignment
