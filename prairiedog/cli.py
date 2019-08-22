@@ -37,7 +37,7 @@ def connect_dgraph(**kwargs) -> DgraphBundled:
     # If the path exists, this was called after a Snakemake run.
     # Otherwise, "query" was called without computing the backend graph.
     if os.path.isdir(p):
-        g = DgraphBundled(delete=False, output_folder=p, **kwargs)
+        g = DgraphBundled(delete=False, output_folder=p, deploy=True, **kwargs)
     else:
         g = DgraphBundled(**kwargs)
     return g
