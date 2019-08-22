@@ -75,7 +75,7 @@ def cli(debug, profiler):
     if profiler:
         profiler = Profiler()
         profiler.start()
-        atexit.register(profiler_stop(profiler))
+        atexit.register(profiler_stop, profiler)
 
 
 @cli.command()
