@@ -7,6 +7,7 @@ import subprocess
 import logging
 import signal
 import sys
+import atexit
 
 from prairiedog.logger import setup_logging
 from prairiedog.prairiedog import Prairiedog
@@ -14,6 +15,7 @@ from prairiedog.graph import Graph
 from prairiedog.lemon_graph import LGGraph, DB_PATH
 from prairiedog.dgraph_bundled import DgraphBundled
 from prairiedog.kmers import recommended_procs_kmers
+from prairiedog.profiler import Profiler, profiler_stop
 
 # If cli is imported, re-setup logging to level INFO
 setup_logging("INFO")
@@ -63,10 +65,17 @@ def run_dgraph_snakemake(additional_str: str = ""):
 
 @click.group()
 @click.option('--debug/--no-debug', default=False)
-def cli(debug):
+@click.option('--profiler/--no-profiler', default=False)
+def cli(debug, profiler):
     click.echo('Debug mode is %s' % ('on' if debug else 'off'))
     if debug:
         setup_logging('DEBUG')
+
+    click.echo('Profiler mode is %s' % ('on' if profiler else 'off'))
+    if profiler:
+        profiler = Profiler()
+        profiler.start()
+        atexit.register(profiler_stop(profiler))
 
 
 @cli.command()

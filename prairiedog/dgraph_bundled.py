@@ -210,7 +210,7 @@ class DgraphBundled(Dgraph):
         self.shutdown_dgraph()
         if self.delete:
             log.warning("Wiping {} ...".format(self.out_dir))
-            shutil.rmtree(self.out_dir)
+            shutil.rmtree(str(self.out_dir))
         if self.subprocess_log_zero is not None:
             self.subprocess_log_zero.close()
         if self.subprocess_log_alpha is not None:
