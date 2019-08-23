@@ -24,3 +24,9 @@ if platform.python_implementation() == 'PyPy':
 else:
     import pyinstrument
     Profiler = pyinstrument.Profiler
+
+
+def profiler_stop(profiler: Profiler):
+    profiler.stop()
+    log.info("Profiler output:\n{}".format(
+        profiler.output_text(unicode=True, color=True)))
