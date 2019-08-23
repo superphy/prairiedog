@@ -1,6 +1,7 @@
 import os
 import time
 import logging
+import typing
 
 from prairiedog.gref import GRef
 from prairiedog.kmers import Kmers
@@ -11,6 +12,15 @@ from prairiedog.node import Node
 from prairiedog.lemon_graph import LGGraph
 
 log = logging.getLogger("prairiedog")
+
+
+ET_DELIMITER = ' in '
+
+
+def uncouple_edge_type(edge_type: str) -> typing.Tuple[str, str]:
+    split = edge_type.split(ET_DELIMITER)
+    assert len(split) == 2
+    return split[0], split[1]
 
 
 class SubgraphRef(GRef):
@@ -62,7 +72,8 @@ class SubgraphRef(GRef):
                         Edge(
                             src=node1_label,
                             tgt=node2_label,
-                            edge_type='{} in {}'.format(header2, str(km)),
+                            edge_type='{}{}{}'.format(
+                                header2, ET_DELIMITER, str(km)),
                             edge_value=edge_c,
                         ),
                         echo=False
