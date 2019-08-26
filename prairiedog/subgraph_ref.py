@@ -20,7 +20,7 @@ ET_DELIMITER = ' in '
 def uncouple_edge_type(edge_type: str) -> typing.Tuple[str, str]:
     split = edge_type.split(ET_DELIMITER)
     assert len(split) == 2
-    return split[0], split[1]
+    return split[1], split[0]
 
 
 class SubgraphRef(GRef):
