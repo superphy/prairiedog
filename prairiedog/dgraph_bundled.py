@@ -144,7 +144,7 @@ class DgraphBundled(Dgraph):
             self._p_ratel.terminate()
 
     def __init__(self, delete: bool = True, output_folder: str = None,
-                 ratel: bool = False, deploy: bool = False):
+                 ratel: bool = False, deploy: bool = False, delay: int = 10):
         # Ratel is the UI
         self.ratel = ratel
         self.delete = delete
@@ -193,7 +193,7 @@ class DgraphBundled(Dgraph):
                 rpc_error_call
             ))
             # In the case that Dgraph hasn't initialized yet
-            time.sleep(10)
+            time.sleep(delay)
             log.warning("Retying to set schema...")
             try:
                 self.set_schema()
