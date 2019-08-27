@@ -5,6 +5,7 @@ import pathlib
 import json
 import sys
 import hashlib
+from concurrent import futures
 
 import pydgraph
 import grpc
@@ -502,6 +503,28 @@ class Dgraph(Graph):
             lt.append(Node(value=v))
         return tuple(lt)
 
+    def _do_path_query(self, src_edge: Edge, tgt_edge: Edge, node_a: str
+                       ) -> typing.Tuple[bool, tuple, dict]:
+        log.debug("Checking path for type: {}".format(
+            tgt_edge.edge_type))
+        log.debug("Found start value of {} and end value of {}".format(
+            src_edge.edge_value, tgt_edge.edge_value))
+        query = self._path_query(
+            node_type=DEFAULT_NODE_TYPE, node_value=node_a,
+            edge_predicate=DEFAULT_EDGE_PREDICATE,
+            edge_type=src_edge.edge_type,
+            start_int=src_edge.edge_value, end_int=tgt_edge.edge_value)
+        r = self.query(query)
+        log.info(r)
+        if len(r['q']) != 1:
+            log.warning("Path not found for type: {}".format(
+                src_edge.edge_type
+            ))
+            return False, (), {}
+        p = self._parse_path(
+            r['q'][0], DEFAULT_NODE_TYPE, DEFAULT_EDGE_PREDICATE)
+        return True, p, {'edge_type': tgt_edge.edge_type}
+
     def path(self, node_a: str, node_b: str) -> typing.Tuple[tuple, tuple]:
         log.info("Checking all paths between {} and {}".format(node_a, node_b))
         exists, uid_a = self.exists_node(Node(value=node_a))
@@ -520,40 +543,37 @@ class Dgraph(Graph):
         paths = []
         paths_meta = []
 
-        for src_edge in src_edges:
-            log.info("Finding path between {} and {} with source edge {}"
-                     "".format(node_a, node_b, src_edge))
-            tgt_edges = self.find_edges_reverse(node_b)
-            for tgt_edge in tgt_edges:
-                not_matching_edge = tgt_edge.edge_type != src_edge.edge_type
-                not_directional = tgt_edge.edge_value < src_edge.edge_value
-                ln = tgt_edge.edge_value - src_edge.edge_value
-                pass_recursion = ln > sys.getrecursionlimit()
-                if not_matching_edge or not_directional or pass_recursion:
-                    log.info("Skipping tgt edge {} for src edge {}".format(
-                        tgt_edge, src_edge
-                    ))
+        with futures.ThreadPoolExecutor() as ex:
+            wait_for = []
+            for src_edge in src_edges:
+                log.info("Finding path between {} and {} with source edge {}"
+                         "".format(node_a, node_b, src_edge))
+                tgt_edges = self.find_edges_reverse(node_b)
+                for tgt_edge in tgt_edges:
+                    not_matching_edge = tgt_edge.edge_type != \
+                                        src_edge.edge_type
+                    not_directional = tgt_edge.edge_value < src_edge.edge_value
+                    ln = tgt_edge.edge_value - src_edge.edge_value
+                    pass_recursion = ln > sys.getrecursionlimit()
+                    if not_matching_edge or not_directional or pass_recursion:
+                        log.info("Skipping tgt edge {} for src edge {}".format(
+                            tgt_edge, src_edge
+                        ))
+                        continue
+                    wait_for.append(
+                        ex.submit(
+                            self._do_path_query,
+                            src_edge,
+                            tgt_edge,
+                            node_a
+                        )
+                    )
+            for f in futures.as_completed(wait_for):
+                found, p, path_meta = f.result()
+                if not found:
                     continue
-                log.debug("Checking path for type: {}".format(
-                    tgt_edge.edge_type))
-                log.debug("Found start value of {} and end value of {}".format(
-                    src_edge.edge_value, tgt_edge.edge_value))
-                query = self._path_query(
-                    node_type=DEFAULT_NODE_TYPE, node_value=node_a,
-                    edge_predicate=DEFAULT_EDGE_PREDICATE,
-                    edge_type=src_edge.edge_type,
-                    start_int=src_edge.edge_value, end_int=tgt_edge.edge_value)
-                r = self.query(query)
-                log.info(r)
-                if len(r['q']) != 1:
-                    log.warning("Path not found for type: {}".format(
-                        src_edge.edge_type
-                    ))
-                    continue
-                p = self._parse_path(
-                    r['q'][0], DEFAULT_NODE_TYPE, DEFAULT_EDGE_PREDICATE)
                 paths.append(p)
-                paths_meta.append({'edge_type': tgt_edge.edge_type})
+                paths_meta.append(path_meta)
         return tuple(paths), tuple(paths_meta)
 
 
