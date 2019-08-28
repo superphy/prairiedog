@@ -2,6 +2,12 @@
 History
 =======
 
+0.2.0 (2019-07-28)
+------------------
+
+* Pangenome graph creation via Dgraph
+* Queries between kmers via Dgraph
+
 0.1.2 (2019-06-21)
 ------------------
 
