@@ -4,7 +4,7 @@
 
 __author__ = """Kevin Le"""
 __email__ = 'kevin.kent.le@gmail.com'
-__version__ = '0.1.2'
+__version__ = '0.2.0'
 
 import logging
 import os
