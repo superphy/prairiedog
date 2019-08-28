@@ -7,6 +7,7 @@ import pathlib
 
 import pydgraph
 import grpc
+import psutil
 
 from prairiedog import debug_and_not_ci
 from prairiedog.node import DEFAULT_NODE_TYPE
@@ -19,6 +20,13 @@ offset = 0
 
 with open("dgraph/kmers.schema") as f:
     KMERS_SCHEMA = ''.join(line for line in f)
+
+
+def recommended_lru() -> int:
+    vm_bytes = psutil.virtual_memory().total
+    vm_mb = vm_bytes / (1 << 20)
+    lru_mb = int(vm_mb / 3)
+    return lru_mb
 
 
 class DgraphBundled(Dgraph):
@@ -60,6 +68,12 @@ class DgraphBundled(Dgraph):
 
         log.info("Using local offset {}".format(self.offset))
 
+        # Calculate recommended size of LRU cache
+        if self.deploy:
+            lru_mb = recommended_lru()
+        else:
+            lru_mb = 2048
+
         self._p_zero = subprocess.Popen(
             ['dgraph', 'zero', '-o', str(self.offset), '--wal',
              str(self.wal_dir)],
@@ -75,7 +89,7 @@ class DgraphBundled(Dgraph):
             self.zero_port = port("ZERO", self.offset)
 
         self._p_alpha = subprocess.Popen(
-            ['dgraph', 'alpha', '--lru_mb', '2048', '--zero',
+            ['dgraph', 'alpha', '--lru_mb', str(lru_mb), '--zero',
              'localhost:{}'.format(self.zero_port),
              '-o', str(self.offset), '--wal', str(self.wal_dir_alpha),
              '--postings', str(self.postings_dir)],
@@ -130,10 +144,11 @@ class DgraphBundled(Dgraph):
             self._p_ratel.terminate()
 
     def __init__(self, delete: bool = True, output_folder: str = None,
-                 ratel: bool = False):
+                 ratel: bool = False, deploy: bool = False, delay: int = 10):
         # Ratel is the UI
         self.ratel = ratel
         self.delete = delete
+        self.deploy = deploy
         if output_folder is None:
             self.out_dir = tempfile.mkdtemp()
         else:
@@ -178,7 +193,7 @@ class DgraphBundled(Dgraph):
                 rpc_error_call
             ))
             # In the case that Dgraph hasn't initialized yet
-            time.sleep(10)
+            time.sleep(delay)
             log.warning("Retying to set schema...")
             try:
                 self.set_schema()
@@ -195,7 +210,7 @@ class DgraphBundled(Dgraph):
         self.shutdown_dgraph()
         if self.delete:
             log.warning("Wiping {} ...".format(self.out_dir))
-            shutil.rmtree(self.out_dir)
+            shutil.rmtree(str(self.out_dir))
         if self.subprocess_log_zero is not None:
             self.subprocess_log_zero.close()
         if self.subprocess_log_alpha is not None:

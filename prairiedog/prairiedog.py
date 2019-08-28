@@ -5,6 +5,7 @@ import logging
 
 from prairiedog.graph import Graph
 from prairiedog.node import concat_values
+from prairiedog.pretty_hits import PrettyHits
 
 log = logging.getLogger("prairiedog")
 
@@ -28,5 +29,5 @@ class Prairiedog:
                     **meta
                 }
             )
-        for hit in list_hits:
-            log.info("Found {}".format(hit))
+        ph = PrettyHits(list_hits)
+        log.info("Found: {}".format(ph))
