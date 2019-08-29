@@ -58,6 +58,7 @@ class Dgraph(Graph):
         self._client_stub = None
         self._client = None
         self.nquads = ""
+        self.executor = futures.ProcessPoolExecutor()
         log.debug("Done initializing Dgraph client")
 
     @property
@@ -76,13 +77,19 @@ class Dgraph(Graph):
         if self._client_stub is not None:
             self.client_stub.close()
 
-    def query(self, q: str):
-        log.debug("Using query: \n{}".format(q))
-        res = self.client.txn(read_only=True).query(q)
+    @staticmethod
+    def _do_query(txn, q: str) -> dict:
+        res = txn.query(q)
         log.debug("Got res: \n{}\n of type {}".format(res, type(res)))
         r = decode(res.json)
         log.debug("Decoded as: \n{}".format(r))
         return r
+
+    def query(self, q: str) -> futures.Future:
+        log.debug("Using query: \n{}".format(q))
+        txn = self.client.txn(read_only=True)
+        future = self.executor.submit(Dgraph._do_query, txn, q)
+        return future
 
     @staticmethod
     def _exists_node(r) -> typing.Tuple[bool, str]:
@@ -100,6 +107,7 @@ class Dgraph(Graph):
             }}
             """.format(predicate=node.node_type, value=node.value)
         r = self.query(query)
+        r = r.result()
         return Dgraph._exists_node(r)
 
     def upsert_node(self, node: Node, echo: bool = True) -> typing.Optional[
@@ -150,6 +158,7 @@ class Dgraph(Graph):
                    edge_predicate=edge_predicate, facet_type=edge.edge_type,
                    facet_value=edge.edge_value, tgt=edge.tgt)
         r = self.query(query)
+        r = r.result()
         return Dgraph._exists_edge(r)
 
     def upsert_edge(self, edge: Edge, node_type: str = None,
@@ -209,6 +218,7 @@ class Dgraph(Graph):
         }}
         """.format(type=DEFAULT_NODE_TYPE)
         r = self.query(query)
+        r = r.result()
 
         if len(r['q']) == 0:
             return set()
@@ -279,6 +289,7 @@ class Dgraph(Graph):
         }}
         """.format(nt=DEFAULT_NODE_TYPE, et=DEFAULT_EDGE_PREDICATE)
         r = self.query(query)
+        r = r.result()
 
         if len(r['q']) == 0:
             return set()
@@ -349,6 +360,7 @@ class Dgraph(Graph):
         """.format(nv=node_value, nt=DEFAULT_NODE_TYPE,
                    et=DEFAULT_EDGE_PREDICATE)
         r = self.query(query)
+        r = r.result()
         if len(r['q']) == 0:
             return tuple()
         return self._parse_edges(
@@ -369,6 +381,7 @@ class Dgraph(Graph):
         }}
         """.format(et=DEFAULT_EDGE_PREDICATE, tgt=uid)
         r = self.query(query)
+        r = r.result()
         if len(r['q']) == 0:
             return tuple()
         edge_uid = r['q'][0]['uid']
@@ -383,7 +396,6 @@ class Dgraph(Graph):
         """.format(nt=DEFAULT_NODE_TYPE, et=DEFAULT_EDGE_PREDICATE,
                    uid=edge_uid)
         r_2 = self.query(query_2)
-        src = r_2['q'][0][DEFAULT_NODE_TYPE]
 
         # Finally, query the edge
         query_3 = """
@@ -400,6 +412,12 @@ class Dgraph(Graph):
         """.format(nv=node_value, nt=DEFAULT_NODE_TYPE,
                    et=DEFAULT_EDGE_PREDICATE, tgt=uid)
         r_3 = self.query(query_3)
+
+        r_2 = r_2.result()
+        r_3 = r_3.result()
+
+        src = r_2['q'][0][DEFAULT_NODE_TYPE]
+
         if len(r_3['q']) == 0:
             return tuple()
 
@@ -441,6 +459,7 @@ class Dgraph(Graph):
         }}
         """.format(uid=uid, ep=DEFAULT_EDGE_PREDICATE, et=t)
         r = self.query(query)
+        r = r.result()
         if len(r["q"]) == 0:
             return -1
         return r["q"][0][DEFAULT_EDGE_PREDICATE][0]["value"]
@@ -456,6 +475,7 @@ class Dgraph(Graph):
         """.format(nt=DEFAULT_NODE_TYPE, ep=DEFAULT_EDGE_PREDICATE, uid=uid,
                    et=t)
         r = self.query(query)
+        r = r.result()
         if len(r["q"]) == 0:
             return -1
         return r["q"][0]["value"]
@@ -515,6 +535,7 @@ class Dgraph(Graph):
             edge_type=src_edge.edge_type,
             start_int=src_edge.edge_value, end_int=tgt_edge.edge_value)
         r = self.query(query)
+        r = r.result()
         log.info(r)
         if len(r['q']) != 1:
             log.warning("Path not found for type: {}".format(
@@ -543,37 +564,35 @@ class Dgraph(Graph):
         paths = []
         paths_meta = []
 
-        with futures.ThreadPoolExecutor() as ex:
-            wait_for = []
-            for src_edge in src_edges:
-                log.info("Finding path between {} and {} with source edge {}"
-                         "".format(node_a, node_b, src_edge))
-                tgt_edges = self.find_edges_reverse(node_b)
-                for tgt_edge in tgt_edges:
-                    not_matching_edge = tgt_edge.edge_type != \
-                                        src_edge.edge_type
-                    not_directional = tgt_edge.edge_value < src_edge.edge_value
-                    ln = tgt_edge.edge_value - src_edge.edge_value
-                    pass_recursion = ln > sys.getrecursionlimit()
-                    if not_matching_edge or not_directional or pass_recursion:
-                        log.info("Skipping tgt edge {} for src edge {}".format(
-                            tgt_edge, src_edge
-                        ))
-                        continue
-                    wait_for.append(
-                        ex.submit(
-                            self._do_path_query,
-                            src_edge,
-                            tgt_edge,
-                            node_a
-                        )
-                    )
-            for f in futures.as_completed(wait_for):
-                found, p, path_meta = f.result()
-                if not found:
+        wait_for = []
+        for src_edge in src_edges:
+            log.info("Finding path between {} and {} with source edge {}"
+                     "".format(node_a, node_b, src_edge))
+            tgt_edges = self.find_edges_reverse(node_b)
+            for tgt_edge in tgt_edges:
+                not_matching_edge = tgt_edge.edge_type != src_edge.edge_type
+                not_directional = tgt_edge.edge_value < src_edge.edge_value
+                ln = tgt_edge.edge_value - src_edge.edge_value
+                pass_recursion = ln > sys.getrecursionlimit()
+                if not_matching_edge or not_directional or pass_recursion:
+                    log.info("Skipping tgt edge {} for src edge {}".format(
+                        tgt_edge, src_edge
+                    ))
                     continue
-                paths.append(p)
-                paths_meta.append(path_meta)
+                wait_for.append(
+                    self.executor.submit(
+                        self._do_path_query,
+                        src_edge,
+                        tgt_edge,
+                        node_a
+                    )
+                )
+        for f in futures.as_completed(wait_for):
+            found, p, path_meta = f.result()
+            if not found:
+                continue
+            paths.append(p)
+            paths_meta.append(path_meta)
         return tuple(paths), tuple(paths_meta)
 
 
