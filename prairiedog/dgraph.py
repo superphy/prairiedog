@@ -58,7 +58,7 @@ class Dgraph(Graph):
         self._client_stub = None
         self._client = None
         self.nquads = ""
-        self.executor = futures.ProcessPoolExecutor()
+        self.executor = futures.ThreadPoolExecutor()
         log.debug("Done initializing Dgraph client")
 
     @property
